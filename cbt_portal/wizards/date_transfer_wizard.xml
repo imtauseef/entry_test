@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="test_date_transfer" model="ir.ui.view">
+        <field name="name">test.date.transfer</field>
+        <field name="model">test.date.transfer</field>
+        <field name="arch" type="xml">
+            <form string="Form Wizard">
+                <sheet>
+                    <group>
+                    
+                    <group>
+                        <field name="program_id"></field>
+                        <!-- <field name="slot_id"></field> -->
+                    </group>
+                    <group>
+                            <field name="date"></field>
+                        <field name="new_date"></field>
+                    </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="transfer_date" string="Transfer Date" type="object" class="btn-primary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="test_date_transfer_action" model="ir.actions.act_window">
+        <field name="name">Test Date Transfer</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">test.date.transfer</field>
+        <field name="view_mode">form</field>
+        <field name="binding_view_types">form</field>
+        <field name="target">new</field>
+    </record>
+
+
+    <menuitem
+        id="test_date_transfer_menu"
+        name="Test Date Transfer"
+        action="cbt_portal.test_date_transfer_action"
+        parent="cbt_portal.menu_cbt_portal_root"/>
+
+        
+</odoo>

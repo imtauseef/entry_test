@@ -1,0 +1,117 @@
+<odoo>
+    <data>
+        <!-- explicit list view definition -->
+        <record model="ir.ui.view" id="cbt_generate_paper_tree">
+            <field name="name">cbt.generate.paper.tree</field>
+            <field name="model">cbt.paper.criteria</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="etest_id"/>
+                    <field name="type_id"/>
+                    <field name="program_ids"/>
+                    <field name="duration"/>
+                    <field name="total_questions"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="cbt_generate_paper_form">
+            <field name="name">cbt.generate.paper.form</field>
+            <field name="model">cbt.paper.criteria</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_check_availability" string="Check Availability"
+                                type="object" class="btn-primary"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_generated_papers" type="object"
+                                    class="oe_stat_button" icon="fa-file-text-o">
+                                <field name="paper_count" widget="statinfo" string="Generated Papers"/>
+                            </button>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="name" required="1"/>
+                                <field name="etest_id" required="1"
+                                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                                <field name="type_id" required="1"
+                                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                                <field name="program_ids" required="1" 
+                                widget="many2many_tags" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+
+                            </group>
+                            <group>
+                                <field name="duration" required="1"/>
+                                <field name="total_questions" required="1"/>
+                                <field name="random_section"></field>
+                                <field name="unique_questions"/>
+                                <field name="papers_count" invisible="not unique_questions"/>
+
+                            </group>
+                        </group>
+                        <field name="total_questions_compute" style="display: none;"/>
+                        <notebook colspan="4">
+                            <page string="Paper Rules">
+                                <field name="rules_ids">
+                                    <tree>
+                                        <field name="subjects"/>
+                                        <field name="no_questions"/>
+                                        <field name="sequence"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record id="cbt_generate_paper_criteria_search" model="ir.ui.view">
+            <field name="name">cbt.paper.criteria.search</field>
+            <field name="model">cbt.paper.criteria</field>
+            <field name="priority" eval="14"/>
+            <field name="arch" type="xml">
+                <search string="Paper Criteria">
+                    <field name="name"/>
+                    <field name="etest_id"/>
+                    <field name="type_id"/>
+                    <field name="program_ids"/>
+                    <field name="duration"/>
+                    <field name="total_questions"/>
+                    <newline/>
+                    <group expand="0" string="Group By...">
+                        <filter name="program_ids" string="program" domain="[]" context="{'group_by':'program_ids'}"/>
+                        <filter name="type_id" string="Paper Type" domain="[]" context="{'group_by':'type_id'}"/>
+
+
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="cbt_generate_paper_action_window">
+            <field name="name">Paper Criteria</field>
+            <field name="res_model">cbt.paper.criteria</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id"/>
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Create the First Paper Criteria here.
+                </p>
+            </field>
+        </record>
+        <menuitem name="Configure Paper" id="cbt_config_paper_menu" parent="cbt_menu_root"
+                  groups="cbt.group_cbt_admin"/>
+        <menuitem name="Paper Criteria" id="cbt_generate_paper_list" parent="cbt_config_paper_menu"
+                  action="cbt_generate_paper_action_window"/>
+    </data>
+</odoo>

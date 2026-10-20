@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- <record id="res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="99"/>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[hasclass('settings')]" position="inside">
+                    <div class="app_settings_block" data-string="CBT" string="CBT" data-key="cbt">
+                        <h2>CBT Configuration</h2>
+                        <div class="container row">
+                            <div class="col-6 row mt-4">
+                                <div class="col-5">
+                                    <label for="admission_url">Admission URL : &#160;</label>
+                                </div>
+                                <div class="col-7">
+                                    <field name="admission_url" widget='url'/>
+                                </div>
+                            </div>
+                            <div class="col-6 row mt-4">
+                                <div class="col-5">
+                                    <label for="admission_login">Admission Login : &#160;</label>
+                                </div>
+                                <div class="col-7">
+                                    <field name="admission_login" />
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="container row">
+                            <div class="col-6 row mt-4">
+                                <div class="col-5">
+                                    <label for="admission_db">Admission Database : &#160;</label>
+                                </div>
+                                <div class="col-7">
+                                    <field name="admission_db" />
+                                </div>
+                            </div>
+                            <div class="col-6 row mt-4">
+                                <div class="col-5 ">
+                                    <label for="admission_password">Admission Password : &#160;</label>
+                                </div>
+                                <div class="col-7">
+                                    <field name="admission_password" password='True'/>
+                                </div>
+                            </div>
+
+                        </div>
+                        <hr/>   
+
+                    </div>
+                </xpath>
+            </field>
+        </record> -->
+ 
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.cbt</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="CBT" string="CBT" name="cbt">
+                    <block title="CBT Configuration" name="cbt_configuration_block">
+                        <setting id="admission_url_setting"
+                                 string="Admission URL"
+                                 help="URL of the admission system">
+                            <field name="admission_url" widget="url"/>
+                        </setting>
+                        <setting id="admission_db_setting"
+                                 string="Admission Database"
+                                 help="Database name of the admission system">
+                            <field name="admission_db"/>
+                        </setting>
+                        <setting id="admission_login_setting"
+                                 string="Admission Login"
+                                 help="Login used to connect to the admission system">
+                            <field name="admission_login"/>
+                        </setting>
+                        <setting id="admission_password_setting"
+                                 string="Admission Password"
+                                 help="Password used to connect to the admission system">
+                            <field name="admission_password" password="True"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    </data>
+</odoo>

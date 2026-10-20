@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="cbt_card-stats" name="Card Stats">
+        <div id="card-stats" class="cbt-stats pt-0">
+            <div class="row">
+                <div class="col s12 m6 l3">
+                    <div class="card cbt-stat-card gradient-45deg-light-blue-cyan white-text">
+                        <div class="cbt-stat-inner">
+                            <img src="/cbt_portal/static/img/avatar.jpeg" alt="Candidate" class="cbt-stat-avatar"/>
+                            <div class="cbt-stat-body">
+                                <div class="cbt-stat-name"><t t-esc="paper.name"/></div>
+                                <div class="cbt-stat-sub">ID : <t t-esc="paper.login"/></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m6 l4">
+                    <div class="card cbt-stat-card gradient-45deg-indigo-light-blue white-text">
+                        <div class="cbt-stat-inner">
+                            <img src="/cbt_portal/static/img/nust.png" alt="NUST" class="cbt-stat-avatar"/>
+                            <div class="cbt-stat-body">
+                                <div class="cbt-stat-name">NUST</div>
+                                <div class="cbt-stat-sub">Paper : <t t-esc="paper.paper_name"/></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m8 l5">
+                    <div class="card cbt-stat-card gradient-45deg-green-teal white-text">
+                        <div class="cbt-stat-inner" name="start_time_widget">
+                            <img src="/cbt_portal/static/img/clock.png" alt="Clock" class="cbt-stat-avatar"/>
+                            <div class="cbt-stat-body">
+                                <div class="cbt-stat-row">
+                                    <span class="cbt-stat-value">
+                                        <span class="countdown"><t t-esc="paper.test_duration"/></span>
+                                    </span>
+                                    <span class="cbt-stat-label" t-if="paper_page">Remaining Time</span>
+                                </div>
+                                <div class="cbt-stat-sub">
+                                    Start : <t t-esc="'%02d:%02d' % (divmod(paper.test_time * 60, 60))"/>
+                                    | Duration : <t t-esc="paper.test_duration"/> <small>Min</small>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="timer" t-att-value="'%02d:%02d' % (divmod(paper.test_time * 60, 60))"/>
+                        <input type="hidden" id="duration" t-att-value="paper.test_duration"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="cbt_widgets" name="CBT Widgets">
+        <div class="cbt-widgets">
+            <t t-call="cbt_portal.cbt_card-stats"/>
+        </div>
+    </template>
+
+    <template id="cbt_header" name="CBT Header">
+        <div class="cbt-topbar">
+            <div class="cbt-topbar-inner">
+                <img src="/cbt_portal/static/img/nust.png" alt="NUST" class="cbt-logo"/>
+                <div class="cbt-topbar-title">
+                    <span class="cbt-topbar-name">NUST Entry Test</span>
+                    <span class="cbt-topbar-sub">Online Examination Portal</span>
+                </div>
+                <img src="/cbt_portal/static/img/nust.png" alt="NUST" class="cbt-logo cbt-logo-right"/>
+            </div>
+        </div>
+    </template>
+</odoo>

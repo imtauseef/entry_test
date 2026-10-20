@@ -1,0 +1,111 @@
+<odoo>
+    <data>
+        <!--MCQs Setup-->
+        <record id="cbt_question_review_tree" model="ir.ui.view">
+            <field name="name">cbt.mcqs.tree</field>
+            <field name="model">cbt.mcqs</field>
+            <field name="arch" type="xml">
+                <tree create="false" delete="false">
+                    <field name="subject_id"/>
+                    <field name="topic_id"/>
+                    <field name="stopic_id"/>
+                    <field name="difficulty_level_id"/>
+                    <field name="is_reserve"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record id="cbt_question_review_form" model="ir.ui.view">
+            <field name="name">cbt.mcqs.form</field>
+            <field name="model">cbt.mcqs</field>
+            <field name="arch" type="xml">
+                <form create="false">
+                    <header>
+                        <field name="can_review" invisible="1"/>
+                        <button name="approve_question" string="Approve" type="object" class="btn-primary"
+                                invisible="not can_review"
+                                confirm="Are you sure to approve this Question?"/>
+                        <button name="reject_question" string="Reject" type="object" class="btn-primary"
+                                invisible="not can_review"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,cancel"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="subject_id"
+                                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                                <field name="topic_id"
+                                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                                <field name="stopic_id"
+                                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                            </group>
+                            <group>
+                                <field name="type_id"
+                                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                                <field name="skill_id"
+                                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                                <field name="difficulty_level_id"
+                                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                                <field name="time_id"
+                                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                                <field name="is_reserve"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="question" widget="html"/>
+
+                        </group>
+                        <group>
+                            <field name="reviewer_remarks"
+                                   placeholder="Reason / remarks (mandatory before rejecting)"/>
+                        </group>
+                        <notebook>
+                            <page name="Options" string="Options">
+                                <group>
+                                    <field name="ans1_correct"/>
+                                    <field name="ans1"/>
+
+                                    <field name="ans2_correct"/>
+                                    <field name="ans2"/>
+
+                                    <field name="ans3_correct"/>
+                                    <field name="ans3"/>
+
+                                    <field name="ans4_correct"/>
+                                    <field name="ans4"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="cbt_question_review_code_action" model="ir.actions.server">
+            <field name="name">Questions</field>
+            <field name="model_id" ref="model_cbt_mcqs"></field>
+            <field name="state">code</field>
+            <field name="code">action=model.get_filtered_record()</field>
+        </record>
+<!--        <record id="cbt_question_review_code_action" model="ir.actions.act_window">-->
+<!--    <field name="name">Questions</field>-->
+<!--    <field name="type">ir.actions.act_window</field>-->
+<!--    <field name="res_model">cbt.mcqs</field>-->
+<!--    <field name="view_mode">tree,form</field>-->
+<!--    <field name="view_ids" eval="[(5, 0, 0),-->
+<!--                         (0, 0, {'view_mode': 'tree', 'view_id': ref('cbt.cbt_question_review_tree')}),-->
+<!--                         (0, 0, {'view_mode': 'form', 'view_id': ref('cbt.cbt_question_review_form')}),-->
+<!--                         ]"/>-->
+<!--</record>-->
+        <menuitem
+                name="Review Question"
+                id="cbt_question_review_menu"
+                parent="cbt_qas"
+                action="cbt_question_review_code_action"
+                groups="cbt.group_cbt_reviewer,cbt.group_cbt_admin"/>
+    </data>
+</odoo>

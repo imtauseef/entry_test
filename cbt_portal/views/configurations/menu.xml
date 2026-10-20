@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+
+    	<menuitem id="menu_cbt_portal_root"
+              name="CBT Portal"
+              web_icon="cbt_portal,static/description/icon.png"
+              sequence="1"/>
+
+    	<menuitem id="menu_cbt_portal_main"
+              name="CBT Portal"
+              parent="menu_cbt_portal_root"
+              sequence="5"/>
+
+		 <menuitem id="menu_cbt_portal_paper_subjects"
+                  name="Paper Subjects"
+                  parent="menu_cbt_portal_main"
+                  action="action_cbt_subject"
+                  sequence="10"/>
+
+        <menuitem id="menu_cbt_portal_paper_list"
+                  name="Papers"
+                  parent="menu_cbt_portal_main"
+                  action="action_cbt_paper_list"
+                  sequence="5"/>
+
+		<menuitem id="menu_cbt_portal_instruction"
+                  name="Paper Instructions"
+                  parent="menu_cbt_portal_main"
+                  action="action_cbt_instruction"
+                  sequence="20"/>
+
+	</data>
+</odoo>

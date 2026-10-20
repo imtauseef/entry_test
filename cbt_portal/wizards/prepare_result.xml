@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="prepare_result_wiz" model="ir.ui.view">
+        <field name="name">prepare.result.wizard</field>
+        <field name="model">prepare.result.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Form Wizard">
+                <sheet>
+                    <group>
+                    
+                    <group>
+                        <field name="paper_id"></field>
+                    </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="prepare_result" string="Export Result" type="object" class="btn-primary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="prepare_result_wizard_action" model="ir.actions.act_window">
+        <field name="name">Prepare Result Wizard</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">prepare.result.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="binding_view_types">form</field>
+        <field name="target">new</field>
+    </record>
+
+
+    <menuitem
+        id="perpare_result_menu"
+        name="Prepare Result"
+        action="cbt_portal.prepare_result_wizard_action"
+        parent="cbt_portal.menu_cbt_portal_root"/>
+
+</odoo>

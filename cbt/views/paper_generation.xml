@@ -1,0 +1,100 @@
+<odoo>
+    <data>
+        <!-- explicit list view definition -->
+        <record id="cbt_paper_generator_tree" model="ir.ui.view">
+            <field name="name">cbt.paper.generator.tree</field>
+            <field name="model">cbt.paper.generator</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="total_paper"  />
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="cbt_paper_generator_form" model="ir.ui.view">
+            <field name="name">cbt.paper.generator.form</field>
+            <field name="model">cbt.paper.generator</field>
+            <field name="arch" type="xml">
+                <form >
+                    <header>
+                            <button name="papers_generation" string="Generate Papers" type="object" class="btn-primary"
+                                    invisible="state != 'draft'"/>
+                            <button name="generate_multi_paper_student" string="Allocate Papers To Students" type="object" class="btn-primary" invisible="state != 'assign'"/>        
+                            <field name="state" widget="statusbar"/>
+
+                        </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" required="1"/>
+                                <field name="etest_id" readonly="1" force_save="1"/>
+                                <!-- <field name="program_id" readonly="1" force_save="1"/> -->
+                                <field name="slot_id" string='Slot' domain="[('active_time','=','True')]" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                                <field name="program_ids" widget='many2many_tags'></field>
+                                <field name="enable_repeat_question" />
+                            </group>
+                            <group>
+                                <field name="criteria_id" required="1" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                                <field name="type_id" readonly="1" force_save="1" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                                <field string='Configure Paper Count' name="configure_paper"/>
+                                <field name="total_paper" readonly="not configure_paper" />
+                            </group>
+                        </group>
+                        <notebook colspan="4">
+                            <page string="Papers">
+                                <field name="papers">
+                                    <tree create="false" delete="false" edit="false">
+                                        <field name="name"/>
+                                    </tree>
+                                </field>
+                            </page>
+                           
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+                </form>
+            </field>
+        </record>
+<!-- 
+        <record id="cbt_generate_paper_search" model="ir.ui.view">
+            <field name="name">cbt.paper.generator.search</field>
+            <field name="model">cbt.paper.generator</field>
+            <field name="priority" eval="14"/>
+            <field name="arch" type="xml">
+                <search string="Paper Generation">
+                    <field name="name"/>
+                    <field name="program_ids"/>
+                    <newline/>
+                    <group expand="0" string="Group By...">
+                        <filter name="program_ids" string="program" domain="[]" context="{'group_by':'program_ids'}"/>
+                    </group>
+                </search>
+            </field>
+        </record> -->
+
+        <record id="cbt_paper_generator_action" model="ir.actions.act_window">
+            <field name="name">Generate Paper</field>
+            <field name="res_model">cbt.paper.generator</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" />
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Create the First Paper here.
+                </p>
+            </field>
+        </record>
+        <menuitem
+                name="Generate Paper"
+                id="cbt_paper_generator_menu"
+                parent="cbt_config_paper_menu"
+                action="cbt_paper_generator_action"/>
+    </data>
+</odoo>

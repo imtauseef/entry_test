@@ -1,0 +1,42 @@
+# -*- coding: utf-8 -*-
+{
+    'name': "CBT portal",
+    'summary': 'University Online Entry Test Portal',
+    'category': 'OdooCMS',
+    'sequence': 10,
+    'author': "NUST",
+    'company': 'NUST Holdings',
+    'website': "",
+    'version': '0.1',
+    'depends': ['base','website','cbt'],
+    'assets': {
+        'cbt_portal.assets_dashboard': [
+            'cbt_portal/static/lib/materialize/css/materialize.min.css',
+            'cbt_portal/static/lib/material-icons/material-icons.css',
+            'cbt_portal/static/lib/materialize-stepper/css/materialize-stepper.min.css',
+            'cbt_portal/static/src/css/cbt_theme.css',
+            'cbt_portal/static/css/paper.css',
+            'cbt_portal/static/lib/materialize/js/materialize.min.js',
+            'cbt_portal/static/lib/materialize-stepper/js/materialize-stepper.min.js',
+            'cbt_portal/static/src/js/cbt_init.js',
+        ],
+    },
+    'data': [
+        'security/security.xml',
+        'security/ir.model.access.csv',
+        'views/instructions/instructions.xml',
+        'views/configurations/paper.xml',
+        'views/configurations/instructions.xml',
+        'views/configurations/menu.xml',
+        
+        'views/components/widgets.xml',
+        'views/components/questions.xml',
+        'views/components/sections.xml',
+        'views/paper/paper.xml',
+        'reports/solved_paper.xml',
+        'wizards/prepare_result.xml',
+        'wizards/date_transfer_wizard.xml',
+        # 'views/layout/layout_page.xml',
+    ],
+    'application': True,
+}

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="cbt_slot_view_form" model="ir.ui.view">
+        <field name="name">cbt_slot_view_form</field>
+        <field name="model">cbt.slot</field>
+        <field name="arch" type="xml">
+            <form string="cbt_slot_form">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="time"/>
+                            <field name="date"/>
+                            <field name="capacity"/>
+                        </group>
+                        <group>
+                            <field name="duration"/>
+                            <field name="active_time"/>
+                            <field name="center_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_cbt_slot" model="ir.actions.act_window">
+        <field name="name">Test Slots</field>
+        <field name="res_model">cbt.slot</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Create Your Test Slot here.
+            </p>
+        </field>
+    </record>
+    <menuitem
+            id="menu_cbt_slots"
+            name="Test Slots"
+            parent="students_setup"
+            action="action_cbt_slot"
+            sequence="150"/>
+</odoo>

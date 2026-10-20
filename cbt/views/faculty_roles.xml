@@ -1,0 +1,89 @@
+<odoo>
+    <data>
+        <!-- explicit list view definition -->
+        <record id="cbt_employee_role_tree" model="ir.ui.view">
+            <field name="name">cbt.employee.role.tree</field>
+            <field name="model">cbt.employee.role</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="employee_id"/>
+                    <field name="subject_id"/>
+                    <field name="topic_id"/>
+                    <field name="subtopic_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="cbt_employee_role_form" model="ir.ui.view">
+            <field name="name">cbt.employee.role.form</field>
+            <field name="model">cbt.employee.role</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                               <field name="employee_id" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                               <field name="subject_id" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                            </group>
+                            <group>
+                                <field name="topic_id" domain="[('subject_id','=',subject_id)]" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                                <field name="subtopic_id" domain="[('topic_id','=',topic_id)]" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                            </group>
+                            <group>
+                                <field name="create_access"/>
+                                <field name="review_access"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="cbt_employee_role_search" model="ir.ui.view">
+        <field name="name">cbt.employee.role.search</field>
+        <field name="model">cbt.employee.role</field>
+        <field name="priority" eval="14"/>
+        <field name="arch" type="xml">
+            <search string="Employee Roles">
+                <field name="employee_id"/>
+                <field name="subject_id"/>
+                <field name="topic_id"/>
+                <field name="subtopic_id"/>
+                <newline/>
+                 <group expand="0" string="Group By...">
+                     <filter name="employee_id" string="Employees" domain="[]" context="{'group_by':'employee_id'}"/>
+                    <filter name="subject_id" string="Subjects" domain="[]" context="{'group_by':'subject_id'}"/>
+                     <filter name="topic_id" string="Topics" domain="[]" context="{'group_by':'topic_id'}"/>
+                     <filter name="subtopic_id" string="Sub Topics" domain="[]" context="{'group_by':'subtopic_id'}"/>
+
+                 </group>
+            </search>
+        </field>
+    </record>
+
+        <record id="cbt_employee_role_action" model="ir.actions.act_window">
+            <field name="name">Faculty Roles</field>
+            <field name="res_model">cbt.employee.role</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" />
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Create the First Faculty Role here.
+                </p>
+            </field>
+        </record>
+
+        <menuitem
+                name="Faculty Roles"
+                id="cbt_employee_role_menu"
+                parent="cbt_employee_root"
+                action="cbt_employee_role_action"/>
+    </data>
+</odoo>

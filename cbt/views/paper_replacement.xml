@@ -1,0 +1,46 @@
+<odoo>
+    <data>
+        <!-- Read-only list of question replacements -->
+        <record id="cbt_paper_replacement_log_tree" model="ir.ui.view">
+            <field name="name">cbt.paper.replacement.log.tree</field>
+            <field name="model">cbt.paper.replacement.log</field>
+            <field name="arch" type="xml">
+                <tree create="false" delete="false" edit="false">
+                    <field name="replace_datetime"/>
+                    <field name="paper_id"/>
+                    <field name="line_sequence" string="Line"/>
+                    <field name="old_question_id"/>
+                    <field name="new_question_id"/>
+                    <field name="match_level"/>
+                    <field name="user_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="cbt_paper_replacement_log_form" model="ir.ui.view">
+            <field name="name">cbt.paper.replacement.log.form</field>
+            <field name="model">cbt.paper.replacement.log</field>
+            <field name="arch" type="xml">
+                <form create="false" edit="false">
+                    <sheet>
+                        <group>
+                            <field name="paper_id"/>
+                            <field name="line_sequence" string="Line"/>
+                            <field name="old_question_id"/>
+                            <field name="new_question_id"/>
+                            <field name="match_level"/>
+                            <field name="user_id"/>
+                            <field name="replace_datetime"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="cbt_paper_replacement_log_action" model="ir.actions.act_window">
+            <field name="name">Question Replacements</field>
+            <field name="res_model">cbt.paper.replacement.log</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+</odoo>

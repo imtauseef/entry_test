@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="cbt_portal.solved_paper">
+        <t t-call="web.basic_layout">
+            <t t-if="not company">
+                <t t-if="company_id">
+                    <t t-set="company" t-value="company_id"/>
+                </t>
+                <t t-elif="o and 'company_id' in o">
+                    <t t-set="company" t-value="o.company_id.sudo()"/>
+                </t>
+                <t t-else="else">
+                    <t t-set="company" t-value="res_company"/>
+                </t>
+            </t>
+            <t t-foreach="docs" t-as="paper">
+                <div class="row" style="margin:0px;padding:10px;background-color: #f5f5f5;">
+
+                    <img alt="..." style="max-width:40px" t-att-src="image_data_uri(company.logo)" t-if="company.logo"/>
+                    <div class="col-md-12">
+                        <center>
+                            <h4>
+                                <strong>
+                                    <span t-field="company.name"/>
+                                </strong>
+                            </h4>
+                        </center>
+                    </div>
+                </div>
+                <div>
+                    <div>
+                        <div>
+                            <table class="table table-condensed" style="border: 1px solid black !important;">
+                                <tbody>
+                                    <!-- <tr>
+                                            <td>
+                                                <p style="text-align:right;">
+                                                    <strong>Participant Number :</strong>
+                                                </p>
+                                            </td>
+                                            <td>
+                                                <p style="text-align:right;">
+                                                    <strong>_______________________________</strong>
+                                                </p>
+                                            </td>
+                                            <td>
+                                                <p style="text-align:right;">
+                                                    <strong>Student Name :</strong>
+                                                </p>
+                                            </td>
+                                            <td>
+                                                <p style="text-align:right;">
+                                                    <strong>_______________________________</strong>
+                                                </p>
+                                            </td>
+
+                                        </tr> -->
+                                    <tr>
+                                        <td>
+                                            <p style="text-align:right;">
+                                                <strong>Program :</strong>
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p style="text-align:right;">
+                                                <strong>
+                                                    <u>
+                                                        <span t-field="paper.name"/>
+,
+                                                    </u>
+                                                </strong>
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p style="text-align:right;">
+                                                <strong>Duration :</strong>
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p style="text-align:right;">
+                                                <strong>3 Hrs</strong>
+                                            </p>
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <p style="text-align:right;">
+                                                <strong>Total Questions :</strong>
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p style="text-align:right;">
+                                                <strong>
+                                                    <u>
+                                                        <span t-esc="len(paper.line_ids)"/>
+                                                    </u>
+                                                </strong>
+                                            </p>
+
+                                        </td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <t t-set="i" t-value="1"/>
+                            <t t-foreach="paper.line_ids" t-as="question">
+                                <t t-if="i == 1 or question_section != question.subject_id">
+                                    <strong>
+                                        <h3>Section :
+                                            <t t-esc="question.subject_id.name"/>
+                                        </h3>
+                                    </strong>
+                                </t>
+
+                                <div class="q_div">
+                                    <p style="text-align:right; ">
+
+                                        <table class="table">
+                                            <tr style="border-bottom: 1px solid lightgrey; margin-bottom: 0rem;">
+                                                <td style="width: 1%;">
+                                                    <strong>
+                                                        <t t-esc="i"/>
+                                                    </strong>
+                                                </td>
+                                                <td>
+                                                    <strong>
+                                                        <span style="display: inline-block;" t-out="question.name"/>
+                                                    </strong>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                    </p>
+                                    <table class="">
+                                        <tbody>
+                                            <t t-set="ca" t-value="str(question.correct_answer).lower() if question.correct_answer else ''"/>
+                                            <t t-set="candidate_answer" t-value="str(question.answer_alphabet).lower() if question.answer_alphabet else ''"/>
+
+                                            <t t-set="alpha" t-value="'a'"/>
+                                            <t t-foreach="question.option_ids" t-as="option">
+                                                <t t-if="option.name">
+
+                                                    <tr class='mb-1'>
+                                                        <td style="width: 1%; padding: 0.25rem;">
+                                                            <p>(<t t-esc="alpha"/>).</p>
+                                                        </td>
+                                                        <t t-if=" alpha == ca  ">
+                                                            <td style="padding: 0.25rem;">
+                                                                <span t-attf-style="{{ 'color:#adff2f' if alpha == ca else '' }}" t-out="option.name"/>
+                                                            </td>
+                                                        </t>
+                                                        <t t-else=" alpha != ca ">
+                                                            <t t-if=" alpha == candidate_answer ">
+                                                                <td style="padding: 0.25rem;">
+                                                                    <span t-attf-style="{{ 'color:red' if alpha == candidate_answer else '' }}" t-out="option.name"/>
+                                                                </td>
+                                                            </t>
+                                                            <t t-if=" alpha != candidate_answer ">
+                                                                <td style="padding: 0.25rem;">
+                                                                    <span t-out="option.name"/>
+                                                                    <!-- <span t-out="option.name"/> -->
+                                                                </td>
+                                                            </t>
+                                                        </t>
+
+                                                    </tr>
+                                                </t>
+                                                <t t-set="alpha" t-value="chr(ord(alpha) + 1)"/>
+                                            </t>
+
+                                        </tbody>
+                                    </table>
+                                    <t t-set="i" t-value="i+1"/>
+                                </div>
+                                <t t-set="question_section" t-value="question.subject_id"/>
+                            </t>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </t>
+        </t>
+    </template>
+
+    <record id="entrytest_solved_paper_template" model="report.paperformat">
+        <field name="name">Entry Test Paper A4</field>
+        <field name="default" eval="True"/>
+        <field name="format">custom</field>
+        <field name="page_height">335</field>
+        <field name="page_width">210</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">1</field>
+        <field name="margin_bottom">1</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">5</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">2</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- <report id="entry_test_paper" string="Papers" model="cbt.paper.export" report_type="qweb-html" name="cbt.solved_paper" file="cbt.solved_paper" menu="True" /> -->
+    <record id="action_solved_paper" model="ir.actions.report">
+        <field name="name">Solved Paper</field>
+        <field name="model">cbt.paper.export</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">cbt_portal.solved_paper</field>
+        <field name="report_file">cbt_portal.solved_paper</field>
+        <field name="binding_model_id" ref="model_cbt_paper_export"/>
+        <field name="paperformat_id" ref="cbt_portal.entrytest_solved_paper_template" />
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

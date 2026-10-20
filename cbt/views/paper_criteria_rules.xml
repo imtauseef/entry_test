@@ -1,0 +1,88 @@
+<odoo>
+    <data>
+        <!-- explicit list view definition -->
+        <record model="ir.ui.view" id="cbt_generate_paper_rules_tree">
+            <field name="name">cbt.generate.paper.rules.tree</field>
+            <field name="model">cbt.paper.criteria.rule</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="subjects"/>
+                    <field name="no_questions"/>
+                    <field name="sequence"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="cbt_generate_paper_rules_form">
+            <field name="name">cbt.generate.paper.rules.form</field>
+            <field name="model">cbt.paper.criteria.rule</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="subjects" required="1" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                                <field name="no_questions" required="1"/>
+                                <field name="sequence"/>
+                            </group>
+
+                        </group>
+                        <field name="total_questions_difficulty_rule" style="color: white"/>
+                        <field name="total_questions_topic_rule" style="color: white"/>
+                        <notebook colspan="4">
+                            <page string="Paper Difficulty">
+                                <field name="difficulty_rules">
+                                    <tree editable="bottom">
+                                        <field name="difficulty_level_id" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                                        <field name="no_questions"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+<!--                        <notebook colspan="4">-->
+<!--                            <page string="Type Difficulty">-->
+<!--                                <field name="type_rules">-->
+<!--                                    <tree editable="bottom">-->
+<!--                                        <field name="type_id"/>-->
+<!--                                        <field name="no_questions"/>-->
+<!--                                    </tree>-->
+<!--                                </field>-->
+<!--                            </page>-->
+<!--                        </notebook>-->
+                        <notebook colspan="4">
+                            <page string="Paper Topic Rules">
+                                <field name="topic_rules">
+                                    <tree editable="bottom">
+                                        <field name="topic_id" domain="[('subject_id', '=', subjects)]"  options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                                        <field name="sub_topic_id" domain="[('topic_id', '=', topic_id)]" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                                        <field name="no_questions"/>
+                                        <field name="subjects" invisible="1"/>
+
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+
+                    </sheet>
+
+                </form>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="cbt_generate_paper_rules_action_window">
+            <field name="name">Generate Paper Rules</field>
+            <field name="res_model">cbt.paper.criteria.rule</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" />
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Create the First Paper Generation Rule here.
+                </p>
+            </field>
+        </record>
+<!--        <menuitem name="Paper Generation Configuration" id="cbt_paper_configration_rules_list"  parent="cbt_menu_root"/>-->
+<!--        <menuitem name="Subject Rules" id="cbt_generate_paper_rules_list" parent="cbt_paper_configration_rules_list"-->
+<!--                  action="cbt_generate_paper_rules_action_window"/>-->
+    </data>
+</odoo>

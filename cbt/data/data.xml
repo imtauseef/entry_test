@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="cbt_question_type" model="cbt.question.type">
+            <field name="name">Boolean</field>
+            <field name="sequence">1</field>
+        </record>
+
+         <record id="cbt_multiple_choice" model="cbt.question.type">
+            <field name="name">Multiple/Choice</field>
+            <field name="sequence">2</field>
+        </record>
+
+         <record id="cbt_mcqs_type" model="cbt.question.type">
+            <field name="name">Mcqs</field>
+            <field name="sequence">3</field>
+        </record>
+    </data>
+</odoo>

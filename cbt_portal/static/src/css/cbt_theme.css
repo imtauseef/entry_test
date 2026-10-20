@@ -1,0 +1,413 @@
+/* CBT Portal theme (Materialize + material dashboard restoration + custom look). */
+
+.cbt-portal-body {
+  background-color: #eef1f6;
+}
+
+/* Page shell */
+.cbt-page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.cbt-container {
+  padding: 0.5rem 0 2rem;
+}
+
+/* Top bar */
+.cbt-topbar {
+  background: linear-gradient(45deg, #1a237e, #1565c0);
+  border-radius: 0 0 14px 14px;
+  box-shadow: 0 4px 14px rgba(13, 71, 161, 0.35);
+  color: #fff;
+}
+.cbt-topbar-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+}
+.cbt-logo {
+  height: 44px;
+  width: auto;
+  border-radius: 4px;
+  background: #fff;
+  padding: 3px 6px;
+}
+.cbt-logo-right {
+  margin-left: auto;
+}
+.cbt-topbar-title {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.cbt-topbar-name {
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.cbt-topbar-sub {
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+/* Stat cards */
+.cbt-widgets {
+  margin-top: 1rem;
+}
+.cbt-stat-card {
+  margin: 0.5rem 0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.cbt-stat-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem;
+}
+.cbt-stat-avatar {
+  height: 52px;
+  width: 52px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  object-fit: cover;
+  padding: 2px;
+}
+.cbt-stat-body {
+  min-width: 0;
+}
+.cbt-stat-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cbt-stat-sub {
+  font-size: 0.8rem;
+  opacity: 0.92;
+}
+.cbt-stat-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.cbt-stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+.cbt-stat-label {
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+/* Panels / cards */
+.cbt-panel {
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+.section-form-wizard .card {
+  border-radius: 12px;
+}
+.cbt-panel-head {
+  background: linear-gradient(45deg, #263238, #37474f);
+  color: #fff;
+  padding: 0.9rem 1.25rem;
+}
+.cbt-panel-head h5 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+.cbt-subtitle {
+  font-size: 1rem;
+  color: #37474f;
+  margin: 1rem 0 0.5rem;
+}
+.cbt-section-title {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #37474f;
+}
+
+/* Action bar (summary + buttons) */
+.cbt-actionbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin: 0 0 1rem;
+  background: #fff;
+  border: 1px solid #e3e8ef;
+  border-radius: 10px;
+}
+.cbt-actionbar-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.cbt-summary-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.cbt-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: #455a64;
+  background: #eceff1;
+}
+.cbt-chip b {
+  color: #e65100;
+}
+.cbt-chip-green {
+  background: #e8f5e9;
+}
+.cbt-chip-green b {
+  color: #2e7d32;
+}
+
+/* Buttons */
+.cbt-btn {
+  border-radius: 8px;
+  text-transform: none;
+  font-weight: 500;
+}
+
+/* Instructions + notes */
+.cbt-instructions {
+  line-height: 1.7;
+  color: #37474f;
+}
+.cbt-instructions img {
+  max-width: 100%;
+  height: auto;
+}
+.cbt-note {
+  color: #546e7a;
+}
+.cbt-warn-icon {
+  color: #f9a825;
+  font-size: 48px;
+}
+
+/* Stepper */
+.cbt-step-title {
+  margin: 0 !important;
+  padding: 12px 16px 12px 54px !important;
+  border-radius: 8px;
+  background: linear-gradient(45deg, #37474f, #546e7a);
+  color: #fff;
+  font-weight: 500;
+  transition: filter 0.2s;
+}
+.cbt-step-title:hover {
+  filter: brightness(1.08);
+}
+ul.stepper .step.active .cbt-step-title {
+  background: linear-gradient(45deg, #1565c0, #42a5f5);
+}
+ul.stepper .step.done .cbt-step-title {
+  background: linear-gradient(45deg, #2e7d32, #66bb6a);
+}
+ul.stepper .step-content {
+  margin-left: 8px !important;
+  margin-right: 0 !important;
+  padding-top: 0.5rem;
+}
+.step-actions .btn {
+  border-radius: 8px;
+  text-transform: none;
+}
+
+/* Questions */
+.cbt-question {
+  background: #fff;
+  border: 1px solid #e6e8eb;
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.cbt-question-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.cbt-qno {
+  font-weight: 700;
+  color: #1565c0;
+}
+.cbt-mark {
+  white-space: nowrap;
+}
+.cbt-mark label {
+  font-size: 0.82rem;
+  color: #607d8b;
+}
+.cbt-question-text {
+  margin: 0 0 0.85rem;
+  line-height: 1.65;
+  color: #263238;
+}
+.cbt-question-text img {
+  max-width: 100%;
+  height: auto;
+}
+.cbt-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.cbt-option {
+  display: flex !important;
+  align-items: center;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #eceff1;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.cbt-option:hover {
+  background: #f5f9ff;
+  border-color: #bbdefb;
+}
+.cbt-option-letter {
+  color: #1565c0;
+  min-width: 1.6em;
+  display: inline-block;
+}
+.cbt-option-label {
+  color: #37474f;
+  height: auto !important;
+  line-height: 1.5 !important;
+}
+.cbt-unanswered {
+  margin-top: 0.9rem;
+  font-size: 0.85rem;
+  color: #546e7a;
+}
+
+/* Pager */
+.cbt-paginate .pager {
+  margin: 0.75rem 0;
+}
+.cbt-paginate .pager div {
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+.cbt-paginate .pager div.disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.cbt-paginate .pageNumbers a {
+  color: #1565c0 !important;
+  text-decoration: none;
+}
+
+/* Summary grid (finish page) */
+.cbt-summary > div {
+  margin-bottom: 0.75rem;
+}
+.cbt-summary-label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #90a4ae;
+}
+.cbt-summary-value {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #37474f;
+}
+
+/* Spacing helpers */
+.pt-0 { padding-top: 0 !important; }
+.mt-1 { margin-top: .5rem !important; }
+.mt-2 { margin-top: 1rem !important; }
+.mb-0 { margin-bottom: 0 !important; }
+.mb-1 { margin-bottom: .5rem !important; }
+.mb-2 { margin-bottom: 1rem !important; }
+.mb-3 { margin-bottom: 1.5rem !important; }
+.mr-0 { margin-right: 0 !important; }
+.mr-1 { margin-right: .5rem !important; }
+.mr-4 { margin-right: 1.5rem !important; }
+.padding-1 { padding: .5rem !important; }
+.padding-2 { padding: .75rem !important; }
+.padding-4 { padding: 1.5rem !important; }
+.no-margin { margin: 0 !important; }
+
+/* Layout helpers */
+.display-flex { display: flex !important; }
+.media { display: flex; align-items: flex-start; }
+.media-body { flex: 1 1 auto; min-width: 0; }
+.media-heading { margin: 0 0 .25rem; }
+.min-height-100 { min-height: 100px; }
+.avatar { display: inline-flex; align-items: center; justify-content: center; }
+.avatar img { border-radius: 50%; }
+.background-round {
+  background-color: rgba(0, 0, 0, .15);
+  border-radius: 50%;
+  padding: .5rem;
+}
+
+/* Cards / buttons helpers */
+.card-header { padding: 1rem 1.5rem; }
+.card .card-content h5 { margin-top: 0; }
+.btn-primary { background-color: #2196f3; }
+.btn-light { background-color: #e3f2fd; color: #0d47a1; }
+
+/* Dashboard gradient helpers */
+.gradient-45deg-light-blue-cyan {
+  background: linear-gradient(45deg, #0288d1, #26c6da) !important;
+}
+.gradient-45deg-indigo-light-blue {
+  background: linear-gradient(45deg, #3949ab, #0288d1) !important;
+}
+.gradient-45deg-green-teal {
+  background: linear-gradient(45deg, #2e7d32, #26a69a) !important;
+}
+.gradient-45deg-amber-amber {
+  background: linear-gradient(45deg, #ff6f00, #ffca28) !important;
+}
+.gradient-shadow {
+  box-shadow: 0 5px 15px 0 rgba(0, 0, 0, .25) !important;
+}
+
+.users-view-name { font-weight: 500; }
+.users-view-id { font-weight: 500; }
+.countdown { font-weight: 600; }
+
+/* Entrance animation */
+@keyframes fadeLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: none; }
+}
+.animate.fadeLeft { animation: fadeLeft 1s both; }
+
+.section-form-wizard { padding-top: 0; }
+
+/* Responsive */
+@media only screen and (max-width: 600px) {
+  .cbt-topbar-inner { flex-wrap: wrap; }
+  .cbt-logo { height: 36px; }
+  .cbt-actionbar { justify-content: center; text-align: center; }
+  .cbt-actionbar-btns { width: 100%; justify-content: center; }
+  .step-actions .btn { width: 100%; }
+}

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="cbt_questions" name="">
+        <div class="paginate cbt-paginate">
+            <div class="items">
+                <t t-set="sr" t-value="0"/>
+
+                    <t t-foreach="section.question_ids" t-as="question">
+                        <t t-if="question in paper.line_ids">
+
+                        <div class="cbt-question">
+
+                            <div class="cbt-question-head">
+                                <span class="cbt-qno"><t t-set="sr" t-value="sr+1"/>Q<t t-esc="sr"/>.</span>
+                                <div class="cbt-mark">
+                                    <input type="checkbox" class="filled-in"
+                                           t-attf-id="mk_{{question.id}}"
+                                           t-attf-onchange="mark_review({{ question.id }},{{section.id}},{{paper.id}},this)"
+                                           t-attf-value="{{question.id}}"
+                                           t-att-checked="question.mark_review"/>
+                                    <label t-attf-for="mk_{{question.id}}">Mark For Review</label>
+                                </div>
+                            </div>
+
+                            <div class="cbt-question-text">
+                                <t t-out="question.name"/>
+                            </div>
+
+                            <t t-set="answer_no" t-value="0"/>
+                            <div class="cbt-options">
+                                <t t-foreach="question.option_ids" t-as="option">
+                                    <t t-if="option.name">
+                                        <t t-set="answer_no" t-value="answer_no+1"/>
+                                        <div class="cbt-option">
+                                            <input type="radio" class="with-gap"
+                                                   t-attf-id="opt_{{option.id}}"
+                                                   t-attf-name="q_{{question.id}}"
+                                                   t-attf-value="{{option.id}}"
+                                                   t-att-checked="question.answer == option.id"
+                                                   t-attf-onchange="rec_answer({{ question.id }},{{section.id}},{{paper.id}},{{answer_no}},this.value)"/>
+                                            <label t-attf-for="opt_{{option.id}}" class="cbt-option-label">
+                                                <b class="cbt-option-letter">
+                                                    <t t-if="answer_no==1">A</t>
+                                                    <t t-elif="answer_no==2">B</t>
+                                                    <t t-elif="answer_no==3">C</t>
+                                                    <t t-elif="answer_no==4">D</t>
+                                                    <t t-elif="answer_no==5">E</t>
+                                                    <t t-elif="answer_no==6">F</t>
+                                                    .
+                                                </b>
+                                                <t t-out="option.name"/>
+                                            </label>
+                                        </div>
+                                    </t>
+                                </t>
+                            </div>
+                        </div>
+
+                    </t>
+                </t>
+            </div>
+            <div class="pager right-align">
+                <div class="firstPage ">First Question &amp;laquo;</div>
+                <div class="previousPage">Previous Question &amp;lsaquo;</div>
+                <div class="nextPage">Next Question &amp;rsaquo;</div>
+                <div class="lastPage">Last Question &amp;raquo;</div>
+                <div class="pageNumbers"/>
+            </div>
+            <div class="left-align cbt-unanswered">
+                <t t-set="uq" t-value="0"/>
+                 <b> Unanswered questions: </b>
+                  <t t-foreach="paper.line_ids" t-as="question">
+                    <t t-if="question.subject_id.id ==section.id ">
+
+                        <t t-set="uq" t-value="uq+1"/>
+                        <t t-if="not question.answer">
+                            <span style="color:red;" t-attf-id="{{section.id}}_{{question.id}}"> <t t-esc="uq"/> </span>
+                        </t>
+                    </t>
+                  </t>
+            </div>
+        </div>
+
+    </template>
+    <template id="cbt_questions_review" name="">
+        <div class="paginate cbt-paginate">
+            <div class="items">
+                <t t-set="sr" t-value="0"/>
+
+                    <t t-foreach="section.question_ids.filtered(lambda l: l.mark_review == True)" t-as="question">
+                        <div class="cbt-question">
+                            <div class="cbt-question-head">
+                                <span class="cbt-qno"><t t-set="sr" t-value="sr+1"/>Q<t t-esc="sr"/>.</span>
+                                <div class="cbt-mark">
+                                    <input type="checkbox" class="filled-in"
+                                           t-attf-id="mk_{{question.id}}"
+                                           t-attf-onchange="mark_review({{ question.id }},{{section.id}},{{paper.id}},this)"
+                                           t-attf-value="{{question.id}}"
+                                           t-att-checked="question.mark_review"/>
+                                    <label t-attf-for="mk_{{question.id}}">Mark For Review</label>
+                                </div>
+                            </div>
+
+                            <div class="cbt-question-text">
+                                <t t-out="question.name"/>
+                            </div>
+
+                            <t t-set="answer_no" t-value="0"/>
+                            <div class="cbt-options">
+                                <t t-foreach="question.option_ids" t-as="option">
+                                    <t t-if="option.name">
+                                        <t t-set="answer_no" t-value="answer_no+1"/>
+                                        <div class="cbt-option">
+                                            <input type="radio" class="with-gap"
+                                                   t-attf-id="opt_{{option.id}}"
+                                                   t-attf-name="q_{{question.id}}"
+                                                   t-attf-value="{{option.id}}"
+                                                   t-att-checked="question.answer == option.id"
+                                                   t-attf-onchange="rec_answer({{ question.id }},{{section.id}},{{paper.id}},{{answer_no}},this.value)"/>
+                                            <label t-attf-for="opt_{{option.id}}" class="cbt-option-label">
+                                                <b class="cbt-option-letter"><t t-esc="answer_no"/>.</b>
+                                                <t t-out="option.name"/>
+                                            </label>
+                                        </div>
+                                    </t>
+                                </t>
+                            </div>
+                        </div>
+                    </t>
+            </div>
+            <div class="pager right-align">
+                <div class="firstPage ">First Question &amp;laquo;</div>
+                <div class="previousPage">Previous Question &amp;lsaquo;</div>
+                <div class="nextPage">Next Question &amp;rsaquo;</div>
+                <div class="lastPage">Last Question &amp;raquo;</div>
+                <div class="pageNumbers"/>
+            </div>
+        </div>
+
+    </template>
+</odoo>

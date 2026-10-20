@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="cbt_instruction" name="">
+        <t t-call="web.layout">
+            <t t-set="body_classname" t-value="'cbt-portal-body'"/>
+            <t t-set="title" t-value="'CBT - Instructions'"/>
+            <t t-set="head">
+                <t t-call-assets="cbt_portal.assets_dashboard" t-js="false"/>
+                <script src="/cbt_portal/static/js/jquery-2.1.4.min.js"/>
+            </t>
+            <div class="cbt-page">
+                <t t-call="cbt_portal.cbt_header"/>
+                <t t-call="cbt_portal.cbt_widgets" t-if="paper"/>
+                <div class="cbt-container">
+                    <input type="hidden" id="timer" t-att-value="'%02d:%02d' % (divmod(paper.test_time * 60, 60))" t-if="paper"/>
+                    <div class="card cbt-panel">
+                        <div class="cbt-panel-head">
+                            <h5>Instructions</h5>
+                        </div>
+                        <div class="card-content">
+                            <div class="divider mt-2"></div>
+                            <div class="cbt-instructions" t-if="instructions">
+                                <t t-out="instructions.instruction"/>
+                            </div>
+                            <p class="cbt-note" t-if="error_message">Unable to load instructions.</p>
+                            <div class="divider mt-2"></div>
+                            <div t-if="paper and not end_paper" id="paper_start" style="display:none;" class="mt-2 center-align">
+                                <a href="/cbt/paper" class="waves-effect waves-light btn cbt-btn gradient-45deg-green-teal">
+                                    Start Test
+                                </a>
+                            </div>
+                            <div t-if="paper and not end_paper" id="paper_start_time" style="display:none;" class="mt-2 center-align cbt-note">
+                                Please wait, paper will start at <b><t t-esc="'%02d:%02d' % (divmod(paper.test_time * 60, 60))"/></b>
+                            </div>
+                            <div t-if="end_paper" class="mt-2 center-align cbt-note">
+                                Paper already attempted.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <t t-call-assets="cbt_portal.assets_dashboard" t-css="false"/>
+            <script src="/cbt_portal/static/js/instructions.js"/>
+        </t>
+    </template>
+
+    <template id="cbt_finish" name="">
+        <t t-call="web.layout">
+            <t t-set="body_classname" t-value="'cbt-portal-body'"/>
+            <t t-set="title" t-value="'CBT - Finished'"/>
+            <t t-set="head">
+                <t t-call-assets="cbt_portal.assets_dashboard" t-js="false"/>
+            </t>
+            <div class="cbt-page">
+                <t t-call="cbt_portal.cbt_header"/>
+                <t t-call="cbt_portal.cbt_widgets" t-if="paper"/>
+                <div class="cbt-container">
+                    <div class="card cbt-panel">
+                        <div class="cbt-panel-head">
+                            <h5>Test Submitted</h5>
+                        </div>
+                        <div class="card-content">
+                            <div class="divider mt-2"></div>
+                            <p class="cbt-note">Paper ended. Result will be announced soon on admission portal. (Best of luck.)</p>
+                            <div class="divider mt-2"></div>
+                            <div t-if="paper">
+                            <h5 class="cbt-subtitle">Summary</h5>
+                            <div class="row cbt-summary">
+                                <div class="col s12 m4">
+                                    <span class="cbt-summary-label">Paper</span>
+                                    <span class="cbt-summary-value"><t t-esc="paper.paper_name"/></span>
+                                </div>
+                                <div class="col s12 m4">
+                                    <span class="cbt-summary-label">Discipline</span>
+                                    <span class="cbt-summary-value"><t t-esc="paper.program"/></span>
+                                </div>
+                                <div class="col s12 m4">
+                                    <span class="cbt-summary-label">Test Center</span>
+                                    <span class="cbt-summary-value"><t t-esc="paper.test_center"/></span>
+                                </div>
+                                <div class="col s12 m6">
+                                    <span class="cbt-summary-label">Total Questions</span>
+                                    <span class="cbt-summary-value"><t t-esc="len(paper.line_ids)"/></span>
+                                </div>
+                                <div class="col s12 m6">
+                                    <span class="cbt-summary-label">Attempted</span>
+                                    <span class="cbt-summary-value"><t t-esc="len(paper.line_ids.filtered(lambda l: l.answer > 0))"/></span>
+                                </div>
+                            </div>
+                            </div>
+                            <p class="cbt-note" t-if="error_message">Unable to load your paper.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="cbt_exception" name="">
+        <t t-call="web.layout">
+            <t t-set="body_classname" t-value="'cbt-portal-body'"/>
+            <t t-set="title" t-value="'CBT'"/>
+            <t t-set="head">
+                <t t-call-assets="cbt_portal.assets_dashboard" t-js="false"/>
+            </t>
+            <div class="cbt-page">
+                <t t-call="cbt_portal.cbt_header"/>
+                <div class="cbt-container">
+                    <div class="card cbt-panel">
+                        <div class="cbt-panel-head">
+                            <h5>Session Notice</h5>
+                        </div>
+                        <div class="card-content">
+                            <div class="divider mt-2"></div>
+                            <p class="cbt-note center-align">
+                                <i class="material-icons cbt-warn-icon">warning</i><br/>
+                                You are already logged in from another session.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

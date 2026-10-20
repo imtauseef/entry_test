@@ -1,0 +1,651 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="cbt_sections" name="">
+        <div class="row">
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="cbt-actionbar">
+                            <div class="cbt-summary-inline">
+                                <span class="cbt-chip">Total <b id="total" t-esc="len(paper.line_ids)"/></span>
+                                <span class="cbt-chip cbt-chip-green">Answered <b id="answered" t-esc="len(paper.line_ids.filtered(lambda l: l.answer > 0))"/></span>
+                            </div>
+                            <div class="cbt-actionbar-btns">
+                                <a onclick="record_time()"
+                                   class="waves-effect waves-light btn cbt-btn gradient-45deg-green-teal">
+                                    Review Marked Questions
+                                </a>
+                                <a href="#finish_confirm" onclick="record_time_rev()"
+                                   class="modal-trigger waves-effect waves-light btn cbt-btn gradient-45deg-amber-amber">
+                                    Finish Test
+                                </a>
+                            </div>
+                        </div>
+                        <div id="view_marked" class="modal">
+                            <div class="modal-content">
+                                <h4>Marked Questions</h4>
+                                <div>
+                                    <b id="mark_body"/>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <a href="#!"
+                                   class="modal-action modal-close waves-effect waves-red btn-flat ">
+                                    Close
+                                </a>
+                                <!--  <a href="#!"
+                                     class="modal-action modal-close waves-effect waves-green btn-flat ">
+                                      Save Changes
+                                  </a>-->
+                            </div>
+                        </div>
+                        <div id="finish_confirm"
+                             class="modal">
+                            <div class="modal-content">
+                                <h4>Finish Test</h4>
+                                <div>
+                                 <div>   <b>Summary:</b>  Total Questions: <span style="color:orange;" id="total_finish_paper" t-esc="len(paper.line_ids)"/>, Answered: <span style="color:green;" t-esc="len(paper.line_ids.filtered(lambda l: l.answer > 0))" id="total_answered_paper"/></div>
+                                    Are you sure to finish your test ?
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <a href="#!"
+                                   class="modal-action modal-close waves-effect waves-red btn-flat ">
+                                    Close
+                                </a>
+                                <!-- <a href="/cbt/paper/finish"
+                                    class="modal-action modal-close waves-effect waves-green btn-flat ">
+                                     Finish/End Test
+                                 </a>-->
+                                <a t-attf-onclick="paper_finish({{paper.id}})"
+                                   class="modal-action modal-close waves-effect waves-green btn-flat ">
+                                    Finish/End Test
+                                </a>
+                            </div>
+                        </div>
+                        <!-- <div class="card-header">
+                             <h4 class="card-title"></h4>
+                             <p>In the Non-Linear Stepper you can navigate freely between steps. You can also use the
+                                 buttons for validation, but if the user wants to move arbitrarily around the steps, it's
+                                 allowed by clicking on the steps instead of the buttons.</p>
+                         </div>-->
+                        <t t-set="steps_length" t-value="len(paper.line_ids.subject_id)"/>
+                        <t t-set="steps_length_check" t-value="len(paper.line_ids.subject_id)"/>
+                        <ul class="stepper" id="nonLinearStepper">
+
+                           
+                            
+                            <t t-set="section_list" t-value="paper.line_ids.subject_id.sorted(key=lambda x: x.sequence_no)"/>
+                            
+                            <t t-foreach="section_list" t-as="section">
+                                <li t-attf-class="step #{'active' if section_first else ''}">
+                                    <div class="step-title waves-effect cbt-step-title">
+                                        <t t-esc="section.name"/>
+
+                                        <!--<t t-esc="steps_length"/>-->
+                                    </div>
+                                    <div class="step-content">
+                                        <div class="row">
+                                            <span onselectstart="return false" onpaste="return false;" onCopy="return false" onCut="return false" onDrag="return false" onDrop="return false" t-call="cbt_portal.cbt_questions"/>
+                                            <!-- <div id="view-pagination">
+                                                <div class="row">
+                                                    <div class="col s12">
+
+                                                    </div>
+                                                    <div class="col s12">
+                                                        <ul class="pagination">
+                                                            <li class="disabled">
+                                                                <a href="#!">
+                                                                    <i class="material-icons">chevron_left</i>
+                                                                </a>
+                                                            </li>
+                                                            <li class="active">
+                                                                <a href="#!">1</a>
+                                                            </li>
+                                                            <li class="waves-effect">
+                                                                <a href="#!">2</a>
+                                                            </li>
+                                                            <li class="waves-effect">
+                                                                <a href="#!">3</a>
+                                                            </li>
+                                                            <li class="waves-effect">
+                                                                <a href="#!">4</a>
+                                                            </li>
+                                                            <li class="waves-effect">
+                                                                <a href="#!">5</a>
+                                                            </li>
+                                                            <li class="waves-effect">
+                                                                <a href="#!">
+                                                                    <i class="material-icons">chevron_right</i>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>-->
+                                            <!--   <div class="input-field col m6 s12">
+                                                   <label for="firstName1">First Name: <span class="red-text">*</span></label>
+                                                   <input type="text" id="firstName1" name="firstName1" class="validate" required=""/>
+                                               </div>
+                                               <div class="input-field col m6 s12">
+                                                   <label for="lastName12">Last Name: <span class="red-text">*</span></label>
+                                                   <input type="text" id="lastName12" class="validate" name="lastName1" required=""/>
+                                               </div>-->
+                                        </div>
+                                        <!-- <div class="row">
+                                             &lt;!&ndash; <div class="input-field col m6 s12">
+                                                  <label for="Email">Email: <span class="red-text">*</span></label>
+                                                  <input type="email" class="validate" name="Email" id="Email" required=""/>
+                                              </div>
+                                              <div class="input-field col m6 s12">
+                                                  <label for="contactNum">Contact Number: <span class="red-text">*</span></label>
+                                                  <input type="number" class="validate" name="contactNum" id="contactNum" required=""/>
+                                              </div>&ndash;&gt;
+                                         </div>-->
+                                        <div class="step-actions">
+                                            <div class="row">
+                                                <div class="col m4 s12 mb-3">
+                                                    <button t-if="not steps_length == steps_length_check"
+                                                            class="btn btn-light blue darken-2 previous-step">
+                                                        Prev Section
+<!--                                                         <i class="material-icons left">arrow_back</i>-->
+                                                    </button>
+                                                    <button t-if="steps_length == steps_length_check" disabled=""
+                                                            class="btn btn-light blue previous-step">
+                                                        Prev Section
+<!--                                                         <i class="material-icons left">arrow_back</i>-->
+                                                    </button>
+                                                </div>
+                                                <div class="col m8 s12 mb-3">
+                                                    <button t-if="not steps_length == 1"
+                                                            class="waves-effect blue darken-2 waves dark btn btn-primary next-step"
+                                                            type="submit">
+                                                        Next Section
+<!--                                                        <i class="material-icons right">arrow_forward</i>-->
+                                                    </button>
+                                                     <button t-if="steps_length == 1" disabled=""
+                                                            class="waves-effect blue  waves dark btn btn-primary next-step"
+                                                            type="submit">
+                                                        Next Section
+                                                        <i class="material-icons right">arrow_forward</i>
+                                                    </button>
+<!--                                                     <button t-attf-onclick="paper_finish({{paper.id}})" t-if="steps_length == 1"-->
+<!--                                                            class="waves-effect blue darken-2 waves dark btn btn-primary"-->
+<!--                                                            type="submit">-->
+<!--                                                        Finish Test-->
+<!--                                                       &lt;!&ndash; <i class="material-icons right">arrow_forward</i>&ndash;&gt;-->
+<!--                                                    </button>-->
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <t t-set="steps_length" t-value="steps_length-1"/>
+                            </t>
+                            <!--  <li class="step active">
+                                  <div class="step-title waves-effect">Computer Science</div>
+                                  <div class="step-content">
+                                      <div class="row">
+                                       &lt;!&ndash;   <div class="input-field col m6 s12">
+                                              <label for="firstName1">First Name: <span class="red-text">*</span></label>
+                                              <input type="text" id="firstName1" name="firstName1" class="validate" required=""/>
+                                          </div>
+                                          <div class="input-field col m6 s12">
+                                              <label for="lastName12">Last Name: <span class="red-text">*</span></label>
+                                              <input type="text" id="lastName12" class="validate" name="lastName1" required=""/>
+                                          </div>&ndash;&gt;
+                                      </div>
+                                      <div class="row">
+                                         &lt;!&ndash; <div class="input-field col m6 s12">
+                                              <label for="Email">Email: <span class="red-text">*</span></label>
+                                              <input type="email" class="validate" name="Email" id="Email" required=""/>
+                                          </div>
+                                          <div class="input-field col m6 s12">
+                                              <label for="contactNum">Contact Number: <span class="red-text">*</span></label>
+                                              <input type="number" class="validate" name="contactNum" id="contactNum" required=""/>
+                                          </div>&ndash;&gt;
+                                      </div>
+                                      <div class="step-actions">
+                                          <div class="row">
+                                              <div class="col m6 s12 mb-3">
+                                                  <button class="btn btn-light previous-step" disabled="">
+                                                      <i class="material-icons left">arrow_back</i>
+                                                      Section
+                                                  </button>
+                                              </div>
+                                              <div class="col m6 s12 mb-3">
+                                                  <button class="waves-effect waves dark btn btn-primary next-step" type="submit">
+                                                      Next Section
+                                                      <i class="material-icons right">arrow_forward</i>
+                                                  </button>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </li>
+                              <li class="step">
+                                  <div class="step-title waves-effect">Physics </div>
+                                  <div class="step-content">
+                                      <div class="row">
+
+                                      </div>
+                                      <div class="row">
+
+                                      </div>
+
+                                      <div class="step-actions">
+                                          <div class="row">
+
+                                              <div class="col m6 s12 mb-3">
+                                                  <button class="btn btn-light previous-step">
+                                                      <i class="material-icons left">arrow_back</i>
+                                                      Section
+                                                  </button>
+                                              </div>
+                                              <div class="col m6 s12 mb-3">
+                                                  <button class="waves-effect waves dark btn btn-primary next-step" type="submit">
+                                                      Next Section
+                                                      <i class="material-icons right">arrow_forward</i>
+                                                  </button>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </li>
+                               <li class="step">
+                                  <div class="step-title waves-effect">English </div>
+                                  <div class="step-content">
+                                      <div class="row">
+
+                                      </div>
+                                      <div class="row">
+
+                                      </div>
+                                       <div class="step-actions">
+                                          <div class="row">
+                                              <div class="col m6 s12 mb-3">
+                                                  <button class="btn btn-light previous-step" disabled="">
+                                                      <i class="material-icons left">arrow_back</i>
+                                                      Section
+                                                  </button>
+                                              </div>
+                                              <div class="col m6 s12 mb-3">
+                                                  <button class="waves-effect waves dark btn btn-primary next-step" type="submit">
+                                                      Next Section
+                                                      <i class="material-icons right">arrow_forward</i>
+                                                  </button>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </li>
+                               <li class="step">
+                                  <div class="step-title waves-effect">Intelligence</div>
+                                  <div class="step-content">
+                                      <div class="row">
+
+                                      </div>
+                                      <div class="row">
+
+                                      </div>
+                                      <div class="row">
+                                          &lt;!&ndash;<div class="input-field col m6 s12">
+                                              <label for="exp123">Experience: <span class="red-text">*</span></label>
+                                              <input type="text" class="validate" id="exp123" name="exp1"/>
+                                          </div>
+                                          <div class="input-field col m6 s12">
+                                              <label for="desc123">Short Description: <span class="red-text">*</span></label>
+                                              <textarea name="desc" id="desc123" rows="4" class="materialize-textarea"></textarea>
+                                          </div>&ndash;&gt;
+                                      </div>
+                                       <div class="step-actions">
+                                          <div class="row">
+                                              <div class="col m6 s12 mb-3">
+                                                  <button class="btn btn-light previous-step" disabled="">
+                                                      <i class="material-icons left">arrow_back</i>
+                                                      Section
+                                                  </button>
+                                              </div>
+                                              <div class="col m6 s12 mb-3">
+                                                  <button class="waves-effect waves dark btn btn-primary next-step" type="submit">
+                                                      Next Section
+                                                      <i class="material-icons right">arrow_forward</i>
+                                                  </button>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </li>
+                              <li class="step">
+                                  <div class="step-title waves-effect">Mathematics</div>
+                                  <div class="step-content">
+                                      <div class="row">
+
+
+                                      </div>
+                                      <div class="row">
+
+                                      </div>
+
+                                      <div class="step-actions">
+                                          <div class="row">
+
+                                              <div class="col m12 s12 mb-1">
+                                                  <button class="waves-effect waves-dark btn btn-primary" type="submit">Finish &amp; Submit Test</button>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </li>-->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <template id="cbt_review_sections" name="">
+        <div class="row">
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="cbt-actionbar">
+                            <h5 class="cbt-section-title">Review Marked Questions</h5>
+                            <div class="cbt-actionbar-btns">
+                                <a onclick="record_time_old()"
+                                   class="waves-effect waves-light btn cbt-btn gradient-45deg-green-teal">
+                                    Show Full Paper
+                                </a>
+                            </div>
+                        </div>
+                        <div id="view_marked" class="modal">
+                            <div class="modal-content">
+                                <h4>Marked Questions</h4>
+                                <div>
+                                    <b id="mark_body"/>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <a href="#!"
+                                   class="modal-action modal-close waves-effect waves-red btn-flat ">
+                                    Close
+                                </a>
+                                <!--  <a href="#!"
+                                     class="modal-action modal-close waves-effect waves-green btn-flat ">
+                                      Save Changes
+                                  </a>-->
+                            </div>
+                        </div>
+                        <div id="finish_confirm"
+                             class="modal">
+                            <div class="modal-content">
+                                <h4>Finish Test</h4>
+                                <div>
+                                    Are you sure to finish your test ?
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <a href="#!"
+                                   class="modal-action modal-close waves-effect waves-red btn-flat ">
+                                    Close
+                                </a>
+                                <a t-attf-onclick="paper_finish({{paper.id}})"
+                                   class="modal-action modal-close waves-effect waves-green btn-flat ">
+                                    Finish/End Test
+                                </a>
+                            </div>
+                        </div>
+                        <!-- <div class="card-header">
+                             <h4 class="card-title"></h4>
+                             <p>In the Non-Linear Stepper you can navigate freely between steps. You can also use the
+                                 buttons for validation, but if the user wants to move arbitrarily around the steps, it's
+                                 allowed by clicking on the steps instead of the buttons.</p>
+                         </div>-->
+                        <ul class="stepper" id="nonLinearStepper">
+                            <t t-foreach="paper.line_ids.subject_id" t-as="section">
+                                <li t-attf-class="step #{'active' if section_first else ''}">
+                                    <div class="step-title waves-effect cbt-step-title">
+                                        <t t-esc="section.name"/>
+                                    </div>
+                                    <div class="step-content">
+                                        <div class="row">
+                                            <t t-call="cbt_portal.cbt_questions_review"/>
+                                            <!-- <div id="view-pagination">
+                                                <div class="row">
+                                                    <div class="col s12">
+
+                                                    </div>
+                                                    <div class="col s12">
+                                                        <ul class="pagination">
+                                                            <li class="disabled">
+                                                                <a href="#!">
+                                                                    <i class="material-icons">chevron_left</i>
+                                                                </a>
+                                                            </li>
+                                                            <li class="active">
+                                                                <a href="#!">1</a>
+                                                            </li>
+                                                            <li class="waves-effect">
+                                                                <a href="#!">2</a>
+                                                            </li>
+                                                            <li class="waves-effect">
+                                                                <a href="#!">3</a>
+                                                            </li>
+                                                            <li class="waves-effect">
+                                                                <a href="#!">4</a>
+                                                            </li>
+                                                            <li class="waves-effect">
+                                                                <a href="#!">5</a>
+                                                            </li>
+                                                            <li class="waves-effect">
+                                                                <a href="#!">
+                                                                    <i class="material-icons">chevron_right</i>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>-->
+                                            <!--   <div class="input-field col m6 s12">
+                                                   <label for="firstName1">First Name: <span class="red-text">*</span></label>
+                                                   <input type="text" id="firstName1" name="firstName1" class="validate" required=""/>
+                                               </div>
+                                               <div class="input-field col m6 s12">
+                                                   <label for="lastName12">Last Name: <span class="red-text">*</span></label>
+                                                   <input type="text" id="lastName12" class="validate" name="lastName1" required=""/>
+                                               </div>-->
+                                        </div>
+                                        <div class="row">
+                                            <!-- <div class="input-field col m6 s12">
+                                                 <label for="Email">Email: <span class="red-text">*</span></label>
+                                                 <input type="email" class="validate" name="Email" id="Email" required=""/>
+                                             </div>
+                                             <div class="input-field col m6 s12">
+                                                 <label for="contactNum">Contact Number: <span class="red-text">*</span></label>
+                                                 <input type="number" class="validate" name="contactNum" id="contactNum" required=""/>
+                                             </div>-->
+                                        </div>
+                                        <div class="step-actions">
+                                            <div class="row">
+                                                <div class="col m6 s12 mb-3">
+                                                    <button class="btn btn-light blue darken-2 previous-step">
+                                                        <i class="material-icons left">arrow_back</i>
+                                                        Previous Section
+                                                    </button>
+                                                </div>
+                                                <div class="col m6 s12 mb-3">
+                                                    <button class="waves-effect blue darken-2 waves dark btn btn-primary next-step"
+                                                            type="submit">
+                                                        Next Section
+                                                        <i class="material-icons right">arrow_forward</i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </t>
+                            <!--  <li class="step active">
+                                  <div class="step-title waves-effect">Computer Science</div>
+                                  <div class="step-content">
+                                      <div class="row">
+                                       &lt;!&ndash;   <div class="input-field col m6 s12">
+                                              <label for="firstName1">First Name: <span class="red-text">*</span></label>
+                                              <input type="text" id="firstName1" name="firstName1" class="validate" required=""/>
+                                          </div>
+                                          <div class="input-field col m6 s12">
+                                              <label for="lastName12">Last Name: <span class="red-text">*</span></label>
+                                              <input type="text" id="lastName12" class="validate" name="lastName1" required=""/>
+                                          </div>&ndash;&gt;
+                                      </div>
+                                      <div class="row">
+                                         &lt;!&ndash; <div class="input-field col m6 s12">
+                                              <label for="Email">Email: <span class="red-text">*</span></label>
+                                              <input type="email" class="validate" name="Email" id="Email" required=""/>
+                                          </div>
+                                          <div class="input-field col m6 s12">
+                                              <label for="contactNum">Contact Number: <span class="red-text">*</span></label>
+                                              <input type="number" class="validate" name="contactNum" id="contactNum" required=""/>
+                                          </div>&ndash;&gt;
+                                      </div>
+                                      <div class="step-actions">
+                                          <div class="row">
+                                              <div class="col m6 s12 mb-3">
+                                                  <button class="btn btn-light previous-step" disabled="">
+                                                      <i class="material-icons left">arrow_back</i>
+                                                      Section
+                                                  </button>
+                                              </div>
+                                              <div class="col m6 s12 mb-3">
+                                                  <button class="waves-effect waves dark btn btn-primary next-step" type="submit">
+                                                      Next Section
+                                                      <i class="material-icons right">arrow_forward</i>
+                                                  </button>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </li>
+                              <li class="step">
+                                  <div class="step-title waves-effect">Physics </div>
+                                  <div class="step-content">
+                                      <div class="row">
+
+                                      </div>
+                                      <div class="row">
+
+                                      </div>
+
+                                      <div class="step-actions">
+                                          <div class="row">
+
+                                              <div class="col m6 s12 mb-3">
+                                                  <button class="btn btn-light previous-step">
+                                                      <i class="material-icons left">arrow_back</i>
+                                                      Section
+                                                  </button>
+                                              </div>
+                                              <div class="col m6 s12 mb-3">
+                                                  <button class="waves-effect waves dark btn btn-primary next-step" type="submit">
+                                                      Next Section
+                                                      <i class="material-icons right">arrow_forward</i>
+                                                  </button>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </li>
+                               <li class="step">
+                                  <div class="step-title waves-effect">English </div>
+                                  <div class="step-content">
+                                      <div class="row">
+
+                                      </div>
+                                      <div class="row">
+
+                                      </div>
+                                       <div class="step-actions">
+                                          <div class="row">
+                                              <div class="col m6 s12 mb-3">
+                                                  <button class="btn btn-light previous-step" disabled="">
+                                                      <i class="material-icons left">arrow_back</i>
+                                                      Section
+                                                  </button>
+                                              </div>
+                                              <div class="col m6 s12 mb-3">
+                                                  <button class="waves-effect waves dark btn btn-primary next-step" type="submit">
+                                                      Next Section
+                                                      <i class="material-icons right">arrow_forward</i>
+                                                  </button>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </li>
+                               <li class="step">
+                                  <div class="step-title waves-effect">Intelligence</div>
+                                  <div class="step-content">
+                                      <div class="row">
+
+                                      </div>
+                                      <div class="row">
+
+                                      </div>
+                                      <div class="row">
+                                          &lt;!&ndash;<div class="input-field col m6 s12">
+                                              <label for="exp123">Experience: <span class="red-text">*</span></label>
+                                              <input type="text" class="validate" id="exp123" name="exp1"/>
+                                          </div>
+                                          <div class="input-field col m6 s12">
+                                              <label for="desc123">Short Description: <span class="red-text">*</span></label>
+                                              <textarea name="desc" id="desc123" rows="4" class="materialize-textarea"></textarea>
+                                          </div>&ndash;&gt;
+                                      </div>
+                                       <div class="step-actions">
+                                          <div class="row">
+                                              <div class="col m6 s12 mb-3">
+                                                  <button class="btn btn-light previous-step" disabled="">
+                                                      <i class="material-icons left">arrow_back</i>
+                                                      Section
+                                                  </button>
+                                              </div>
+                                              <div class="col m6 s12 mb-3">
+                                                  <button class="waves-effect waves dark btn btn-primary next-step" type="submit">
+                                                      Next Section
+                                                      <i class="material-icons right">arrow_forward</i>
+                                                  </button>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </li>
+                              <li class="step">
+                                  <div class="step-title waves-effect">Mathematics</div>
+                                  <div class="step-content">
+                                      <div class="row">
+
+
+                                      </div>
+                                      <div class="row">
+
+                                      </div>
+
+                                      <div class="step-actions">
+                                          <div class="row">
+
+                                              <div class="col m12 s12 mb-1">
+                                                  <button class="waves-effect waves-dark btn btn-primary" type="submit">Finish &amp; Submit Test</button>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </li>-->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+</odoo>

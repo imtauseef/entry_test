@@ -1,0 +1,827 @@
+<odoo>
+    <data>
+
+        <!--programs-->
+        <record id="cbt_program_tree" model="ir.ui.view">
+            <field name="name">cbt.program.tree</field>
+            <field name="model">cbt.program</field>
+            <field name="arch" type="xml">
+                <tree string="program" editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="description"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="cbt_program_search" model="ir.ui.view">
+            <field name="name">cbt.program.search</field>
+            <field name="model">cbt.program</field>
+            <field name="priority" eval="14"/>
+            <field name="arch" type="xml">
+                <search string="program">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <newline/>
+
+                </search>
+            </field>
+        </record>
+
+
+        <!--Subjects-->
+        <record id="cbt_sub_tree" model="ir.ui.view">
+            <field name="name">cbt.subject.tree</field>
+            <field name="model">cbt.subject</field>
+            <field name="arch" type="xml">
+                <tree string="Subject">
+                    <field name="sequence" widget="handle"/>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="topic_count"/>
+                    <field name="sub_topic_count"/>
+                </tree>
+            </field>
+        </record>
+        <record id="cbt_sub_form" model="ir.ui.view">
+            <field name="name">cbt.subject.form</field>
+            <field name="model">cbt.subject</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" required="1"/>
+                            </group>
+                            <group>
+                                <field name="code" required="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="topic" string="Topic">
+                                <field name="topic_ids">
+                                    <tree>
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="code"/>
+                                        <field name="name"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="role" string="Faculty Role">
+                                <field name="role_ids"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="cbt_sub_search" model="ir.ui.view">
+            <field name="name">cbt.subject.search</field>
+            <field name="model">cbt.subject</field>
+            <field name="priority" eval="14"/>
+            <field name="arch" type="xml">
+                <search string="Employee Roles">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <newline/>
+                </search>
+            </field>
+        </record>
+
+        <!--Topics-->
+        <record id="cbt_subject_topic_tree" model="ir.ui.view">
+            <field name="name">cbt.subject.topic.tree</field>
+            <field name="model">cbt.subject.topic</field>
+            <field name="arch" type="xml">
+                <tree string="Topic" >
+                    <field name="sequence" widget="handle"/>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="subject_id"/>
+                    <field name="sub_topic_count"/>
+                </tree>
+            </field>
+        </record>
+        <record id="cbt_topic_form" model="ir.ui.view">
+            <field name="name">cbt.subject.topic.form</field>
+            <field name="model">cbt.subject.topic</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" required="1"/>
+                                <field name="code" required="1"/>
+                            </group>
+                            <group>
+                                <field name="subject_id"
+                                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="sub_topic" string="Sub Topic">
+                                <field name="sub_topic_ids">
+                                    <tree editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="code" required="1"/>
+                                        <field name="name" required="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="cbt_subject_topic_search" model="ir.ui.view">
+            <field name="name">cbt.program.search</field>
+            <field name="model">cbt.subject.topic</field>
+            <field name="priority" eval="14"/>
+            <field name="arch" type="xml">
+                <search string="Topics">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="subject_id"/>
+                    <newline/>
+                    <group expand="0" string="Group By...">
+                        <filter name="subject_id" string="Subjects" domain="[]" context="{'group_by':'subject_id'}"/>
+
+
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!--Sub Topic-->
+        <record id="cbt_subtopic_tree" model="ir.ui.view">
+            <field name="name">cbt.subject.subtopic.tree</field>
+            <field name="model">cbt.subject.subtopic</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="code" required="1"/>
+                    <field name="name" required="1"/>
+                    <field name="topic_id" required="1"/>
+                    <field name="subject_id" required="1"/>
+                </tree>
+            </field>
+        </record>
+
+
+
+        <record id="cbt_subtopic_search" model="ir.ui.view">
+            <field name="name">cbt.subject.subtopic.search</field>
+            <field name="model">cbt.subject.subtopic</field>
+            <field name="priority" eval="14"/>
+            <field name="arch" type="xml">
+                <search string="Sub Topics">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="subject_id"/>
+                    <field name="topic_id"/>
+                    <newline/>
+                    <group expand="0" string="Group By...">
+                        <filter name="subject_id" string="Subjects" domain="[]" context="{'group_by':'subject_id'}"/>
+                        <filter name="topic_id" string="Topics" domain="[]" context="{'group_by':'topic_id'}"/>
+
+
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!--Task Manager-->
+        <record model="ir.ui.view" id="cbt_emloyee_jobs_tree">
+            <field name="name">cbt.emloyee.jobs</field>
+            <field name="model">cbt.jobs</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="from_time" widget="float_time"/>
+                    <field name="to_time" widget="float_time"/>
+                    <field name="state"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="cbt_emloyee_jobs_form">
+            <field name="name">cbt.emloyee.jobs.setup</field>
+            <field name="model">cbt.jobs</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="description"/>
+                                <field name="date"/>
+                                <field name="from_time" widget="float_time"/>
+                                <field name="to_time" widget="float_time"/>
+                            </group>
+                            <group>
+                                <field name="failure"/>
+                                <field name="state"/>
+                                <field name="active"/>
+                                <field name="clear"/>
+                            </group>
+                        </group>
+                    </sheet>
+
+                </form>
+            </field>
+        </record>
+
+        <!--Question Bank-->
+        <!--Question Type-->
+        <record id="cbt_question_type_tree" model="ir.ui.view">
+            <field name="name">cbt.question.type.tree</field>
+            <field name="model">cbt.question.type</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="code" required="1"/>
+                    <field name="name" required="1"/>
+                    <field name="description"/>
+                </tree>
+            </field>
+        </record>
+        <record id="cbt_question_type_search" model="ir.ui.view">
+        <field name="name">cbt.question.type.search</field>
+        <field name="model">cbt.question.type</field>
+        <field name="priority" eval="14"/>
+        <field name="arch" type="xml">
+            <search string="Questions Type">
+                <field name="name"/>
+                <field name="code"/>
+                <newline/>
+
+            </search>
+        </field>
+    </record>
+
+
+
+        <!--Skill Type-->
+        <record id="cbt_question_skill_tree" model="ir.ui.view">
+            <field name="name">cbt.question.skill.tree</field>
+            <field name="model">cbt.question.skill</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name" required="1"/>
+                    <field name="description"/>
+                </tree>
+            </field>
+        </record>
+        <record id="cbt_question_skill_search" model="ir.ui.view">
+        <field name="name">cbt.question.skill.search</field>
+        <field name="model">cbt.question.skill</field>
+        <field name="priority" eval="14"/>
+        <field name="arch" type="xml">
+            <search string="CBT Questions Skill">
+                <field name="name"/>
+                <newline/>
+
+            </search>
+        </field>
+    </record>
+
+
+
+        <!--Difficulty Type-->
+        <record id="cbt_question_difficulty_level_tree" model="ir.ui.view">
+            <field name="name">cbt.question.difficulty.level.tree</field>
+            <field name="model">cbt.question.difficulty.level</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="code" required="1"/>
+                    <field name="name" required="1"/>
+                    <field name="description"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="cbt_question_difficulty_level_search" model="ir.ui.view">
+        <field name="name">cbt.question.difficulty.level.search</field>
+        <field name="model">cbt.question.difficulty.level</field>
+        <field name="priority" eval="14"/>
+        <field name="arch" type="xml">
+            <search string="Questions Difficulty Level">
+                <field name="name"/>
+                <field name="code"/>
+                <newline/>
+
+            </search>
+        </field>
+    </record>
+
+
+        <!--Question time-->
+        <record id="cbt_question_time_tree" model="ir.ui.view">
+            <field name="name">cbt.question.time.tree</field>
+            <field name="model">cbt.question.time</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="code"/>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="cbt_question_time_search" model="ir.ui.view">
+            <field name="name">cbt.question.time.search</field>
+            <field name="model">cbt.question.time</field>
+            <field name="priority" eval="14"/>
+            <field name="arch" type="xml">
+                <search string="Questions Time">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <newline/>
+                </search>
+            </field>
+        </record>
+
+        <!--Test Types-->
+        <record id="cbt_test_type_tree" model="ir.ui.view">
+            <field name="name">cbt.test.type.tree</field>
+            <field name="model">cbt.test.type</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="code" required="1"/>
+                    <field name="name" required="1"/>
+                    <field name="description"/>
+                </tree>
+            </field>
+        </record>
+        <record id="cbt_test_type_search" model="ir.ui.view">
+        <field name="name">cbt.test.type.search</field>
+        <field name="model">cbt.test.type</field>
+        <field name="priority" eval="14"/>
+        <field name="arch" type="xml">
+            <search string="CBT Test Type">
+                <field name="name"/>
+                <field name="code"/>
+                <newline/>
+            </search>
+        </field>
+    </record>
+
+        <!--Entry Test-->
+        <record id="cbt_test_tree" model="ir.ui.view">
+            <field name="name">cbt.test.tree</field>
+            <field name="model">cbt.test</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="code" required="1"/>
+                    <field name="name" required="1"/>
+                    <field name="description" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="cbt_test_search" model="ir.ui.view">
+        <field name="name">cbt.test.search</field>
+        <field name="model">cbt.test</field>
+        <field name="priority" eval="14"/>
+        <field name="arch" type="xml">
+            <search string="CBT Test">
+                <field name="name"/>
+                <field name="code"/>
+                <newline/>
+            </search>
+        </field>
+    </record>
+
+
+        <!--Sessions & Training-->
+        <record id="cbt_session_tree" model="ir.ui.view">
+            <field name="name">cbt.session.tree</field>
+            <field name="model">cbt.session</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="sequence" widget="handle"/>
+                    <field name="etest_id"/>
+                    <field name="type_id"/>
+                </tree>
+            </field>
+        </record>
+        <record id="cbt_session_form" model="ir.ui.view">
+            <field name="name">cbt.session.form</field>
+            <field name="model">cbt.session</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="etest_id"/>
+                            </group>
+                            <group>
+                                <field name="type_id"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="Timings" string="Timings">
+                                <field name="line_ids">
+                                    <tree editable="bottom">
+                                        <field name="date"/>
+                                        <field name="session_no"/>
+                                        <field name="time" widget="float_time"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <!--Session lines-->
+        <record id="cbt_session_line_form" model="ir.ui.view">
+            <field name="name">cbt.session.line.form</field>
+            <field name="model">cbt.session.line</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="session_no"/>
+                            </group>
+                            <group>
+                                <field name="date"/>
+                                <field name="time" widget="float_time"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!--program Courses-->
+        <record id="cbt_program_courses_tree" model="ir.ui.view">
+            <field name="name">cbt.program.courses.tree</field>
+            <field name="model">cbt.program.courses</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="etest_id"/>
+                    <field name="type_id"/>
+                    <field name="program_id"/>
+                </tree>
+            </field>
+        </record>
+        <record id="cbt_program_courses_form" model="ir.ui.view">
+            <field name="name">cbt.program.courses.form</field>
+            <field name="model">cbt.program.courses</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="etest_id"/>
+                                <field name="type_id"/>
+                            </group>
+                            <group>
+                                <field name="program_id"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="Subjects" string="Subjects">
+                                <field name="subject_ids" widget="many2many" options="{'no_create': True}"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!--MCQs Setup-->
+        <record model="ir.ui.view" id="cbt_mcqs_tree">
+            <field name="name">Add MCQs</field>
+            <field name="model">cbt.mcqs</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <header>
+                        <button name="action_submit_selected" type="object" string="Submit Selected"
+                                class="btn-primary"/>
+                    </header>
+                    <field name="subject_id"/>
+                    <field name="topic_id"/>
+                    <field name="stopic_id"/>
+                    <field name="difficulty_level_id"/>
+                    <field name="type_id"/>
+                    <field name="is_reserve" optional="show"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="cbt_mcqs_form">
+            <field name="name">Add MCQs</field>
+            <field name="model">cbt.mcqs</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="can_submit" invisible="1"/>
+                        <button name="action_submit" string="Submit" type="object" class="btn-primary"
+                                invisible="not can_submit"/>
+                        <button name="action_submit_all" string="Submit All Questions" type="object"
+                                invisible="state != 'draft'"/>
+                        <field name="state" widget="statusbar"
+                               statusbar_visible="draft,submitted,approved,cancel"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="subject_id"/>
+                                <field name="topic_id"/>
+                                <field name="stopic_id"/>
+                            </group>
+                            <group>
+                                <field name="type_id"/>
+                                <field name="skill_id"/>
+                                <field name="difficulty_level_id"/>
+                                <field name="time_id"/>
+                                <field name="is_reserve"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="question" widget="html"/>
+                        </group>
+                        <group>
+                            <field name="reviewer_remarks" readonly="1"/>
+                        </group>
+                        <notebook>
+                            <page name="Options" string="Options">
+                                <group>
+                                    <field name="ans1_correct"/>
+                                    <field name="ans1"/>
+
+                                    <field name="ans2_correct"/>
+                                    <field name="ans2"/>
+
+
+                                    <field name="ans3_correct"/>
+                                    <field name="ans3"/>
+
+                                    <field name="ans4_correct"/>
+                                    <field name="ans4"/>
+
+                                </group>
+                            </page>
+                            <page name="Question Track" string="Question Track">
+                                <field name="question_repeat_ids">
+                                    <tree delete="false" create="false">
+                                        <field name="date" string="Date"/>
+                                        <field name="paper_id" string="Paper"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record id="cbt_mcqs_search" model="ir.ui.view">
+            <field name="name">cbt.mcqs.search</field>
+            <field name="model">cbt.mcqs</field>
+            <field name="priority" eval="14"/>
+            <field name="arch" type="xml">
+                <search string="Questions">
+                    <field name="subject_id"/>
+                    <field name="topic_id"/>
+                    <field name="stopic_id"/>
+                    <filter name="reserve_questions" string="Reserve Questions"
+                            domain="[('is_reserve', '=', True)]"/>
+                    <filter name="non_reserve_questions" string="Non-Reserve Questions"
+                            domain="[('is_reserve', '=', False)]"/>
+                    <newline/>
+                    <group expand="0" string="Group By...">
+                        <filter name="subject_id" string="Subjects" domain="[]" context="{'group_by':'subject_id'}"/>
+                        <filter name="topic_id" string="Topics" domain="[]" context="{'group_by':'topic_id'}"/>
+                        <filter name="stopic_id" string="Sub Topics" domain="[]" context="{'group_by':'stopic_id'}"/>
+                        <filter name="difficulty_level_id" string="Questions Difficulty Level" domain="[]"
+                                context="{'group_by':'difficulty_level_id'}"/>
+                        <filter name="is_reserve" string="Reserve" domain="[]" context="{'group_by':'is_reserve'}"/>
+                        <filter name="state" string="Questions Status" domain="[]" context="{'group_by':'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!--Paper Criteria Setup-->
+
+
+        <!-- actions opening views on models -->
+
+
+        <record model="ir.actions.act_window" id="cbt_tasks_setupaction_window">
+            <field name="name">Tasks Setup</field>
+            <field name="res_model">cbt.jobs</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="cbt_question_type_action" model="ir.actions.act_window">
+            <field name="name">Question Types</field>
+            <field name="res_model">cbt.question.type</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="cbt_question_skill_action" model="ir.actions.act_window">
+            <field name="name">Skills</field>
+            <field name="res_model">cbt.question.skill</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="cbt_question_difficulty_level_action" model="ir.actions.act_window">
+            <field name="name">Difficulty Level</field>
+            <field name="res_model">cbt.question.difficulty.level</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="cbt_question_time_action" model="ir.actions.act_window">
+            <field name="name">Timings</field>
+            <field name="res_model">cbt.question.time</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="cbt_program_action" model="ir.actions.act_window">
+            <field name="name">programs</field>
+            <field name="res_model">cbt.program</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record model="ir.actions.act_window" id="cbt_subject_setupaction_window">
+            <field name="name">Subjects</field>
+            <field name="res_model">cbt.subject</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record model="ir.actions.act_window" id="cbt_topic_setupaction_window">
+            <field name="name">Topics</field>
+            <field name="res_model">cbt.subject.topic</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.actions.act_window" id="cbt_subtopic_action_window">
+            <field name="name">Sub Topics</field>
+            <field name="res_model">cbt.subject.subtopic</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="cbt_test_action" model="ir.actions.act_window">
+            <field name="name">Entry Test</field>
+            <field name="res_model">cbt.test</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="cbt_test_type_action" model="ir.actions.act_window">
+            <field name="name">Test Types</field>
+            <field name="res_model">cbt.test.type</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="cbt_session_action" model="ir.actions.act_window">
+            <field name="name">Sessions And Timings</field>
+            <field name="res_model">cbt.session</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="cbt_program_course_action" model="ir.actions.act_window">
+            <field name="name">Study Program Courses</field>
+            <field name="res_model">cbt.program.courses</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.actions.act_window" id="cbt_mcqs_setupaction_window">
+            <field name="name">Questions</field>
+            <field name="res_model">cbt.mcqs</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('current_user','=',uid), ('state','!=','submitted')]</field>
+        </record>
+
+        <record id="cbt_mcqs_submit_action_server" model="ir.actions.server">
+            <field name="name">Submit Questions</field>
+            <field name="model_id" ref="model_cbt_mcqs"/>
+            <field name="binding_model_id" eval="False"/>
+            <field name="binding_view_types" eval="False"/>
+            <field name="state">code</field>
+            <field name="code">records.action_submit()</field>
+        </record>
+
+        <record id="cbt_mcqs_submit_all_action_server" model="ir.actions.server">
+            <field name="name">Submit All My Questions</field>
+            <field name="model_id" ref="model_cbt_mcqs"/>
+            <field name="binding_model_id" eval="False"/>
+            <field name="binding_view_types" eval="False"/>
+            <field name="state">code</field>
+            <field name="code">model.action_submit_all()</field>
+        </record>
+
+
+        <menuitem name="Entry Test" id="cbt_menu_root"/>
+        <menuitem name="Configure Users" id="cbt_menu_1" parent="cbt_menu_root" groups="cbt.group_cbt_admin"/>
+        <menuitem name="Employee Setup" id="cbt_employee_root" parent="cbt_menu_1"/>
+
+
+        <menuitem name="Configure Exams" id="cbt_exams" parent="cbt_menu_root" groups="cbt.group_cbt_admin"/>
+        <!--        <menuitem name="Task Manager" id="cbt_task_manager" parent="cbt_exams"/>-->
+        <!--        <menuitem name="Jobs or Processes" id="cbt_task_manager_jobs" parent="cbt_task_manager"-->
+        <!--                  action="cbt_tasks_setupaction_window"/>-->
+
+        <menuitem
+                name="Study Programs Setup"
+                id="cbt_program_main"
+                parent="cbt_exams"/>
+
+        <menuitem
+                name="programs/Study Programs"
+                id="cbt_program_menu"
+                parent="cbt_program_main"
+                action="cbt_program_action"/>
+
+        <menuitem name="Subjects Setup" id="cbt_subjects" parent="cbt_exams"/>
+        <menuitem name="Subjects" id="cbt_sub" parent="cbt_subjects"
+                  action="cbt_subject_setupaction_window"/>
+        <menuitem name="Topics" id="cbt_top" parent="cbt_subjects"
+                  action="cbt_topic_setupaction_window"/>
+        <menuitem name="Sub Topics" id="cbt_sub_topic" parent="cbt_subjects"
+                  action="cbt_subtopic_action_window"/>
+
+        <menuitem name="Entry Test Setup" id="cbt_setup" parent="cbt_exams"/>
+        <menuitem
+                name="Entry Test"
+                id="cbt_test_menu"
+                parent="cbt_setup"
+                action="cbt_test_action"/>
+
+        <menuitem
+                name="Test Types"
+                id="cbt_test_type_menu"
+                parent="cbt_setup"
+                action="cbt_test_type_action"/>
+
+        <!--        <menuitem name="Sessions &amp; Timings" id="cbt_session" parent="cbt_setup"-->
+        <!--                  action="cbt_session_action"/>-->
+        <!--        <menuitem name="program Courses" id="cbt_program_courses_menu" parent="cbt_setup"-->
+        <!--                  action="cbt_program_course_action"/>-->
+        <!--        <menuitem name="Paper Criteria" id="cbt_paper_critera" parent="cbt_setup"-->
+        <!--                  action="cbt_p_criteria_setupaction_window"/>-->
+
+
+        <menuitem
+                name="Configure Question Bank"
+                id="cbt_question_bank"
+                parent="cbt_menu_root"/>
+
+        <menuitem
+                name="Question Attributes"
+                id="cbt_qas"
+                parent="cbt_question_bank"/>
+
+        <menuitem
+                name="Question Types"
+                id="cbt_question_type_menu"
+                parent="cbt_qas"
+                action="cbt_question_type_action"
+                groups="cbt.group_cbt_admin"/>
+
+        <menuitem
+                name="Skills"
+                id="cbt_skills_menu"
+                parent="cbt_qas"
+                action="cbt_question_skill_action"
+                groups="cbt.group_cbt_admin"/>
+
+        <menuitem
+                name="Difficulty Levels"
+                id="cbt_difficulty_level_menu"
+                parent="cbt_qas"
+                action="cbt_question_difficulty_level_action"
+                groups="cbt.group_cbt_admin"/>
+
+        <menuitem
+                name="Question Timings"
+                id="cbt_question_time_menu"
+                parent="cbt_qas"
+                action="cbt_question_time_action"
+                groups="cbt.group_cbt_admin"/>
+
+        <menuitem name="Create Question" id="cbt_mcqs" parent="cbt_qas"
+                  action="cbt_mcqs_setupaction_window"
+                  groups="cbt.group_cbt_creator,cbt.group_cbt_admin"/>
+
+
+    </data>
+</odoo>

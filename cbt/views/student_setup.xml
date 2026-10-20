@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="action_cbt_sync_participants" model="ir.actions.client">
+            <field name="name">Synchronize Participants</field>
+            <field name="tag">cbt_sync_participants</field>
+        </record>
+        <record id="view_cbt_participant_tree" model="ir.ui.view">
+            <field name="name">cbt.participant.tree</field>
+            <field name="model">cbt.participant</field>
+            <!--<field name="priority" eval="8" />-->
+            <field name="arch" type="xml">
+                <tree>
+                    <header>
+                        <button name="%(cbt.action_cbt_sync_participants)s" string="Synchronize Participants" type="action" class="btn-primary"/>
+                    </header>
+                    <field name="name"/>
+                    <!-- <field name="center_id"/> -->
+                    <field name="slot_id"/>
+                    <field name="program"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_cbt_participant_form" model="ir.ui.view">
+            <field name="name">cbt.participant.form</field>
+            <field name="model">cbt.participant</field>
+            <!--<field name="priority" eval="8" />-->
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" />
+                                <field name="login"/>
+                                <field name="password"/>
+
+                            </group>
+                            <group>
+                                <field name="program" />
+                                <!-- <field name="center_id" /> -->
+                                <field name="slot_id" />
+                            </group>
+                            <group>
+                                <field name="degree" />
+                                <field name="first_prefernce" />
+
+                            </group>
+                        </group>
+
+                    </sheet>
+                     <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+                    <!--<div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>-->
+                </form>
+            </field>
+        </record>
+         <record id="action_cbt_participant" model="ir.actions.act_window">
+        <field name="name">Participants</field>
+        <field name="res_model">cbt.participant</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Create Your Participants here.
+            </p>
+        </field>
+    </record>
+        <menuitem
+            id="menu_cbt_participant"
+            name="Participants"
+            parent="students_setup"
+            action="action_cbt_participant"
+            sequence="140"/>
+    </data>
+</odoo>

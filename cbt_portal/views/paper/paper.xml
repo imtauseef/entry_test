@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="cbt_paper" name="">
+        <t t-call="web.layout">
+            <t t-set="body_classname" t-value="'cbt-portal-body'"/>
+            <t t-set="title" t-value="'CBT - Paper'"/>
+            <t t-set="head">
+                <t t-call-assets="cbt_portal.assets_dashboard" t-js="false"/>
+                <script src="/cbt_portal/static/js/jquery-2.1.4.min.js"/>
+                <script src="/cbt_portal/static/js/paginga_jquery.js"/>
+                <style>
+                    #fix_align p img {
+                    height: 45px;
+                    margin-top: -82%;
+                    margin-bottom: -19%;
+                    margin-right: -20%;
+                    margin-left: 10%;
+                    }
+                    .green{
+                    color:green !important;
+                    }
+                    .pager .pageNumbers a.active{
+                    color: green !important;
+                    font-weight: bold;
+                    }
+                    .pager .pageNumbers a {
+                    display: inline-block;
+                    padding: 0 10px;
+                    color: orange !important;
+                    }
+                    .firstPage{
+                    background-color:#6666ff;
+                    color:white;
+                    }
+                    .previousPage{
+                    background-color:#6666ff;
+                    color:white;
+                    }
+                    .nextPage{
+                    background-color:#6666ff;
+                    color:white;
+                    }
+                    .lastPage{
+                    background-color:#6666ff;
+                    color:white;
+                    }
+                    .firstPage:hover{
+                    background-color:grey;
+                    color: white;
+                    cursor: pointer;
+                    }
+                    .previousPage:hover{
+                    background-color:grey;
+                    color: white;
+                    cursor: pointer;
+                    }
+                    .nextPage:hover{
+                    background-color:grey;
+                    color: white;
+                    cursor: pointer;
+                    }
+                    .lastPage:hover{
+                    background-color:grey;
+                    color: white;
+                    cursor: pointer;
+                    }
+                </style>
+            </t>
+            <div class="cbt-page">
+                <t t-call="cbt_portal.cbt_header"/>
+                <div class="cbt-container" onselectstart="return false">
+                    <div class="section section-form-wizard">
+                        <t t-call="cbt_portal.cbt_widgets" t-if="paper"/>
+                        <t t-call="cbt_portal.cbt_sections" t-if="paper"/>
+                        <div t-if="not paper" class="card cbt-panel">
+                            <div class="card-content">
+                                <p class="cbt-note center-align">Unable to load your paper. Please contact the invigilator.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <t t-call-assets="cbt_portal.assets_dashboard" t-css="false"/>
+            <script src="/cbt_portal/static/js/paper.js"/>
+        </t>
+    </template>
+    <template id="cbt_paper_review" name="">
+        <t t-call="web.layout">
+            <t t-set="body_classname" t-value="'cbt-portal-body'"/>
+            <t t-set="title" t-value="'CBT - Review'"/>
+            <t t-set="head">
+                <t t-call-assets="cbt_portal.assets_dashboard" t-js="false"/>
+                <script src="/cbt_portal/static/js/jquery-2.1.4.min.js"/>
+                <script src="/cbt_portal/static/js/paginga_jquery.js"/>
+                <style>
+                    .firstPage{
+                    background-color:#add3e6;
+
+                    }
+                    .previousPage{
+                    background-color:#add3e6;
+
+                    }
+                    .nextPage{
+                    background-color:#add3e6;
+
+                    }
+                    .lastPage{
+                    background-color:#add3e6;
+
+                    }
+                    .firstPage:hover{
+                    background-color:grey;
+                    color: white;
+                    }
+                    .previousPage:hover{
+                    background-color:grey;
+                    color: white;
+                    }
+                    .nextPage:hover{
+                    background-color:grey;
+                    color: white;
+                    }
+                    .lastPage:hover{
+                    background-color:grey;
+                    color: white;
+                    }
+
+                </style>
+            </t>
+            <div class="cbt-page">
+                <t t-call="cbt_portal.cbt_header"/>
+                <div class="cbt-container">
+                    <div class="section section-form-wizard">
+                        <t t-call="cbt_portal.cbt_widgets" t-if="paper"/>
+                        <t t-call="cbt_portal.cbt_review_sections" t-if="paper"/>
+                        <div t-if="not paper" class="card cbt-panel">
+                            <div class="card-content">
+                                <p class="cbt-note center-align">Unable to load your paper. Please contact the invigilator.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <t t-call-assets="cbt_portal.assets_dashboard" t-css="false"/>
+            <script src="/cbt_portal/static/js/paper.js"/>
+            <script>
+                window.addEventListener('contextmenu', function (e) {
+                    e.preventDefault();
+                }, false);
+            </script>
+        </t>
+    </template>
+</odoo>

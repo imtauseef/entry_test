@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_cbt_instruction_tree" model="ir.ui.view">
+        <field name="name">cbt.instruction.export.tree</field>
+        <field name="model">cbt.instruction.export</field>
+        <field name="arch" type="xml">
+            <tree string="Paper Instructions">
+                <field name="name" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_cbt_instruction_form" model="ir.ui.view">
+        <field name="name">cbt.instruction.export.form</field>
+        <field name="model">cbt.instruction.export</field>
+        <field name="arch" type="xml">
+            <form string="Paper Instruction">
+                <sheet>
+                    <group>
+                        <field name="name" />
+                    </group>
+                    <group>
+                        <field name="instruction" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_cbt_instruction" model="ir.actions.act_window">
+        <field name="name">Paper Instructions</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">cbt.instruction.export</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">Click to create new record.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_cbt_portal_instruction"
+          name="Paper Instructions"
+          parent="cbt_config_paper_menu"
+          action="action_cbt_instruction"
+          sequence="200"/>
+
+
+</odoo>

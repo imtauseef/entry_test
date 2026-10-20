@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!--
+            Dedicated A4 paper format for the printed question papers / answer
+            keys. Margins are kept at ~14 mm so the repeated page header and the
+            "Page X of Y" footer (rendered by wkhtmltopdf) stay inside the
+            printable area.
+        -->
+        <record id="entrytest_paper_template" model="report.paperformat">
+            <field name="name">CBT A4 Question Paper</field>
+            <field name="default" eval="True"/>
+            <field name="format">A4</field>
+            <field name="page_width" eval="False"/>
+            <field name="page_height" eval="False"/>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">32</field>
+            <field name="margin_bottom">20</field>
+            <field name="margin_left">14</field>
+            <field name="margin_right">14</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">4</field>
+            <field name="dpi">96</field>
+        </record>
+
+        <!-- ===================== Question Paper (cbt.paper) ===================== -->
+        <record id="entry_test_paper" model="ir.actions.report">
+            <field name="name">Question Paper</field>
+            <field name="model">cbt.paper</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">cbt.paper</field>
+            <field name="report_file">cbt.paper</field>
+            <field name="print_report_name">'Question_Paper_%s_%s' % (object.name, object.id)</field>
+            <field name="paperformat_id" ref="entrytest_paper_template"/>
+            <field name="binding_model_id" ref="model_cbt_paper"/>
+            <field name="binding_type">report</field>
+            <field name="groups_id" eval="[(6, 0, [ref('cbt.group_cbt_creator'), ref('cbt.group_cbt_reviewer'), ref('cbt.group_cbt_user'), ref('cbt.group_cbt_admin')])]"/>
+        </record>
+
+        <!-- ================ Question Paper (cbt.student.paper) ================= -->
+        <record id="student_paper_question_report" model="ir.actions.report">
+            <field name="name">Question Paper</field>
+            <field name="model">cbt.student.paper</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">cbt.paper</field>
+            <field name="report_file">cbt.paper</field>
+            <field name="print_report_name">'Question_Paper_%s_%s' % (object.display_name, object.id)</field>
+            <field name="paperformat_id" ref="entrytest_paper_template"/>
+            <field name="binding_model_id" ref="model_cbt_student_paper"/>
+            <field name="binding_type">report</field>
+            <field name="groups_id" eval="[(6, 0, [ref('cbt.group_cbt_creator'), ref('cbt.group_cbt_reviewer'), ref('cbt.group_cbt_user'), ref('cbt.group_cbt_admin')])]"/>
+        </record>
+
+        <!-- ====================== Answer Key (cbt.paper) ======================= -->
+        <record id="paper_answer_key_report" model="ir.actions.report">
+            <field name="name">Answer Key</field>
+            <field name="model">cbt.paper</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">cbt.paper_answer_key</field>
+            <field name="report_file">cbt.paper_answer_key</field>
+            <field name="print_report_name">'Answer_Key_%s_%s' % (object.name, object.id)</field>
+            <field name="paperformat_id" ref="entrytest_paper_template"/>
+            <field name="binding_model_id" ref="model_cbt_paper"/>
+            <field name="binding_type">report</field>
+            <field name="groups_id" eval="[(6, 0, [ref('cbt.group_cbt_reviewer'), ref('cbt.group_cbt_admin')])]"/>
+        </record>
+
+        <!-- =================== Answer Key (cbt.student.paper) ================== -->
+        <record id="student_paper_answer_key_report" model="ir.actions.report">
+            <field name="name">Answer Key</field>
+            <field name="model">cbt.student.paper</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">cbt.paper_answer_key</field>
+            <field name="report_file">cbt.paper_answer_key</field>
+            <field name="print_report_name">'Answer_Key_%s_%s' % (object.display_name, object.id)</field>
+            <field name="paperformat_id" ref="entrytest_paper_template"/>
+            <field name="binding_model_id" ref="model_cbt_student_paper"/>
+            <field name="binding_type">report</field>
+            <field name="groups_id" eval="[(6, 0, [ref('cbt.group_cbt_reviewer'), ref('cbt.group_cbt_admin')])]"/>
+        </record>
+
+    </data>
+</odoo>

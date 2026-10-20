@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!--
+            Shared report layout.
+
+            It provides the repeated page header (company logo + name and the
+            report title / paper code), the article wrapper required by
+            ``ir.actions.report._prepare_html`` (it looks for a ``div`` with the
+            ``article`` class carrying ``data-oe-model``/``data-oe-id``) and the
+            page footer with "Page X of Y" and the paper code.
+
+            Because every printed record is rendered in its own ``article`` /
+            body, Odoo/wkhtmltopdf already starts a new page per record. The
+            per-paper ``page-break-after`` rule below is therefore scoped with
+            ``:not(:last-child)`` so that it never appends a trailing blank page.
+        -->
+        <template id="paper_report_layout">
+            <t t-if="not company">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+            <div class="header o_cbt_report_header">
+                <table style="width: 100%; border-collapse: collapse; table-layout: fixed; border-bottom: 1px solid #333333;">
+                    <tr>
+                        <td style="text-align: left; vertical-align: middle; padding-bottom: 4px; overflow: hidden; white-space: nowrap;">
+                            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
+                                 alt="Logo" style="max-height: 40px; max-width: 140px; vertical-align: middle;"/>
+                            <span class="h5" t-out="company.name"
+                                  style="margin-left: 8px; vertical-align: middle; white-space: nowrap;"/>
+                        </td>
+                        <td style="width: 220px; text-align: right; vertical-align: middle; padding-bottom: 4px; white-space: nowrap;">
+                            <span class="h5" t-out="cbt_report_title or ''"/>
+                            <div t-if="cbt_paper_code" style="font-size: 9pt;" t-out="cbt_paper_code"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="article" t-att-data-oe-model="o and o._name"
+                 t-att-data-oe-id="o and o.id"
+                 t-att-data-oe-lang="o and o.env.context.get('lang')">
+                <t t-out="0"/>
+            </div>
+            <div class="footer o_cbt_report_footer">
+                <table style="width: 100%; border-collapse: collapse; border-top: 1px solid #333333; font-size: 9pt;">
+                    <tr>
+                        <td style="text-align: left; padding-top: 4px;" t-out="cbt_paper_code or ''"/>
+                        <td style="text-align: right; padding-top: 4px;">
+                            Page <span class="page"/> of <span class="topage"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </template>
+
+        <!--
+            Styling shared by the Question Paper and the Answer Key.
+
+            * Html questions/options may embed images and tables: images are
+              capped to the page width and tables are forced to a fixed layout
+              so they can never overflow the printable area.
+            * ``dir="auto"`` / ``unicode-bidi: plaintext`` keeps RTL (e.g.
+              Urdu) text readable while still allowing mixed LTR/RTL content.
+            * A broad font fallback stack avoids "tofu" for Unicode glyphs.
+        -->
+        <template id="paper_report_style">
+            <style>
+                .cbt-report { font-size: 11pt; color: #000000; }
+                .cbt-report, .cbt-report * {
+                    font-family: 'Lato', 'Noto Sans', 'Noto Naskh Arabic',
+                                 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq',
+                                 'Segoe UI', 'DejaVu Sans', Arial, sans-serif;
+                }
+                .cbt-report img { max-width: 100%; height: auto; }
+                .cbt-report table { max-width: 100%; }
+                .cbt-report .cbt-qbody table,
+                .cbt-report .cbt-obody table,
+                .cbt-report .cbt-answerkey table {
+                    width: 100% !important;
+                    table-layout: fixed;
+                    word-wrap: break-word;
+                }
+                .cbt-report .cbt-qbody td,
+                .cbt-report .cbt-qbody th,
+                .cbt-report .cbt-obody td,
+                .cbt-report .cbt-obody th {
+                    word-break: break-word;
+                    white-space: normal;
+                }
+                .cbt-report .cbt-question { page-break-inside: avoid; margin-bottom: 10px; }
+                .cbt-report .cbt-paper:not(:last-child) { page-break-after: always;}
+                .cbt-report .cbt-dir { unicode-bidi: plaintext; }
+                .cbt-report .cbt-qnum { width: 36px; vertical-align: top; font-weight: bold; }
+                .cbt-report .cbt-options { margin-left: 36px; }
+                .cbt-report .cbt-opt-letter { width: 30px; vertical-align: top; }
+                .cbt-report .cbt-details td { border: 1px solid #333333; padding: 3px 6px; vertical-align: top; }
+                .cbt-report .cbt-instructions { border: 1px solid #333333; padding: 6px 10px; margin: 8px 0 14px 0; page-break-inside: avoid; }
+                .cbt-report .cbt-section-title { margin: 12px 0 6px 0; page-break-after: avoid; }
+                .cbt-report .cbt-answerkey td, .cbt-report .cbt-answerkey th { border: 1px solid #333333; padding: 3px 6px; vertical-align: top; }
+                .cbt-report .cbt-title { margin: 0 0 8px 0; text-align: center; }
+            </style>
+        </template>
+
+        <!-- ============================ QUESTION PAPER ============================ -->
+        <template id="paper">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-set="is_student" t-value="doc_model == 'cbt.student.paper'"/>
+                    <t t-set="paper" t-value="o.main_paper_id if is_student else o"/>
+                    <t t-set="questions" t-value="o.questions"/>
+                    <t t-set="company" t-value="res_company"/>
+                    <t t-set="cbt_report_title" t-value="'Question Paper'"/>
+                    <t t-set="cbt_paper_code" t-value="'%s / %s' % (paper.name, paper.id)"/>
+                    <t t-call="cbt.paper_report_layout">
+                        <div class="page cbt-report">
+                            <t t-call="cbt.paper_report_style"/>
+                            <div class="cbt-paper">
+                                <br/><br/><br/>
+                                <h3 class="cbt-title">Question Paper</h3>
+
+                                <div class="cbt-details">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <tr>
+                                            <td style="width: 50%;">
+                                                <strong>Program: </strong>
+                                                <t t-foreach="paper.generator_id.program_ids" t-as="prog">
+                                                    <span t-out="prog.name"/>
+                                                    <t t-if="not prog_last">, </t>
+                                                </t>
+                                            </td>
+                                            <td style="width: 50%;">
+                                                <strong>Entry Test: </strong>
+                                                <span t-out="paper.criteria_id.etest_id.name or ''"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Discipline / Subject(s): </strong>
+                                                <t t-foreach="questions.mapped('subject_id')" t-as="subj">
+                                                    <span t-out="subj.name"/>
+                                                    <t t-if="not subj_last">, </t>
+                                                </t>
+                                            </td>
+                                            <td>
+                                                <strong>Date: </strong>
+                                                <span t-field="paper.slot_id.date" t-options='{"widget": "date"}'/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Session: </strong>
+                                                <span t-out="paper.slot_id.name or ''"/>
+                                            </td>
+                                            <td>
+                                                <strong>Duration: </strong>
+                                                <t t-if="paper.criteria_id.duration">
+                                                    <span t-out="paper.criteria_id.duration"/> Minutes
+                                                </t>
+                                                <t t-elif="paper.slot_id.duration">
+                                                    <span t-out="'%g' % paper.slot_id.duration"/> Minutes
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Total Questions: </strong>
+                                                <span t-out="len(questions)"/>
+                                            </td>
+                                            <td>
+                                                <strong>Total Marks: </strong>
+                                                <span t-out="len(questions)"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Paper Code: </strong>
+                                                <span t-out="paper.id"/>
+                                            </td>
+                                            <td>
+                                                <strong>Paper Name: </strong>
+                                                <span t-out="paper.name or ''"/>
+                                            </td>
+                                        </tr>
+                                        <tr t-if="is_student">
+                                            <td>
+                                                <strong>Candidate Name: </strong>
+                                                <span t-out="o.participant_id.name or ''"/>
+                                            </td>
+                                            <td>
+                                                <strong>Login: </strong>
+                                                <span t-out="o.participant_id.login or ''"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <div class="cbt-instructions">
+                                    <strong>Instructions:</strong>
+                                    <ol style="margin: 4px 0 0 18px; padding: 0;">
+                                        <li>Use a blue or black ballpoint pen only.</li>
+                                        <li>Read each question carefully before answering.</li>
+                                        <li>Each question carries equal marks. There is no negative marking.</li>
+                                        <li>Do not use any electronic device or unauthorised material.</li>
+                                        <li>Hand over the question paper and answer sheet to the invigilator at the end of the test.</li>
+                                    </ol>
+                                </div>
+
+                                <t t-set="i" t-value="0"/>
+                                <t t-set="current_subject" t-value="False"/>
+                                <t t-foreach="questions" t-as="q">
+                                    <t t-if="q.subject_id != current_subject">
+                                        <h4 class="cbt-section-title">
+                                            Section: <span t-out="q.subject_id.name or ''"/>
+                                        </h4>
+                                        <t t-set="current_subject" t-value="q.subject_id"/>
+                                    </t>
+                                    <t t-set="i" t-value="i + 1"/>
+                                    <div class="cbt-question">
+                                        <table style="width: 100%; border-collapse: collapse;">
+                                            <tr>
+                                                <td class="cbt-qnum"><t t-out="i"/>.</td>
+                                                <td class="cbt-qbody cbt-dir" dir="auto" t-out="q.question"/>
+                                            </tr>
+                                        </table>
+                                        <div class="cbt-options">
+                                            <table style="width: 100%; border-collapse: collapse;">
+                                                <tr t-if="not is_html_empty(q.ans1)">
+                                                    <td class="cbt-opt-letter">A.</td>
+                                                    <td class="cbt-obody cbt-dir" dir="auto" t-out="q.ans1"/>
+                                                </tr>
+                                                <tr t-if="not is_html_empty(q.ans2)">
+                                                    <td class="cbt-opt-letter">B.</td>
+                                                    <td class="cbt-obody cbt-dir" dir="auto" t-out="q.ans2"/>
+                                                </tr>
+                                                <tr t-if="not is_html_empty(q.ans3)">
+                                                    <td class="cbt-opt-letter">C.</td>
+                                                    <td class="cbt-obody cbt-dir" dir="auto" t-out="q.ans3"/>
+                                                </tr>
+                                                <tr t-if="not is_html_empty(q.ans4)">
+                                                    <td class="cbt-opt-letter">D.</td>
+                                                    <td class="cbt-obody cbt-dir" dir="auto" t-out="q.ans4"/>
+                                                </tr>
+                                                <tr t-if="not is_html_empty(q.ans5)">
+                                                    <td class="cbt-opt-letter">E.</td>
+                                                    <td class="cbt-obody cbt-dir" dir="auto" t-out="q.ans5"/>
+                                                </tr>
+                                                <tr t-if="not is_html_empty(q.ans6)">
+                                                    <td class="cbt-opt-letter">F.</td>
+                                                    <td class="cbt-obody cbt-dir" dir="auto" t-out="q.ans6"/>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+        <!-- ============================== ANSWER KEY ============================== -->
+        <template id="paper_answer_key">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-set="is_student" t-value="doc_model == 'cbt.student.paper'"/>
+                    <t t-set="paper" t-value="o.main_paper_id if is_student else o"/>
+                    <t t-set="questions" t-value="o.questions"/>
+                    <t t-set="company" t-value="res_company"/>
+                    <t t-set="cbt_report_title" t-value="'Answer Key'"/>
+                    <t t-set="cbt_paper_code" t-value="'%s / %s' % (paper.name, paper.id)"/>
+                    <t t-call="cbt.paper_report_layout">
+                        <div class="page cbt-report">
+                            <t t-call="cbt.paper_report_style"/>
+                            <div class="cbt-paper">
+                                <br/><br/><br/>
+                                <h3 class="cbt-title">Answer Key</h3>
+                                <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+                                    <tr>
+                                        <td style="border: none; padding: 2px 0;">
+                                            <strong>Paper: </strong><span t-out="paper.name or ''"/>
+                                        </td>
+                                        <td style="border: none; padding: 2px 0;">
+                                            <strong>Entry Test: </strong>
+                                            <span t-out="paper.criteria_id.etest_id.name or ''"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: none; padding: 2px 0;">
+                                            <strong>Discipline / Subject(s): </strong>
+                                            <t t-foreach="questions.mapped('subject_id')" t-as="subj">
+                                                <span t-out="subj.name"/>
+                                                <t t-if="not subj_last">, </t>
+                                            </t>
+                                        </td>
+                                        <td style="border: none; padding: 2px 0;" t-if="is_student">
+                                            <strong>Candidate: </strong>
+                                            <span t-out="o.participant_id.name or ''"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <table class="cbt-answerkey" style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 70px; text-align: center;">Q. No.</th>
+                                            <th style="width: 90px; text-align: center;">Answer</th>
+                                            <th style="text-align: left;">Question</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="i" t-value="0"/>
+                                        <t t-foreach="questions" t-as="q">
+                                            <t t-set="i" t-value="i + 1"/>
+                                            <t t-set="letter"
+                                               t-value="('A' if q.ans1_correct else
+                                                         'B' if q.ans2_correct else
+                                                         'C' if q.ans3_correct else
+                                                         'D' if q.ans4_correct else
+                                                         'E' if q.ans5_correct else
+                                                         'F' if q.ans6_correct else '-')"/>
+                                            <tr>
+                                                <td style="text-align: center;"><t t-out="i"/></td>
+                                                <td style="text-align: center; font-weight: bold;"><t t-out="letter"/></td>
+                                                <td class="cbt-dir" dir="auto" t-out="q.question"/>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

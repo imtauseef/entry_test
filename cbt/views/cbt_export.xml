@@ -1,0 +1,61 @@
+<odoo>
+    <data>
+        <!-- explicit list view definition -->
+        <record id="cbt_export_tree" model="ir.ui.view">
+            <field name="name">cbt.export.tree</field>
+            <field name="model">cbt.export</field>
+            <field name="arch" type="xml">
+                <tree string="Export Session">
+                    <field name="etest_id"/>
+                    <field name="type_id"/>
+                    <field name="slot_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="cbt_export_form" model="ir.ui.view">
+            <field name="name">cbt.export.form</field>
+            <field name="model">cbt.export</field>
+            <field name="arch" type="xml">
+                <form create="false">
+                    <header>
+                        <button name="%(action_export_data_wizard)d" type="action" string="Copy Data" class="btn-primary"/>
+                        <button name="dump_database" string="Download Database" type="object" class="btn-primary"/>
+
+
+                        <!-- attrs="{'invisible':[('student_paper_gen','=',True)]}" -->
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="etest_id"/>
+                                <field name="type_id"/>
+                            </group>
+                            <group>
+                                <field name="slot_id"/>
+
+                            </group>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record id="cbt_export_action" model="ir.actions.act_window">
+            <field name="name">Export Session</field>
+            <field name="res_model">cbt.export</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        </record>
+        <menuitem
+                name="Export Session"
+                id="cbt_exportt_menu"
+                parent="cbt_config_paper_menu"
+                action="cbt_export_action"/>
+    </data>
+</odoo>

@@ -1,0 +1,4 @@
+# -*- coding: utf-8 -*-
+from . import test_unique_paper_generation
+from . import test_paper_question_replacement
+from . import test_paper_report
