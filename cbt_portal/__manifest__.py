@@ -33,6 +33,7 @@
         'views/components/questions.xml',
         'views/components/sections.xml',
         'views/paper/paper.xml',
+        'views/login_templates.xml',
         'reports/solved_paper.xml',
         'wizards/prepare_result.xml',
         'wizards/date_transfer_wizard.xml',

@@ -21,7 +21,7 @@
                     <header>
                          <button name="generate_student_paper" string="Generate Student Questions" type="object" class="btn-primary"
                                  invisible="student_paper_gen"/>
-                         <button name="%(cbt_report_print_wizard_action)d" string="Print" type="action"
+                         <button name="%(cbt_report_print_wizard_action)d" string="Print Paper" type="action"
                                  class="btn-primary"
                                  context="{'default_report_ref': 'cbt.entry_test_paper', 'default_res_model': 'cbt.paper', 'default_res_id': id}"/>
                          <button name="%(cbt_report_print_wizard_action)d" string="Print Answer Key" type="action"

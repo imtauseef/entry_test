@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="cbt_login_session_ended" inherit_id="web.login"
+              name="CBT login: session ended">
+        <xpath expr="//p[@t-if='error']" position="after">
+            <p class="alert alert-warning" role="alert"
+               t-if="request.params.get('cbt_session_ended')">
+                Your session ended because this account was logged in on
+                another device. Please log in again.
+            </p>
+        </xpath>
+    </template>
+</odoo>

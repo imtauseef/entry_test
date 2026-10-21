@@ -18,7 +18,7 @@
             <field name="arch" type="xml">
                 <form edit="false" create="false">
                     <header>
-                        <button name="%(cbt_report_print_wizard_action)d" string="Print" type="action"
+                        <button name="%(cbt_report_print_wizard_action)d" string="Print Paper" type="action"
                                 class="btn-primary"
                                 context="{'default_report_ref': 'cbt.student_paper_question_report', 'default_res_model': 'cbt.student.paper', 'default_res_id': id}"/>
                         <button name="%(cbt_report_print_wizard_action)d" string="Print Answer Key" type="action"

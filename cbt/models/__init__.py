@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from . import models
+from . import res_users
+from . import ir_http
 from . import paper_criteria
 from . import test_schedule, paper_generation, papers
 from . import paper_conduct, student_paper_attempt, student_paper

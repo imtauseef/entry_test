@@ -20,6 +20,7 @@
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
+        'data/cbt_session_data.xml',
 
         'report/paper.xml',
         'report/report.xml',
