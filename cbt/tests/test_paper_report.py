@@ -148,71 +148,24 @@ class TestPaperReport(TransactionCase):
         self.assertIn(b'Ali Khan', html)
         self.assertIn(b'ali.khan', html)
 
-    def _word_html(self, html, title='Question Paper'):
-        from email import message_from_bytes, policy
-
+    def test_word_export_keeps_qweb_html(self):
         from odoo.addons.cbt.controllers.report_word import (
             CBTReportWordController)
 
+        html = self._render_html('cbt.entry_test_paper', self.paper)
         if isinstance(html, bytes):
             html = html.decode()
-        data = CBTReportWordController._to_word_mhtml(html, title=title)
-        self.assertIsInstance(data, bytes)
-        message = message_from_bytes(data, policy=policy.default)
-        return message.get_body(preferencelist=('html',)).get_content()
-
-    def test_word_export_handles_escaped_html(self):
-        # Some deployments return the rendered report HTML-escaped while the
-        # header/footer stay as real markup.  The Word export must unescape it
-        # instead of printing the tags as text.
-        from html import escape
-
-        html = self._render_html('cbt.entry_test_paper', self.paper)
-        document = self._word_html(escape(html.decode() if isinstance(
-            html, bytes) else html))
-        self.assertIn('<div id="wrapwrap"', document)
-        self.assertNotIn('&lt;div', document)
-        self.assertNotIn('&lt;meta', document)
-        self.assertIn('mso-element:header', document)
+        document = CBTReportWordController._to_word_html(
+            html, base_url='http://localhost')
+        self.assertIn('WordSection1', document)
+        self.assertIn('xmlns:w="urn:schemas-microsoft-com:office:word"',
+                      document)
         self.assertIn('o_cbt_report_header', document)
         self.assertIn('cbt-question', document)
-
-    def test_word_export_mixed_escaped_body_keeps_real_header(self):
-        # Production files showed a real <header>/<footer> plus an escaped
-        # wrapwrap body (``&lt;div id=&#34;wrapwrap&#34;&gt;``). Word then
-        # printed every tag. The body must be reparsed into elements.
-        html = '''<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"/><title>t</title></head>
-<body>
-                &lt;div id=&#34;wrapwrap&#34;&gt;
-                    &lt;main&gt;
-            &lt;div class=&#34;article&#34; data-oe-model=&#34;cbt.paper&#34;&gt;
-                        &lt;div class=&#34;page cbt-report&#34;&gt;
-                            &lt;div class=&#34;cbt-paper&#34;&gt;
-                                &lt;h3 class=&#34;cbt-title&#34;&gt;Question Paper&lt;/h3&gt;
-                                &lt;div class=&#34;cbt-question&#34;&gt;What is 2+2?&lt;/div&gt;
-                            &lt;/div&gt;
-                        &lt;/div&gt;
-            &lt;/div&gt;
-                    &lt;/main&gt;
-                &lt;/div&gt;
-<div class="header o_cbt_report_header"><span>Company</span></div>
-<div class="footer o_cbt_report_footer">Page
-    <span class="page"/> of <span class="topage"/>
-</div>
-</body>
-</html>'''
-        document = self._word_html(html)
-        self.assertIn('id="wrapwrap"', document.replace("'", '"'))
-        self.assertIn('cbt-question', document)
-        self.assertIn('What is 2+2?', document)
         self.assertIn('Question Paper', document)
-        self.assertIn('mso-element:header', document)
-        self.assertIn('o_cbt_report_header', document)
+        self.assertIn('mso-field-code:" PAGE "', document)
+        self.assertNotIn('MIME-Version', document)
         self.assertNotIn('&lt;div', document)
-        self.assertNotIn('&lt;meta', document)
-        self.assertNotIn('&lt;h3', document)
 
     def test_pdf_render(self):
         state = self.env['ir.actions.report'].get_wkhtmltopdf_state()

@@ -1,3 +1,11 @@
+function cbtSessionEnded(data) {
+    if (data && data.session_ended) {
+        window.location.href = "/web/login?cbt_session_ended=1";
+        return true;
+    }
+    return false;
+}
+
 $(document).ready(function() {
     var timer2 = "";
     var minutes = 0;
@@ -50,6 +58,9 @@ $(document).ready(function() {
         contentType: false,
         processData: false,
         success: function(data) {
+            if (cbtSessionEnded(data)) {
+                return;
+            }
             if (data.paper_state) {
                 window.location.href = "/cbt/paper/finish/page";
                 return;
@@ -85,7 +96,9 @@ $(document).ready(function() {
             // beforeSend: function(){ showNotify('Please wait !','warning','top-right');},
             contentType: false,
             processData: false,
-            success: function(data) {},
+            success: function(data) {
+                cbtSessionEnded(data);
+            },
             error: function(data) {}
         });
     }, 1000 * 30 * 1);
@@ -108,6 +121,9 @@ function record_time(){
             contentType: false,
             processData: false,
             success: function(data) {
+            if (cbtSessionEnded(data)) {
+                return;
+            }
             window.location.href = "/cbt/paper/review";
             },
             error: function(data) {}
@@ -127,6 +143,9 @@ function record_time_rev(){
             contentType: false,
             processData: false,
             success: function(data) {
+           if (cbtSessionEnded(data)) {
+               return;
+           }
            // window.location.href = "/cbt/paper";
             },
             error: function(data) {}
@@ -146,6 +165,9 @@ function record_time_old(){
             contentType: false,
             processData: false,
             success: function(data) {
+            if (cbtSessionEnded(data)) {
+                return;
+            }
             window.location.href = "/cbt/paper";
             },
             error: function(data) {}

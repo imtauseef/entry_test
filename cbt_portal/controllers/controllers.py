@@ -26,10 +26,7 @@ class CBTHome(http.Controller):
                 'instructions': instructions,
                 'end_paper': paper_id.end_paper
              })
-            
-            if paper_id.last_session_token:
-                if not paper_id.last_session_id == request.session.sid:
-                    return http.request.render('cbt_portal.cbt_exception', values)
+
             return http.request.render('cbt_portal.cbt_instruction', values)
         except Exception as e:
             values = {
@@ -44,16 +41,6 @@ class CBTHome(http.Controller):
             paper_id = http.request.env['cbt.paper.export'].sudo().search([('login', '=', participant.login)], limit=1)
           
             start_time = paper_id
-            # if paper_id.last_session_token:
-            #     if not paper_id.last_session_id == request.session.sid:
-            #         return http.request.render('cbt_portal.cbt_exception')
-            session =  paper_id
-            data ={
-                'last_session_id': request.session.sid,
-                'last_session_token': request.session.session_token
-            }
-
-            session.sudo().write(data)
             if not paper_id.paper_started:
                 data = {
                  'paper_started': datetime.now()
@@ -226,16 +213,28 @@ class CBTHome(http.Controller):
                 'end_paper': paper_id.end_paper,
             })
             # request.session.logout()
-            return http.request.render('cbt_portal.cbt_finish', values)
+            response = http.request.render('cbt_portal.cbt_finish', values)
         except Exception as e:
             values = {
                 'error_message': e or False
             }
-            return http.request.render('cbt_portal.cbt_finish', values)
+            response = http.request.render('cbt_portal.cbt_finish', values)
+
+        release = request.env['ir.config_parameter'].sudo().get_param(
+            'cbt.release_session_on_finish')
+        if str(release).lower() in ('1', 'true', 'yes'):
+            request.env.user.sudo()._cbt_clear_session()
+        return response
 
     @http.route(['/cbt/time/remaining'], type='http', auth="user", website=True, csrf=False,methods=['GET', 'POST'])
     def cbt_portal_remaining(self, **kw):
         try:
+            if not main.cbt_session_valid(request):
+                return json.dumps({
+                    'session_ended': True,
+                    'error': 'Your session ended because this account was '
+                             'logged in on another device.',
+                })
             values, success, participant = main.prepare_portal_values(request)
             paper_id = http.request.env['cbt.paper.export'].sudo().search([('login','=',participant.login)], limit=1)
 
@@ -262,6 +261,12 @@ class CBTHome(http.Controller):
     @http.route(['/cbt/paper/currentState'], type='http', auth="user", website=True, methods=['GET', 'POST'])
     def cbt_portal_currentState(self, **kw):
             try:
+                if not main.cbt_session_valid(request):
+                    return json.dumps({
+                        'session_ended': True,
+                        'error': 'Your session ended because this account was '
+                                 'logged in on another device.',
+                    })
                 values, success, participant = main.prepare_portal_values(request)
                 paper_id = http.request.env['cbt.paper.export'].sudo().search([('login', '=', participant.login)], limit=1)
                 data = {
@@ -285,16 +290,6 @@ class CBTHome(http.Controller):
             paper_id = http.request.env['cbt.paper.export'].sudo().search([('login', '=', participant.login)], limit=1)
             
             start_time = paper_id
-            if paper_id.last_session_token:
-                if not paper_id.last_session_id == request.session.sid:
-                    return http.request.render('cbt_portal.cbt_exception', values)
-            session = paper_id
-            data = {
-                'last_session_id': request.session.sid,
-                'last_session_token': request.session.session_token
-            }
-
-            session.sudo().write(data)
             if not paper_id.paper_started:
                 data = {
                     'paper_started': datetime.now()

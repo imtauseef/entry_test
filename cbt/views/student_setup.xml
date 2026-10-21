@@ -15,9 +15,12 @@
                         <button name="%(cbt.action_cbt_sync_participants)s" string="Synchronize Participants" type="action" class="btn-primary"/>
                     </header>
                     <field name="name"/>
+                    <field name="login"/>
                     <!-- <field name="center_id"/> -->
                     <field name="slot_id"/>
                     <field name="program"/>
+                    <field name="session_active"/>
+                    <field name="user_id" optional="hide"/>
                 </tree>
             </field>
         </record>
@@ -27,18 +30,27 @@
             <!--<field name="priority" eval="8" />-->
             <field name="arch" type="xml">
                 <form>
+                    <header>
+                        <button name="action_force_logout" type="object"
+                                string="Force Logout / Reset Session"
+                                class="btn-primary"
+                                groups="cbt.group_cbt_admin"
+                                confirm="This will end the participant's active session. Continue?"/>
+                    </header>
                     <sheet>
                         <group>
                             <group>
                                 <field name="name" />
                                 <field name="login"/>
-                                <field name="password"/>
+                                <field name="password" password="True"/>
 
                             </group>
                             <group>
                                 <field name="program" />
                                 <!-- <field name="center_id" /> -->
                                 <field name="slot_id" />
+                                <field name="session_active" readonly="1"/>
+                                <field name="user_id" readonly="1"/>
                             </group>
                             <group>
                                 <field name="degree" />
@@ -60,6 +72,15 @@
                     </div>-->
                 </form>
             </field>
+        </record>
+        <record id="action_cbt_participant_force_logout" model="ir.actions.server">
+            <field name="name">Force Logout / Reset Session</field>
+            <field name="model_id" ref="model_cbt_participant"/>
+            <field name="binding_model_id" ref="model_cbt_participant"/>
+            <field name="binding_view_types">list</field>
+            <field name="groups_id" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="state">code</field>
+            <field name="code">records.action_force_logout()</field>
         </record>
          <record id="action_cbt_participant" model="ir.actions.act_window">
         <field name="name">Participants</field>
