@@ -84,7 +84,7 @@
                                 </div>
                                 <div class="col s12 m6">
                                     <span class="cbt-summary-label">Attempted</span>
-                                    <span class="cbt-summary-value"><t t-esc="len(paper.line_ids.filtered(lambda l: l.answer > 0))"/></span>
+                                    <span class="cbt-summary-value"><t t-esc="len(paper.line_ids.filtered(lambda l: l.is_answered))"/></span>
                                 </div>
                             </div>
                             </div>

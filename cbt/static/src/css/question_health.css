@@ -1,0 +1,18 @@
+.o_cbt_question_health .o_cbt_health_correct {
+    background-color: #d9ead3;
+    color: #1e4620;
+}
+
+.o_cbt_question_health .o_cbt_health_warning {
+    background-color: #fff2cc;
+    color: #6b5300;
+}
+
+.o_cbt_question_health .o_cbt_health_distractor {
+    background-color: #f4cccc;
+    color: #660000;
+}
+
+.o_cbt_question_health td p:last-child {
+    margin-bottom: 0;
+}

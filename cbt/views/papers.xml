@@ -7,8 +7,8 @@
             <field name="arch" type="xml">
                 <tree create="false">
                     <field name="name"/>
-                    <field name="slot_id"/>
-                    <field name="program_ids" widget='many2many_tags'/>
+                    <field name="slot_id" options="{'no_open': True}"/>
+                    <field name="program_ids" widget='many2many_tags' options="{'no_open': True}"/>
                 </tree>
             </field>
         </record>
@@ -35,8 +35,8 @@
                                 <field name="number_of_questions"/>
                             </group>
                             <group>
-                                <field name="slot_id" required="1"/>
-                                <field name="program_ids" widget='many2many_tags'/>
+                                <field name="slot_id" required="1" options="{'no_open': True}"/>
+                                <field name="program_ids" widget='many2many_tags' options="{'no_open': True}"/>
                                 <field name="student_paper_gen" hidden="1"/>
                                 <field name="state" invisible="1"/>
                             </group>
@@ -44,11 +44,11 @@
                         <notebook>
                             <page name="Questions" string="Questions">
                                 <field name="questions" required="1"
-                                       context="{'cbt_paper_id': id}">
+                                       context="{'cbt_paper_id': id}" options="{'no_open': True}">
                                     <tree create="false" delete="false">
-                                        <field name="subject_id"/>
-                                        <field name="topic_id"/>
-                                        <field name="difficulty_level_id"/>
+                                        <field name="subject_id" options="{'no_open': True}"/>
+                                        <field name="topic_id" options="{'no_open': True}"/>
+                                        <field name="difficulty_level_id" options="{'no_open': True}"/>
                                         <field name="question"/>
                                         <button name="action_replace_question" string="Replace"
                                                 type="object" class="btn-secondary"
@@ -59,14 +59,14 @@
                                 </field>
                             </page>
                             <page name="Replacements" string="Replacements">
-                                <field name="replacement_log_ids" readonly="1">
+                                <field name="replacement_log_ids" readonly="1" options="{'no_open': True}">
                                     <tree create="false" delete="false" edit="false">
                                         <field name="replace_datetime"/>
                                         <field name="line_sequence" string="Line"/>
-                                        <field name="old_question_id"/>
-                                        <field name="new_question_id"/>
+                                        <field name="old_question_id" options="{'no_open': True}"/>
+                                        <field name="new_question_id" options="{'no_open': True}"/>
                                         <field name="match_level"/>
-                                        <field name="user_id"/>
+                                        <field name="user_id" options="{'no_open': True}"/>
                                     </tree>
                                 </field>
                             </page>

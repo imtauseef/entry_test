@@ -7,9 +7,9 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
-                    <field name="etest_id"/>
-                    <field name="type_id"/>
-                    <field name="program_ids"/>
+                    <field name="etest_id" options="{'no_open': True}"/>
+                    <field name="type_id" options="{'no_open': True}"/>
+                    <field name="program_ids" options="{'no_open': True}"/>
                     <field name="duration"/>
                     <field name="total_questions"/>
                 </tree>
@@ -55,9 +55,9 @@
                         <field name="total_questions_compute" style="display: none;"/>
                         <notebook colspan="4">
                             <page string="Paper Rules">
-                                <field name="rules_ids">
+                                <field name="rules_ids" options="{'no_open': True}">
                                     <tree>
-                                        <field name="subjects"/>
+                                        <field name="subjects" options="{'no_open': True}"/>
                                         <field name="no_questions"/>
                                         <field name="sequence"/>
                                     </tree>
@@ -81,9 +81,9 @@
             <field name="arch" type="xml">
                 <search string="Paper Criteria">
                     <field name="name"/>
-                    <field name="etest_id"/>
-                    <field name="type_id"/>
-                    <field name="program_ids"/>
+                    <field name="etest_id" options="{'no_open': True}"/>
+                    <field name="type_id" options="{'no_open': True}"/>
+                    <field name="program_ids" options="{'no_open': True}"/>
                     <field name="duration"/>
                     <field name="total_questions"/>
                     <newline/>

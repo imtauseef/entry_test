@@ -15,10 +15,11 @@
         <field name="name">cbt.paper.export.tree</field>
         <field name="model">cbt.paper.export</field>
         <field name="arch" type="xml">
-            <tree string="Papers">
+            <tree string="Papers" create="0" edit="0">
                 <field name="login"/>
                 <field name="name"/>
                 <field name="program" optional="show"/>
+                <field name="batch_id" optional="show"/>
                 <field name="test_center" optional="show"/>
                 <field name="test_date" optional="show"/>
                 <field name="test_time" optional="show"/>
@@ -38,8 +39,14 @@
         <field name="name">cbt.paper.export.form</field>
         <field name="model">cbt.paper.export</field>
         <field name="arch" type="xml">
-            <form string="Paper">
+            <form string="Paper" create="0" edit="0">
                  <header>
+                     <button name="action_start_candidate_test" string="Start Candidate Test"
+                             type="object" class="btn-primary"
+                             invisible="paper_started or not batch_id or batch_id.state != 'active'"/>
+                     <button name="action_finish_candidate_test" string="Finish Candidate Test"
+                             type="object" class="btn-danger"
+                             invisible="not paper_started or end_paper"/>
                      <button name="clear" string="Clear Session" type="object" class="oe_highlight"/>
                      <button name="restore" string="Restore Session" type="object" class="oe_highlight"
                         invisible="not end_paper"/>
@@ -53,6 +60,7 @@
                             <field name="name"/>
                             <field name="paper_name"/>
                             <field name="program"/>
+                            <field name="batch_id" options="{'no_open': True}"/>
                         </group>
 
                         <group>
@@ -72,12 +80,61 @@
 
                     <notebook>
                         <page name="Questions" string="Questions">
-                            <field name="line_ids">
+                            <field name="line_ids" options="{'no_open': True}">
                                 <tree>
-                                    <field name="subject_id"/>
+                                    <field name="source_question_id" column_invisible="1"/>
+                                    <field name="source_paper_id" column_invisible="1"/>
+                                    <field name="source_student_id" column_invisible="1"/>
+                                    <field name="subject_id" options="{'no_open': True}"/>
                                     <field name="name"/>
                                     <field name="answer"/>
+                                    <field name="is_theory" optional="hide"/>
+                                    <field name="theory_answer" optional="hide"/>
                                 </tree>
+                                <form string="Question">
+                                    <sheet>
+                                        <field name="source_question_id" invisible="1"/>
+                                        <field name="source_paper_id" invisible="1"/>
+                                        <field name="source_student_id" invisible="1"/>
+                                        <div class="oe_title">
+                                            <h1>
+                                                <field name="subject_id"
+                                                       options="{'no_open': True}"
+                                                       placeholder="Section"/>
+                                            </h1>
+                                        </div>
+                                        <group>
+                                            <group string="Question Details">
+                                                <field name="sequence"/>
+                                                <field name="is_theory"/>
+                                                <field name="uses_paragraph" readonly="1"/>
+                                            </group>
+                                            <group string="Response Status">
+                                                <field name="is_answered" readonly="1"/>
+                                                <field name="mark_review"/>
+                                                <field name="answer_recorded_time" readonly="1"/>
+                                            </group>
+                                        </group>
+                                        <separator string="Question"/>
+                                        <field name="name" nolabel="1" readonly="1"/>
+                                        <separator string="Answer Choices"
+                                                   invisible="uses_paragraph"/>
+                                        <field name="option_ids" invisible="uses_paragraph">
+                                            <tree create="0" edit="0" delete="0">
+                                                <field name="sequence"/>
+                                                <field name="name"/>
+                                            </tree>
+                                        </field>
+                                        <separator string="Candidate Response"/>
+                                        <group invisible="uses_paragraph">
+                                            <field name="answer_alphabet" readonly="1"/>
+                                            <field name="answer" readonly="1"/>
+                                        </group>
+                                        <group invisible="not uses_paragraph">
+                                            <field name="theory_answer" nolabel="1" readonly="1"/>
+                                        </group>
+                                    </sheet>
+                                </form>
                             </field>
                         </page>
                     </notebook>
@@ -91,9 +148,6 @@
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">cbt.paper.export</field>
         <field name="view_mode">tree,form</field>
-        <field name="help" type="html">
-            <p class="oe_view_nocontent_create">Click to create new record.</p>
-        </field>
     </record>
     <record id="action_cbt_subject" model="ir.actions.act_window">
         <field name="name">Subject</field>

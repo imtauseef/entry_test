@@ -32,60 +32,352 @@
             <field name="implied_ids" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
         </record>
 
-
         <record id="group_cbt_admin" model="res.groups">
             <field name="name">CBNET Admin</field>
             <field name="category_id" ref="module_category_cbnet"/>
             <field name="implied_ids" eval="[(4, ref('cbt.group_cbt_user'))]"/>
         </record>
 
-<!--        <record model="ir.rule" id="partner_view_rule_faculty">-->
-<!--            <field name="name">Faculty View Rule</field>-->
-<!--            <field name="model_id" ref="model_cbt_mcqs"/>-->
-<!--            <field name="global" eval="False"/>-->
-<!--            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]" />-->
-<!--            <field name="domain_force">[('current_user', '=', user.id)]</field>-->
-<!--        </record>-->
+    </data>
 
-         <record model="ir.rule" id="partner_view_rule_admin">
-            <field name="name">Admin View Rule</field>
-            <field name="model_id" ref="model_cbt_mcqs"/>
-            <field name="global" eval="False"/>
-            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]" />
-            <field name="domain_force">[(1, '=', 1)]</field>
-        </record>
+    <data>
 
-        <record model="ir.rule" id="partner_view_rule_faculty_submitted">
-            <field name="name">Faculty Submitted Questions Rule</field>
-            <field name="model_id" ref="model_cbt_mcqs"/>
-            <field name="global" eval="False"/>
-            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]" />
-            <field name="domain_force">['|', '|', '&amp;', ('state', '=', 'draft'), ('current_user', '=', user.id), '&amp;', ('state', '=', 'submitted'), ('current_user', '!=', user.id), ('state', 'in', ['approved', 'cancel'])]</field>
-        </record>
-
-        <record model="ir.rule" id="paper_replacement_log_rule_faculty">
-            <field name="name">Paper Replacement Log: Faculty Read</field>
-            <field name="model_id" ref="model_cbt_paper_replacement_log"/>
-            <field name="global" eval="False"/>
+        <!-- Faculty only sees subject, topic and sub-topic masters that are
+             linked to one of their own employee roles. Admin sees everything. -->
+        <record model="ir.rule" id="cbt_subject_faculty_rule">
+            <field name="name">Subject: Faculty Own Subjects</field>
+            <field name="model_id" ref="model_cbt_subject"/>
             <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="domain_force">[('role_ids', 'any', [('employee_id.user_id', '=', user.id)])]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
         </record>
-
-        <record model="ir.rule" id="paper_replacement_log_rule_admin">
-            <field name="name">Paper Replacement Log: Admin</field>
-            <field name="model_id" ref="model_cbt_paper_replacement_log"/>
-            <field name="global" eval="False"/>
+        <record model="ir.rule" id="cbt_subject_admin_rule">
+            <field name="name">Subject: Admin All</field>
+            <field name="model_id" ref="model_cbt_subject"/>
             <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
 
-    </data>
+        <record model="ir.rule" id="cbt_subject_topic_faculty_rule">
+            <field name="name">Topic: Faculty Own Subjects</field>
+            <field name="model_id" ref="model_cbt_subject_topic"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('subject_id.role_ids', 'any', [('employee_id.user_id', '=', user.id)])]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_subject_topic_admin_rule">
+            <field name="name">Topic: Admin All</field>
+            <field name="model_id" ref="model_cbt_subject_topic"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
 
-    <data>
+        <record model="ir.rule" id="cbt_subject_subtopic_faculty_rule">
+            <field name="name">Sub Topic: Faculty Own Subjects</field>
+            <field name="model_id" ref="model_cbt_subject_subtopic"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('subject_id.role_ids', 'any', [('employee_id.user_id', '=', user.id)])]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_subject_subtopic_admin_rule">
+            <field name="name">Sub Topic: Admin All</field>
+            <field name="model_id" ref="model_cbt_subject_subtopic"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="cbt_employee_role_faculty_rule">
+            <field name="name">Faculty Role: Own Role Rows</field>
+            <field name="model_id" ref="model_cbt_employee_role"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_employee_role_admin_rule">
+            <field name="name">Faculty Role: Admin All</field>
+            <field name="model_id" ref="model_cbt_employee_role"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="cbt_program_courses_faculty_rule">
+            <field name="name">Program Courses: Faculty Own Subjects</field>
+            <field name="model_id" ref="model_cbt_program_courses"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('subject_ids.role_ids.employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_program_courses_admin_rule">
+            <field name="name">Program Courses: Admin All</field>
+            <field name="model_id" ref="model_cbt_program_courses"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <!-- Question bank: a faculty member only sees questions of assigned
+             subjects. A creator's own submitted question is hidden from that
+             creator until it is approved. Submitted questions are visible to
+             other reviewers with review access in the same subject. -->
+        <record model="ir.rule" id="cbt_mcqs_faculty_read_rule">
+            <field name="name">Questions: Faculty Read Own Subject</field>
+            <field name="model_id" ref="model_cbt_mcqs"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('subject_id.role_ids', 'any', [('employee_id.user_id', '=', user.id)]), '|', ('state', 'in', ['approved', 'cancel']), '|', '&amp;', ('state', '=', 'draft'), ('current_user', '=', user.id), '&amp;', ('state', '=', 'submitted'), ('current_user', '!=', user.id), ('subject_id.role_ids', 'any', [('employee_id.user_id', '=', user.id), ('review_access', '=', True)])]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_mcqs_faculty_write_rule">
+            <field name="name">Questions: Faculty Write Own Subject</field>
+            <field name="model_id" ref="model_cbt_mcqs"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('subject_id.role_ids', 'any', [('employee_id.user_id', '=', user.id)]), '|', '&amp;', ('state', '=', 'draft'), ('current_user', '=', user.id), '|', '&amp;', '&amp;', ('state', '=', 'submitted'), ('current_user', '!=', user.id), ('subject_id.role_ids', 'any', [('employee_id.user_id', '=', user.id), ('review_access', '=', True)]), '&amp;', ('state', 'in', ['approved', 'cancel']), ('subject_id.role_ids', 'any', [('employee_id.user_id', '=', user.id), ('review_access', '=', True)])]</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_mcqs_faculty_unlink_rule">
+            <field name="name">Questions: Faculty Unlink Own Draft</field>
+            <field name="model_id" ref="model_cbt_mcqs"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('subject_id.role_ids', 'any', [('employee_id.user_id', '=', user.id)]), ('state', '=', 'draft'), ('current_user', '=', user.id)]</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <record model="ir.rule" id="cbt_mcqs_admin_rule">
+            <field name="name">Questions: Admin All</field>
+            <field name="model_id" ref="model_cbt_mcqs"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record model="ir.rule" id="cbt_mcqs_audit_log_faculty_rule">
+            <field name="name">Question Audit Log: Faculty Question Scope</field>
+            <field name="model_id" ref="model_cbt_mcqs_audit_log"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('subject_id.role_ids', 'any', [('employee_id.user_id', '=', user.id)]), '|', ('question_state', 'in', ['approved', 'cancel']), '|', '&amp;', ('question_state', '=', 'draft'), ('question_owner_id', '=', user.id), '&amp;', ('question_state', '=', 'submitted'), ('question_owner_id', '!=', user.id), ('subject_id.role_ids', 'any', [('employee_id.user_id', '=', user.id), ('review_access', '=', True)])]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_mcqs_audit_log_admin_rule">
+            <field name="name">Question Audit Log: Admin All</field>
+            <field name="model_id" ref="model_cbt_mcqs_audit_log"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <!-- Paper configuration is admin-only in the UI, but the same subject
+             boundary is enforced for direct RPC/API access. -->
+        <record model="ir.rule" id="cbt_paper_criteria_faculty_rule">
+            <field name="name">Paper Criteria: Faculty Own Subjects</field>
+            <field name="model_id" ref="model_cbt_paper_criteria"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('rules_ids.subjects.role_ids.employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_paper_criteria_admin_rule">
+            <field name="name">Paper Criteria: Admin All</field>
+            <field name="model_id" ref="model_cbt_paper_criteria"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="cbt_paper_criteria_rule_faculty_rule">
+            <field name="name">Paper Criteria Rule: Faculty Own Subjects</field>
+            <field name="model_id" ref="model_cbt_paper_criteria_rule"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('subjects.role_ids.employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_paper_criteria_rule_admin_rule">
+            <field name="name">Paper Criteria Rule: Admin All</field>
+            <field name="model_id" ref="model_cbt_paper_criteria_rule"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="cbt_paper_criteria_rule_topic_faculty_rule">
+            <field name="name">Paper Criteria Topic Rule: Faculty Own Subjects</field>
+            <field name="model_id" ref="model_cbt_paper_criteria_rule_topic"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('criteria_rule_id.subjects.role_ids.employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_paper_criteria_rule_topic_admin_rule">
+            <field name="name">Paper Criteria Topic Rule: Admin All</field>
+            <field name="model_id" ref="model_cbt_paper_criteria_rule_topic"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="cbt_paper_criteria_rule_difficulty_faculty_rule">
+            <field name="name">Paper Criteria Difficulty Rule: Faculty Own Subjects</field>
+            <field name="model_id" ref="model_cbt_paper_criteria_rule_difficulty"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('criteria_rule_id.subjects.role_ids.employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_paper_criteria_rule_difficulty_admin_rule">
+            <field name="name">Paper Criteria Difficulty Rule: Admin All</field>
+            <field name="model_id" ref="model_cbt_paper_criteria_rule_difficulty"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="cbt_paper_criteria_rule_type_faculty_rule">
+            <field name="name">Paper Criteria Type Rule: Faculty Own Subjects</field>
+            <field name="model_id" ref="model_cbt_paper_criteria_rule_type"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('criteria_rule_id.subjects.role_ids.employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_paper_criteria_rule_type_admin_rule">
+            <field name="name">Paper Criteria Type Rule: Admin All</field>
+            <field name="model_id" ref="model_cbt_paper_criteria_rule_type"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="cbt_paper_generator_faculty_rule">
+            <field name="name">Paper Generation: Faculty Own Subjects</field>
+            <field name="model_id" ref="model_cbt_paper_generator"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('criteria_id.rules_ids.subjects.role_ids.employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_paper_generator_admin_rule">
+            <field name="name">Paper Generation: Admin All</field>
+            <field name="model_id" ref="model_cbt_paper_generator"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="cbt_paper_faculty_rule">
+            <field name="name">Paper: Faculty Own Subjects</field>
+            <field name="model_id" ref="model_cbt_paper"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('criteria_id.rules_ids.subjects.role_ids.employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_paper_admin_rule">
+            <field name="name">Paper: Admin All</field>
+            <field name="model_id" ref="model_cbt_paper"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="cbt_paper_conduct_faculty_rule">
+            <field name="name">Paper Conduct: Faculty Own Subjects</field>
+            <field name="model_id" ref="model_cbt_paper_conduct"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('paper_id.main_paper_id.criteria_id.rules_ids.subjects.role_ids.employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_paper_conduct_admin_rule">
+            <field name="name">Paper Conduct: Admin All</field>
+            <field name="model_id" ref="model_cbt_paper_conduct"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="cbt_paper_attempt_faculty_rule">
+            <field name="name">Paper Attempt: Faculty Own Subjects</field>
+            <field name="model_id" ref="model_cbt_paper_attempt"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('question_id.subject_id.role_ids.employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_paper_attempt_admin_rule">
+            <field name="name">Paper Attempt: Admin All</field>
+            <field name="model_id" ref="model_cbt_paper_attempt"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="cbt_question_repeat_track_faculty_rule">
+            <field name="name">Question Repeat Track: Faculty Own Subjects</field>
+            <field name="model_id" ref="model_cbt_question_repeat_track"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('question_id.subject_id.role_ids.employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_question_repeat_track_admin_rule">
+            <field name="name">Question Repeat Track: Admin All</field>
+            <field name="model_id" ref="model_cbt_question_repeat_track"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="cbt_paper_replacement_log_faculty_rule">
+            <field name="name">Paper Replacement Log: Faculty Own Subjects</field>
+            <field name="model_id" ref="model_cbt_paper_replacement_log"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('paper_id.criteria_id.rules_ids.subjects.role_ids.employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_paper_replacement_log_admin_rule">
+            <field name="name">Paper Replacement Log: Admin All</field>
+            <field name="model_id" ref="model_cbt_paper_replacement_log"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <!-- Remove rules from earlier versions that no longer exist in this
+             file and that would otherwise OR away the subject boundary. -->
+        <function model="cbt.employee.role" name="_cleanup_legacy_faculty_rules"/>
         <function model="cbt.employee.role" name="_sync_all_role_groups"/>
     </data>
 </odoo>

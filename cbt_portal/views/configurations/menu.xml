@@ -30,5 +30,19 @@
                   action="action_cbt_instruction"
                   sequence="20"/>
 
+        <menuitem id="menu_cbt_portal_feedback_types"
+                  name="Question Feedback Options"
+                  parent="menu_cbt_portal_main"
+                  action="action_cbt_question_feedback_type"
+                  groups="cbt.group_cbt_admin"
+                  sequence="25"/>
+
+        <menuitem id="menu_cbt_portal_feedback"
+                  name="Candidate Question Feedback"
+                  parent="menu_cbt_portal_main"
+                  action="action_cbt_question_feedback"
+                  groups="cbt.group_cbt_admin"
+                  sequence="30"/>
+
 	</data>
 </odoo>

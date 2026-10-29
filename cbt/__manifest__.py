@@ -16,15 +16,20 @@
         'base_setup',
         'auth_signup', 'hr'
     ],
-
+    'external_dependencies': {
+        'python': ['msoffcrypto'],
+    },
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
         'data/cbt_session_data.xml',
+        'data/mcqs_suspension_cron.xml',
 
         'report/paper.xml',
         'report/report.xml',
         'wizard/report_print_wizard.xml',
+        'wizard/mcqs_suspend_wizard.xml',
+        'wizard/paper_result_import_wizard.xml',
 
         # 'wizard/export_data_wizard.xml',
 
@@ -38,7 +43,9 @@
         'views/papers.xml',
         'views/paper_replacement.xml',
         'views/paper_conduct.xml',
+        'views/paper_result_batch.xml',
         'views/review_questions.xml',
+        'views/mcqs_audit.xml',
         'views/test_schedule.xml',
         'views/student_setup.xml',
         'views/student_paper.xml',
@@ -53,8 +60,12 @@
 
     'assets': {
         'web.assets_backend': [
+            'cbt/static/src/js/excel_password_prompt.js',
             'cbt/static/src/js/sync_participants_action.js',
             'cbt/static/src/js/hide_review_action_menu.js',
+            'cbt/static/src/css/question_health.css',
+            'cbt/static/src/css/excel_password_prompt.css',
+            'cbt/static/src/xml/excel_password_prompt.xml',
         ],
     },
 }

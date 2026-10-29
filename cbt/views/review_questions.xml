@@ -6,11 +6,15 @@
             <field name="model">cbt.mcqs</field>
             <field name="arch" type="xml">
                 <tree create="false" delete="false">
-                    <field name="subject_id"/>
-                    <field name="topic_id"/>
-                    <field name="stopic_id"/>
-                    <field name="difficulty_level_id"/>
+                    <field name="subject_id" options="{'no_open': True}"/>
+                    <field name="topic_id"
+                           domain="[('subject_id', '=', subject_id)]" options="{'no_open': True}"/>
+                    <field name="stopic_id"
+                           domain="[('topic_id', '=', topic_id)]" options="{'no_open': True}"/>
+                    <field name="old_id" optional="hide"/>
+                    <field name="difficulty_level_id" options="{'no_open': True}"/>
                     <field name="is_reserve"/>
+                    <field name="is_suspended" optional="show"/>
                     <field name="state"/>
                 </tree>
             </field>
@@ -30,13 +34,17 @@
                         <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,cancel"/>
                     </header>
                     <sheet>
+                        <field name="is_theory" invisible="1"/>
+                        <field name="is_suspended" invisible="1"/>
                         <group>
                             <group>
                                 <field name="subject_id"
                                        options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
                                 <field name="topic_id"
+                                       domain="[('subject_id', '=', subject_id)]"
                                        options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
                                 <field name="stopic_id"
+                                       domain="[('topic_id', '=', topic_id)]"
                                        options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
                             </group>
                             <group>
@@ -60,7 +68,11 @@
                                    placeholder="Reason / remarks (mandatory before rejecting)"/>
                         </group>
                         <notebook>
-                            <page name="Options" string="Options">
+                            <page name="Options" string="Options"
+                                  invisible="is_theory">
+                                <group>
+                                    <field name="option_quantity" readonly="1"/>
+                                </group>
                                 <group>
                                     <field name="ans1_correct"/>
                                     <field name="ans1"/>
@@ -68,12 +80,57 @@
                                     <field name="ans2_correct"/>
                                     <field name="ans2"/>
 
-                                    <field name="ans3_correct"/>
-                                    <field name="ans3"/>
+                                    <field name="ans3_correct"
+                                           invisible="option_quantity == '2'"/>
+                                    <field name="ans3"
+                                           invisible="option_quantity == '2'"/>
 
-                                    <field name="ans4_correct"/>
-                                    <field name="ans4"/>
+                                    <field name="ans4_correct"
+                                           invisible="option_quantity in ['2', '3']"/>
+                                    <field name="ans4"
+                                           invisible="option_quantity in ['2', '3']"/>
+
+                                    <field name="ans5_correct"
+                                           invisible="option_quantity in ['2', '3', '4']"/>
+                                    <field name="ans5"
+                                           invisible="option_quantity in ['2', '3', '4']"/>
+
+                                    <field name="ans6_correct"
+                                           invisible="option_quantity in ['2', '3', '4', '5']"/>
+                                    <field name="ans6"
+                                           invisible="option_quantity in ['2', '3', '4', '5']"/>
                                 </group>
+                            </page>
+                            <page name="theory" string="Theory"
+                                  invisible="not is_theory">
+                                <div class="text-muted">
+                                    Theory questions do not use answer options.
+                                    The candidate answers with a paragraph in
+                                    the test portal.
+                                </div>
+                            </page>
+                            <page name="suspension" string="Suspension"
+                                  invisible="not is_suspended">
+                                <group>
+                                    <field name="suspension_reason"
+                                           readonly="1"/>
+                                    <field name="suspended_from"
+                                           readonly="1"/>
+                                    <field name="suspended_until"
+                                           readonly="1"/>
+                                    <field name="suspended_by"
+                                           readonly="1" options="{'no_open': True}"/>
+                                </group>
+                            </page>
+                            <page name="audit_log" string="Audit Log">
+                                <field name="audit_log_ids" readonly="1" options="{'no_open': True}">
+                                    <tree create="false" delete="false">
+                                        <field name="create_date"/>
+                                        <field name="action"/>
+                                        <field name="user_id" options="{'no_open': True}"/>
+                                        <field name="change_summary"/>
+                                    </tree>
+                                </field>
                             </page>
                         </notebook>
                     </sheet>

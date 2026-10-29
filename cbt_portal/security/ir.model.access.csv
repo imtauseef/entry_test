@@ -21,5 +21,10 @@ access_cbt_subject_export_user,access.cbt.subject.export.user,model_cbt_subject_
 access_cbt_instruction_export_manager,access.cbt_instruction.export.manager,model_cbt_instruction_export,cbt.group_cbt_admin,1,1,1,1
 access_cbt_instruction_export_user,access.cbt.instruction.export.user,model_cbt_instruction_export,cbt.group_cbt_admin,1,1,1,1
 
-access_prepare_result_wizard,prepare.result.wizard,model_prepare_result_wizard,cbt.group_cbt_user,1,1,1,1
+access_prepare_result_wizard,prepare.result.wizard,model_prepare_result_wizard,cbt.group_cbt_admin,1,1,1,1
 access_test_date_transfer,test.date.transfer,model_test_date_transfer,cbt.group_cbt_user,1,1,1,1
+
+access_cbt_paper_import_wizard,access.cbt.paper.import.wizard,model_cbt_paper_import_wizard,cbt.group_cbt_admin,1,1,1,1
+access_cbt_paper_export_batch_admin,access.cbt.paper.export.batch.admin,model_cbt_paper_export_batch,cbt.group_cbt_admin,1,1,1,1
+access_cbt_paper_question_feedback_type_admin,access.cbt.paper.question.feedback.type.admin,model_cbt_paper_question_feedback_type,cbt.group_cbt_admin,1,1,1,1
+access_cbt_paper_question_feedback_admin,access.cbt.paper.question.feedback.admin,model_cbt_paper_question_feedback,cbt.group_cbt_admin,1,1,1,1

@@ -8,7 +8,12 @@
                     <t t-foreach="section.question_ids" t-as="question">
                         <t t-if="question in paper.line_ids">
 
-                        <div class="cbt-question">
+                        <t t-set="question_feedback"
+                           t-value="paper.feedback_ids.filtered(lambda feedback: feedback.question_id == question)[:1]"/>
+                        <div class="cbt-question"
+                             t-att-data-question-id="question.id"
+                             t-att-data-feedback-type-id="question_feedback.feedback_type_id.id or ''"
+                             t-att-data-feedback-text="question_feedback.feedback_text or ''">
 
                             <div class="cbt-question-head">
                                 <span class="cbt-qno"><t t-set="sr" t-value="sr+1"/>Q<t t-esc="sr"/>.</span>
@@ -26,44 +31,98 @@
                                 <t t-out="question.name"/>
                             </div>
 
-                            <t t-set="answer_no" t-value="0"/>
-                            <div class="cbt-options">
-                                <t t-foreach="question.option_ids" t-as="option">
-                                    <t t-if="option.name">
-                                        <t t-set="answer_no" t-value="answer_no+1"/>
-                                        <div class="cbt-option">
-                                            <input type="radio" class="with-gap"
-                                                   t-attf-id="opt_{{option.id}}"
-                                                   t-attf-name="q_{{question.id}}"
-                                                   t-attf-value="{{option.id}}"
-                                                   t-att-checked="question.answer == option.id"
-                                                   t-attf-onchange="rec_answer({{ question.id }},{{section.id}},{{paper.id}},{{answer_no}},this.value)"/>
-                                            <label t-attf-for="opt_{{option.id}}" class="cbt-option-label">
-                                                <b class="cbt-option-letter">
-                                                    <t t-if="answer_no==1">A</t>
-                                                    <t t-elif="answer_no==2">B</t>
-                                                    <t t-elif="answer_no==3">C</t>
-                                                    <t t-elif="answer_no==4">D</t>
-                                                    <t t-elif="answer_no==5">E</t>
-                                                    <t t-elif="answer_no==6">F</t>
-                                                    .
-                                                </b>
-                                                <t t-out="option.name"/>
-                                            </label>
-                                        </div>
+                            <t t-if="question.uses_paragraph">
+                                <div class="cbt-theory-answer">
+                                    <label t-attf-for="theory_{{question.id}}">Your Answer</label>
+                                    <textarea class="materialize-textarea"
+                                              rows="7"
+                                              t-attf-id="theory_{{question.id}}"
+                                              t-attf-oninput="rec_theory_answer({{question.id}},{{section.id}},{{paper.id}},this.value)"
+                                              t-attf-onblur="rec_theory_answer({{question.id}},{{section.id}},{{paper.id}},this.value,true)"
+                                              placeholder="Write your answer here"><t t-esc="question.theory_answer or ''"/></textarea>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <t t-set="answer_no" t-value="0"/>
+                                <div class="cbt-options">
+                                    <t t-foreach="question.option_ids" t-as="option">
+                                        <t t-if="option.name">
+                                            <t t-set="answer_no" t-value="answer_no+1"/>
+                                            <div class="cbt-option">
+                                                <input type="radio" class="with-gap"
+                                                       t-attf-id="opt_{{option.id}}"
+                                                       t-attf-name="q_{{question.id}}"
+                                                       t-attf-value="{{option.id}}"
+                                                       t-att-checked="question.answer == option.id"
+                                                       t-attf-onchange="rec_answer({{ question.id }},{{section.id}},{{paper.id}},{{answer_no}},this.value)"/>
+                                                <label t-attf-for="opt_{{option.id}}" class="cbt-option-label">
+                                                    <b class="cbt-option-letter">
+                                                        <t t-if="answer_no==1">A</t>
+                                                        <t t-elif="answer_no==2">B</t>
+                                                        <t t-elif="answer_no==3">C</t>
+                                                        <t t-elif="answer_no==4">D</t>
+                                                        <t t-elif="answer_no==5">E</t>
+                                                        <t t-elif="answer_no==6">F</t>
+                                                        .
+                                                    </b>
+                                                    <t t-out="option.name"/>
+                                                </label>
+                                            </div>
+                                        </t>
                                     </t>
-                                </t>
-                            </div>
+                                </div>
+                            </t>
                         </div>
 
                     </t>
                 </t>
             </div>
-            <div class="pager right-align">
-                <div class="firstPage ">First Question &amp;laquo;</div>
-                <div class="previousPage">Previous Question &amp;lsaquo;</div>
-                <div class="nextPage">Next Question &amp;rsaquo;</div>
-                <div class="lastPage">Last Question &amp;raquo;</div>
+            <div class="pager cbt-test-navigation">
+                <button type="button" class="cbt-nav-button cbt-nav-question nextPage"
+                        title="Next Question" aria-label="Next Question">
+                    <i class="material-icons" aria-hidden="true">navigate_next</i>
+                    <span>Next Question</span>
+                </button>
+                <button type="button" class="cbt-nav-button cbt-nav-question previousPage"
+                        title="Previous Question" aria-label="Previous Question">
+                    <i class="material-icons" aria-hidden="true">navigate_before</i>
+                    <span>Previous Question</span>
+                </button>
+                <button type="button" class="cbt-nav-button cbt-nav-section next-step"
+                        title="Next Section" aria-label="Next Section"
+                        t-att-disabled="section_last">
+                    <i class="material-icons" aria-hidden="true">arrow_forward</i>
+                    <span>Next Section</span>
+                </button>
+                <button type="button" class="cbt-nav-button cbt-nav-section previous-step"
+                        title="Previous Section" aria-label="Previous Section"
+                        t-att-disabled="section_first">
+                    <i class="material-icons" aria-hidden="true">arrow_back</i>
+                    <span>Previous Section</span>
+                </button>
+                <button type="button" class="cbt-nav-button cbt-nav-question firstPage"
+                        title="First Question" aria-label="First Question">
+                    <i class="material-icons" aria-hidden="true">first_page</i>
+                    <span>First Question</span>
+                </button>
+                <button type="button" class="cbt-nav-button cbt-nav-question lastPage"
+                        title="Last Question" aria-label="Last Question">
+                    <i class="material-icons" aria-hidden="true">last_page</i>
+                    <span>Last Question</span>
+                </button>
+                <a href="#cbt_help_instructions"
+                   class="cbt-nav-button cbt-nav-help modal-trigger"
+                   title="Show test instructions" aria-label="Show test instructions">
+                    <i class="material-icons" aria-hidden="true">help_outline</i>
+                    <span>Help</span>
+                </a>
+                <button type="button"
+                        class="cbt-nav-button cbt-nav-feedback"
+                        title="Send feedback about this question"
+                        aria-label="Send feedback about this question">
+                    <i class="material-icons" aria-hidden="true">feedback</i>
+                    <span>Feedback</span>
+                </button>
                 <div class="pageNumbers"/>
             </div>
             <div class="left-align cbt-unanswered">
@@ -73,7 +132,7 @@
                     <t t-if="question.subject_id.id ==section.id ">
 
                         <t t-set="uq" t-value="uq+1"/>
-                        <t t-if="not question.answer">
+                        <t t-if="not question.is_answered">
                             <span style="color:red;" t-attf-id="{{section.id}}_{{question.id}}"> <t t-esc="uq"/> </span>
                         </t>
                     </t>
@@ -105,35 +164,41 @@
                                 <t t-out="question.name"/>
                             </div>
 
-                            <t t-set="answer_no" t-value="0"/>
-                            <div class="cbt-options">
-                                <t t-foreach="question.option_ids" t-as="option">
-                                    <t t-if="option.name">
-                                        <t t-set="answer_no" t-value="answer_no+1"/>
-                                        <div class="cbt-option">
-                                            <input type="radio" class="with-gap"
-                                                   t-attf-id="opt_{{option.id}}"
-                                                   t-attf-name="q_{{question.id}}"
-                                                   t-attf-value="{{option.id}}"
-                                                   t-att-checked="question.answer == option.id"
-                                                   t-attf-onchange="rec_answer({{ question.id }},{{section.id}},{{paper.id}},{{answer_no}},this.value)"/>
-                                            <label t-attf-for="opt_{{option.id}}" class="cbt-option-label">
-                                                <b class="cbt-option-letter"><t t-esc="answer_no"/>.</b>
-                                                <t t-out="option.name"/>
-                                            </label>
-                                        </div>
+                            <t t-if="question.uses_paragraph">
+                                <div class="cbt-theory-answer">
+                                    <label t-attf-for="theory_{{question.id}}">Your Answer</label>
+                                    <textarea class="materialize-textarea"
+                                              rows="7"
+                                              t-attf-id="theory_{{question.id}}"
+                                              t-attf-oninput="rec_theory_answer({{question.id}},{{section.id}},{{paper.id}},this.value)"
+                                              t-attf-onblur="rec_theory_answer({{question.id}},{{section.id}},{{paper.id}},this.value,true)"
+                                              placeholder="Write your answer here"><t t-esc="question.theory_answer or ''"/></textarea>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <t t-set="answer_no" t-value="0"/>
+                                <div class="cbt-options">
+                                    <t t-foreach="question.option_ids" t-as="option">
+                                        <t t-if="option.name">
+                                            <t t-set="answer_no" t-value="answer_no+1"/>
+                                            <div class="cbt-option">
+                                                <input type="radio" class="with-gap"
+                                                       t-attf-id="opt_{{option.id}}"
+                                                       t-attf-name="q_{{question.id}}"
+                                                       t-attf-value="{{option.id}}"
+                                                       t-att-checked="question.answer == option.id"
+                                                       t-attf-onchange="rec_answer({{ question.id }},{{section.id}},{{paper.id}},{{answer_no}},this.value)"/>
+                                                <label t-attf-for="opt_{{option.id}}" class="cbt-option-label">
+                                                    <b class="cbt-option-letter"><t t-esc="answer_no"/>.</b>
+                                                    <t t-out="option.name"/>
+                                                </label>
+                                            </div>
+                                        </t>
                                     </t>
-                                </t>
-                            </div>
+                                </div>
+                            </t>
                         </div>
                     </t>
-            </div>
-            <div class="pager right-align">
-                <div class="firstPage ">First Question &amp;laquo;</div>
-                <div class="previousPage">Previous Question &amp;lsaquo;</div>
-                <div class="nextPage">Next Question &amp;rsaquo;</div>
-                <div class="lastPage">Last Question &amp;raquo;</div>
-                <div class="pageNumbers"/>
             </div>
         </div>
 
