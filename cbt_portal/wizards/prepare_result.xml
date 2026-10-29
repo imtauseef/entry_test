@@ -4,36 +4,34 @@
         <field name="name">prepare.result.wizard</field>
         <field name="model">prepare.result.wizard</field>
         <field name="arch" type="xml">
-            <form string="Form Wizard">
+            <form string="Export Candidate Results Workbook">
                 <sheet>
                     <group>
-                    
-                    <group>
-                        <field name="paper_id"></field>
-                    </group>
+                        <field name="batch_id" options="{'no_open': True}"/>
                     </group>
                 </sheet>
                 <footer>
-                    <button name="prepare_result" string="Export Result" type="object" class="btn-primary"/>
+                    <button name="prepare_result" string="Export Results Workbook" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
         </field>
     </record>
 
     <record id="prepare_result_wizard_action" model="ir.actions.act_window">
-        <field name="name">Prepare Result Wizard</field>
+        <field name="name">Export Candidate Results Workbook</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">prepare.result.wizard</field>
         <field name="view_mode">form</field>
-        <field name="binding_view_types">form</field>
         <field name="target">new</field>
     </record>
 
 
     <menuitem
         id="perpare_result_menu"
-        name="Prepare Result"
+        name="Export Candidate Results Workbook"
         action="cbt_portal.prepare_result_wizard_action"
-        parent="cbt_portal.menu_cbt_portal_root"/>
+        parent="cbt_portal.menu_cbt_portal_main"
+        groups="cbt.group_cbt_admin"/>
 
 </odoo>

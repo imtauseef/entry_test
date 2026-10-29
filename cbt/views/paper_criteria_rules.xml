@@ -6,7 +6,7 @@
             <field name="model">cbt.paper.criteria.rule</field>
             <field name="arch" type="xml">
                 <tree>
-                    <field name="subjects"/>
+                    <field name="subjects" options="{'no_open': True}"/>
                     <field name="no_questions"/>
                     <field name="sequence"/>
                 </tree>
@@ -31,7 +31,7 @@
                         <field name="total_questions_topic_rule" style="color: white"/>
                         <notebook colspan="4">
                             <page string="Paper Difficulty">
-                                <field name="difficulty_rules">
+                                <field name="difficulty_rules" options="{'no_open': True}">
                                     <tree editable="bottom">
                                         <field name="difficulty_level_id" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
                                         <field name="no_questions"/>
@@ -51,12 +51,12 @@
 <!--                        </notebook>-->
                         <notebook colspan="4">
                             <page string="Paper Topic Rules">
-                                <field name="topic_rules">
+                                <field name="topic_rules" options="{'no_open': True}">
                                     <tree editable="bottom">
                                         <field name="topic_id" domain="[('subject_id', '=', subjects)]"  options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
                                         <field name="sub_topic_id" domain="[('topic_id', '=', topic_id)]" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
                                         <field name="no_questions"/>
-                                        <field name="subjects" invisible="1"/>
+                                        <field name="subjects" invisible="1" options="{'no_open': True}"/>
 
                                     </tree>
                                 </field>

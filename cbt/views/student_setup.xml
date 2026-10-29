@@ -17,10 +17,10 @@
                     <field name="name"/>
                     <field name="login"/>
                     <!-- <field name="center_id"/> -->
-                    <field name="slot_id"/>
-                    <field name="program"/>
+                    <field name="slot_id" options="{'no_open': True}"/>
+                    <field name="program" options="{'no_open': True}"/>
                     <field name="session_active"/>
-                    <field name="user_id" optional="hide"/>
+                    <field name="user_id" optional="hide" options="{'no_open': True}"/>
                 </tree>
             </field>
         </record>
@@ -46,11 +46,11 @@
 
                             </group>
                             <group>
-                                <field name="program" />
+                                <field name="program"  options="{'no_open': True}"/>
                                 <!-- <field name="center_id" /> -->
-                                <field name="slot_id" />
+                                <field name="slot_id"  options="{'no_open': True}"/>
                                 <field name="session_active" readonly="1"/>
-                                <field name="user_id" readonly="1"/>
+                                <field name="user_id" readonly="1" options="{'no_open': True}"/>
                             </group>
                             <group>
                                 <field name="degree" />

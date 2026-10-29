@@ -11,6 +11,9 @@ class CBTPaperAttempt(models.Model):
 
     question_id = fields.Many2one('cbt.mcqs', 'Questions', tracking=True, required=True)
     participant_answer = fields.Char(string='Participant Answer')
+    theory_answer = fields.Text(string='Theory Answer')
+    answer_recorded_at = fields.Datetime(string='Answer Recorded At')
+    mark_review = fields.Boolean(string='Marked for Review')
     score = fields.Integer('Question Score', compute='_compute_question_score', store=True)
     attempt_id = fields.Many2one('cbt.paper.conduct', 'Conduct Paper', required=True, tracking=True)
 
@@ -48,6 +51,5 @@ class CBTPaperAttempt(models.Model):
                     each.score = 1
                 else:
                     each.score = 0
-
 
 

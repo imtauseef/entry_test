@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ir_cron_cbt_resume_suspended_questions" model="ir.cron">
+            <field name="name">CBT: Resume suspended questions</field>
+            <field name="model_id" ref="model_cbt_mcqs"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_resume_suspended_questions()</field>
+            <field name="interval_number">5</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

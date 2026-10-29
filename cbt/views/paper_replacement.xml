@@ -7,12 +7,12 @@
             <field name="arch" type="xml">
                 <tree create="false" delete="false" edit="false">
                     <field name="replace_datetime"/>
-                    <field name="paper_id"/>
+                    <field name="paper_id" options="{'no_open': True}"/>
                     <field name="line_sequence" string="Line"/>
-                    <field name="old_question_id"/>
-                    <field name="new_question_id"/>
+                    <field name="old_question_id" options="{'no_open': True}"/>
+                    <field name="new_question_id" options="{'no_open': True}"/>
                     <field name="match_level"/>
-                    <field name="user_id"/>
+                    <field name="user_id" options="{'no_open': True}"/>
                 </tree>
             </field>
         </record>
@@ -24,12 +24,12 @@
                 <form create="false" edit="false">
                     <sheet>
                         <group>
-                            <field name="paper_id"/>
+                            <field name="paper_id" options="{'no_open': True}"/>
                             <field name="line_sequence" string="Line"/>
-                            <field name="old_question_id"/>
-                            <field name="new_question_id"/>
+                            <field name="old_question_id" options="{'no_open': True}"/>
+                            <field name="new_question_id" options="{'no_open': True}"/>
                             <field name="match_level"/>
-                            <field name="user_id"/>
+                            <field name="user_id" options="{'no_open': True}"/>
                             <field name="replace_datetime"/>
                         </group>
                     </sheet>

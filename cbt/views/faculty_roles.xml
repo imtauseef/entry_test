@@ -6,10 +6,10 @@
             <field name="model">cbt.employee.role</field>
             <field name="arch" type="xml">
                 <tree>
-                    <field name="employee_id"/>
-                    <field name="subject_id"/>
-                    <field name="topic_id"/>
-                    <field name="subtopic_id"/>
+                    <field name="employee_id" options="{'no_open': True}"/>
+                    <field name="subject_id" options="{'no_open': True}"/>
+                    <field name="topic_id" options="{'no_open': True}"/>
+                    <field name="subtopic_id" options="{'no_open': True}"/>
                 </tree>
             </field>
         </record>
@@ -50,10 +50,10 @@
         <field name="priority" eval="14"/>
         <field name="arch" type="xml">
             <search string="Employee Roles">
-                <field name="employee_id"/>
-                <field name="subject_id"/>
-                <field name="topic_id"/>
-                <field name="subtopic_id"/>
+                <field name="employee_id" options="{'no_open': True}"/>
+                <field name="subject_id" options="{'no_open': True}"/>
+                <field name="topic_id" options="{'no_open': True}"/>
+                <field name="subtopic_id" options="{'no_open': True}"/>
                 <newline/>
                  <group expand="0" string="Group By...">
                      <filter name="employee_id" string="Employees" domain="[]" context="{'group_by':'employee_id'}"/>

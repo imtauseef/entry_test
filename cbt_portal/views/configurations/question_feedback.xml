@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_cbt_question_feedback_type_tree" model="ir.ui.view">
+        <field name="name">cbt.paper.question.feedback.type.tree</field>
+        <field name="model">cbt.paper.question.feedback.type</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="is_other"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_cbt_question_feedback_type_form" model="ir.ui.view">
+        <field name="name">cbt.paper.question.feedback.type.form</field>
+        <field name="model">cbt.paper.question.feedback.type</field>
+        <field name="arch" type="xml">
+            <form string="Question Feedback Type">
+                <sheet>
+                    <group>
+                        <field name="name" required="1"/>
+                        <field name="sequence"/>
+                        <field name="is_other"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_cbt_question_feedback_type" model="ir.actions.act_window">
+        <field name="name">Question Feedback Options</field>
+        <field name="res_model">cbt.paper.question.feedback.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="view_cbt_question_feedback_tree" model="ir.ui.view">
+        <field name="name">cbt.paper.question.feedback.tree</field>
+        <field name="model">cbt.paper.question.feedback</field>
+        <field name="arch" type="xml">
+            <tree create="0" edit="0" delete="0">
+                <field name="create_date"/>
+                <field name="candidate_id"/>
+                <field name="candidate_name"/>
+                <field name="source_question_id"/>
+                <field name="feedback_type_name"/>
+                <field name="feedback_text"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_cbt_question_feedback_form" model="ir.ui.view">
+        <field name="name">cbt.paper.question.feedback.form</field>
+        <field name="model">cbt.paper.question.feedback</field>
+        <field name="arch" type="xml">
+            <form string="Candidate Question Feedback" create="0" edit="0">
+                <sheet>
+                    <group>
+                        <field name="candidate_id"/>
+                        <field name="candidate_name"/>
+                        <field name="source_question_id"/>
+                        <field name="feedback_type_name"/>
+                    </group>
+                    <field name="feedback_text"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_cbt_question_feedback" model="ir.actions.act_window">
+        <field name="name">Candidate Question Feedback</field>
+        <field name="res_model">cbt.paper.question.feedback</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

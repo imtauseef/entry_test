@@ -8,7 +8,7 @@
                         <div class="cbt-actionbar">
                             <div class="cbt-summary-inline">
                                 <span class="cbt-chip">Total <b id="total" t-esc="len(paper.line_ids)"/></span>
-                                <span class="cbt-chip cbt-chip-green">Answered <b id="answered" t-esc="len(paper.line_ids.filtered(lambda l: l.answer > 0))"/></span>
+                                <span class="cbt-chip cbt-chip-green">Answered <b id="answered" t-esc="len(paper.line_ids.filtered(lambda l: l.is_answered))"/></span>
                             </div>
                             <div class="cbt-actionbar-btns">
                                 <a onclick="record_time()"
@@ -44,7 +44,7 @@
                             <div class="modal-content">
                                 <h4>Finish Test</h4>
                                 <div>
-                                 <div>   <b>Summary:</b>  Total Questions: <span style="color:orange;" id="total_finish_paper" t-esc="len(paper.line_ids)"/>, Answered: <span style="color:green;" t-esc="len(paper.line_ids.filtered(lambda l: l.answer > 0))" id="total_answered_paper"/></div>
+                                 <div>   <b>Summary:</b>  Total Questions: <span style="color:orange;" id="total_finish_paper" t-esc="len(paper.line_ids)"/>, Answered: <span style="color:green;" t-esc="len(paper.line_ids.filtered(lambda l: l.is_answered))" id="total_answered_paper"/></div>
                                     Are you sure to finish your test ?
                                 </div>
                             </div>
@@ -69,8 +69,6 @@
                                  buttons for validation, but if the user wants to move arbitrarily around the steps, it's
                                  allowed by clicking on the steps instead of the buttons.</p>
                          </div>-->
-                        <t t-set="steps_length" t-value="len(paper.line_ids.subject_id)"/>
-                        <t t-set="steps_length_check" t-value="len(paper.line_ids.subject_id)"/>
                         <ul class="stepper" id="nonLinearStepper">
 
                            
@@ -142,47 +140,8 @@
                                                   <input type="number" class="validate" name="contactNum" id="contactNum" required=""/>
                                               </div>&ndash;&gt;
                                          </div>-->
-                                        <div class="step-actions">
-                                            <div class="row">
-                                                <div class="col m4 s12 mb-3">
-                                                    <button t-if="not steps_length == steps_length_check"
-                                                            class="btn btn-light blue darken-2 previous-step">
-                                                        Prev Section
-<!--                                                         <i class="material-icons left">arrow_back</i>-->
-                                                    </button>
-                                                    <button t-if="steps_length == steps_length_check" disabled=""
-                                                            class="btn btn-light blue previous-step">
-                                                        Prev Section
-<!--                                                         <i class="material-icons left">arrow_back</i>-->
-                                                    </button>
-                                                </div>
-                                                <div class="col m8 s12 mb-3">
-                                                    <button t-if="not steps_length == 1"
-                                                            class="waves-effect blue darken-2 waves dark btn btn-primary next-step"
-                                                            type="submit">
-                                                        Next Section
-<!--                                                        <i class="material-icons right">arrow_forward</i>-->
-                                                    </button>
-                                                     <button t-if="steps_length == 1" disabled=""
-                                                            class="waves-effect blue  waves dark btn btn-primary next-step"
-                                                            type="submit">
-                                                        Next Section
-                                                        <i class="material-icons right">arrow_forward</i>
-                                                    </button>
-<!--                                                     <button t-attf-onclick="paper_finish({{paper.id}})" t-if="steps_length == 1"-->
-<!--                                                            class="waves-effect blue darken-2 waves dark btn btn-primary"-->
-<!--                                                            type="submit">-->
-<!--                                                        Finish Test-->
-<!--                                                       &lt;!&ndash; <i class="material-icons right">arrow_forward</i>&ndash;&gt;-->
-<!--                                                    </button>-->
-
-                                                </div>
-
-                                            </div>
-                                        </div>
                                     </div>
                                 </li>
-                                <t t-set="steps_length" t-value="steps_length-1"/>
                             </t>
                             <!--  <li class="step active">
                                   <div class="step-title waves-effect">Computer Science</div>

@@ -2,6 +2,7 @@
 from urllib.parse import urlencode
 
 from odoo import fields, models, _
+from odoo.exceptions import UserError
 
 
 class CBTReportPrintWizard(models.TransientModel):
@@ -19,6 +20,18 @@ class CBTReportPrintWizard(models.TransientModel):
 
     def action_print(self):
         self.ensure_one()
+        report = self.env['ir.actions.report']._get_report(self.report_ref)
+        if report.model != self.res_model:
+            raise UserError(_(
+                "The selected report does not match the document."))
+        if report.groups_id and not (
+                report.groups_id & self.env.user.groups_id):
+            raise UserError(_("You are not allowed to print this report."))
+        record = self.env[self.res_model].browse(self.res_id).exists()
+        if not record:
+            raise UserError(_("The selected document no longer exists."))
+        record.check_access_rights('read')
+        record.check_access_rule('read')
         ids = [self.res_id]
         if self.print_format == 'word':
             params = urlencode({
@@ -31,7 +44,6 @@ class CBTReportPrintWizard(models.TransientModel):
                 'url': '/cbt/report/word?%s' % params,
                 'target': 'download',
             }
-        report = self.env['ir.actions.report']._get_report(self.report_ref)
         return report.with_context(
             active_model=self.res_model, active_ids=ids,
         ).report_action(ids, config=False)
