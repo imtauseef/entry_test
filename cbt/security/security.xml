@@ -83,6 +83,38 @@
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
 
+        <!-- ===================== User Rights feature ===================== -->
+
+        <!-- Administrators of the User Rights screen. -->
+        <record id="group_cbt_rights_manager" model="res.groups">
+            <field name="name">CBNET User Rights Manager</field>
+            <field name="category_id" ref="module_category_cbnet"/>
+            <field name="comment">Can create users and configure which CBT menus and operations each user may use.</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user')), (4, ref('cbt.group_cbt_faculty')), (4, ref('base.group_partner_manager'))]"/>
+        </record>
+
+        <!-- Marker group for users whose CBT access is driven by the User
+             Rights configuration. It has no category on purpose so that it is
+             not offered in the standard "Access Rights" selector: it is a
+             system managed group. -->
+        <record id="group_cbt_managed" model="res.groups">
+            <field name="name">CBNET Managed User</field>
+            <field name="comment">System managed. CBT access is defined per menu in User Rights.</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- Managed users are removed from the broad legacy CBT groups so
+             that the per menu configuration is authoritative. This rule
+             re-applies the same record level filtering the faculty group used
+             to provide on the question bank. -->
+        <record model="ir.rule" id="partner_view_rule_managed_mcqs">
+            <field name="name">Managed User Questions Rule</field>
+            <field name="model_id" ref="model_cbt_mcqs"/>
+            <field name="global" eval="False"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_managed'))]"/>
+            <field name="domain_force">['|', '|', '&amp;', ('state', '=', 'draft'), ('current_user', '=', user.id), '&amp;', ('state', '=', 'submitted'), ('current_user', '!=', user.id), ('state', 'in', ['approved', 'cancel'])]</field>
+        </record>
+
     </data>
 
     <data>

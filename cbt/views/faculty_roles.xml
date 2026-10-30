@@ -7,9 +7,12 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="employee_id"/>
-                    <field name="subject_id"/>
-                    <field name="topic_id"/>
-                    <field name="subtopic_id"/>
+                    <field name="user_id" optional="show"/>
+                    <field name="subject_ids" widget="many2many_tags"/>
+                    <field name="topic_ids" widget="many2many_tags"/>
+                    <field name="subtopic_ids" widget="many2many_tags"/>
+                    <field name="create_access"/>
+                    <field name="review_access"/>
                 </tree>
             </field>
         </record>
@@ -23,13 +26,12 @@
                         <group>
                             <group>
                                <field name="employee_id" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
-                               <field name="subject_id" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                               <field name="user_id" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
+                               <field name="subject_ids" widget="many2many_tags" options="{'no_quick_create':True,'no_create_edit':True,'no_create':True,}"/>
                             </group>
                             <group>
-                                <field name="topic_id" domain="[('subject_id','=',subject_id)]" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
-                                <field name="subtopic_id" domain="[('topic_id','=',topic_id)]" options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
-                            </group>
-                            <group>
+                                <field name="topic_ids" widget="many2many_tags" domain="[('subject_id','in',subject_ids)]" options="{'no_quick_create':True,'no_create_edit':True,'no_create':True,}"/>
+                                <field name="subtopic_ids" widget="many2many_tags" domain="[('topic_id','in',topic_ids)]" options="{'no_quick_create':True,'no_create_edit':True,'no_create':True,}"/>
                                 <field name="create_access"/>
                                 <field name="review_access"/>
                             </group>
@@ -51,15 +53,17 @@
         <field name="arch" type="xml">
             <search string="Employee Roles">
                 <field name="employee_id"/>
-                <field name="subject_id"/>
-                <field name="topic_id"/>
-                <field name="subtopic_id"/>
+                <field name="user_id"/>
+                <field name="subject_ids"/>
+                <field name="topic_ids"/>
+                <field name="subtopic_ids"/>
                 <newline/>
                  <group expand="0" string="Group By...">
                      <filter name="employee_id" string="Employees" domain="[]" context="{'group_by':'employee_id'}"/>
-                    <filter name="subject_id" string="Subjects" domain="[]" context="{'group_by':'subject_id'}"/>
-                     <filter name="topic_id" string="Topics" domain="[]" context="{'group_by':'topic_id'}"/>
-                     <filter name="subtopic_id" string="Sub Topics" domain="[]" context="{'group_by':'subtopic_id'}"/>
+                     <filter name="user_id" string="Users" domain="[]" context="{'group_by':'user_id'}"/>
+                    <filter name="subject_ids" string="Subjects" domain="[]" context="{'group_by':'subject_ids'}"/>
+                     <filter name="topic_ids" string="Topics" domain="[]" context="{'group_by':'topic_ids'}"/>
+                     <filter name="subtopic_ids" string="Sub Topics" domain="[]" context="{'group_by':'subtopic_ids'}"/>
 
                  </group>
             </search>

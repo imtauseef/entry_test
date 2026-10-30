@@ -22,6 +22,7 @@
                 <form create="false">
                     <header>
                         <field name="can_review" invisible="1"/>
+                        <field name="is_reviewer" invisible="1"/>
                         <button name="approve_question" string="Approve" type="object" class="btn-primary"
                                 invisible="not can_review"
                                 confirm="Are you sure to approve this Question?"/>
@@ -32,47 +33,48 @@
                     <sheet>
                         <group>
                             <group>
-                                <field name="subject_id"
+                                <field name="subject_id" readonly="1"
                                        options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
-                                <field name="topic_id"
+                                <field name="topic_id" readonly="1"
                                        options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
-                                <field name="stopic_id"
+                                <field name="stopic_id" readonly="1"
                                        options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
                             </group>
                             <group>
-                                <field name="type_id"
+                                <field name="type_id" readonly="1"
                                        options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
-                                <field name="skill_id"
+                                <field name="skill_id" readonly="1"
                                        options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
-                                <field name="difficulty_level_id"
+                                <field name="difficulty_level_id" readonly="1"
                                        options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
-                                <field name="time_id"
-                                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
-                                <field name="is_reserve"/>
+<!--                                <field name="time_id"-->
+<!--                                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>-->
+                                <field name="is_reserve" readonly="1"/>
                             </group>
                         </group>
                         <group>
-                            <field name="question" widget="html"/>
+                            <field name="question" widget="html" readonly="1"/>
 
                         </group>
                         <group>
                             <field name="reviewer_remarks"
-                                   placeholder="Reason / remarks (mandatory before rejecting)"/>
+                                   placeholder="Reason / remarks (mandatory before rejecting)"
+                                   readonly="state == 'draft' or not is_reviewer"/>
                         </group>
                         <notebook>
                             <page name="Options" string="Options">
                                 <group>
-                                    <field name="ans1_correct"/>
-                                    <field name="ans1"/>
+                                    <field name="ans1_correct" readonly="1"/>
+                                    <field name="ans1" readonly="1"/>
 
-                                    <field name="ans2_correct"/>
-                                    <field name="ans2"/>
+                                    <field name="ans2_correct" readonly="1"/>
+                                    <field name="ans2" readonly="1"/>
 
-                                    <field name="ans3_correct"/>
-                                    <field name="ans3"/>
+                                    <field name="ans3_correct" readonly="1"/>
+                                    <field name="ans3" readonly="1"/>
 
-                                    <field name="ans4_correct"/>
-                                    <field name="ans4"/>
+                                    <field name="ans4_correct" readonly="1"/>
+                                    <field name="ans4" readonly="1"/>
                                 </group>
                             </page>
                         </notebook>

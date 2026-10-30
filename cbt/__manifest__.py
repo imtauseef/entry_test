@@ -6,7 +6,7 @@
     'sequence': 4,
     'author': "NUST & AARSOL",
     'website': "https://www.aarsol.com",
-    'version': '0.1',
+    'version': '0.2',
     'depends': [
         'base',
         'website_partner',
@@ -44,6 +44,7 @@
         'views/student_paper.xml',
         # 'views/instructions.xml',
         'views/res_config_setting_inherit.xml',
+        'views/user_rights.xml',
         # 'wizard/cbt_api_wizard_views.xml',
         # 'wizard/import_data_wizard.xml',
         # 'views/cbt_export.xml',
@@ -55,6 +56,8 @@
         'web.assets_backend': [
             'cbt/static/src/js/sync_participants_action.js',
             'cbt/static/src/js/hide_review_action_menu.js',
+            'cbt/static/src/js/hide_apps_menu.js',
+            'cbt/static/src/js/block_internal_links.js',
         ],
     },
 }

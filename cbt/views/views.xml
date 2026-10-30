@@ -69,7 +69,16 @@
                                 </field>
                             </page>
                             <page name="role" string="Faculty Role">
-                                <field name="role_ids"/>
+                                <field name="role_ids" readonly="1">
+                                    <tree>
+                                        <field name="employee_id"/>
+                                        <field name="subject_ids" widget="many2many_tags"/>
+                                        <field name="topic_ids" widget="many2many_tags"/>
+                                        <field name="subtopic_ids" widget="many2many_tags"/>
+                                        <field name="create_access"/>
+                                        <field name="review_access"/>
+                                    </tree>
+                                </field>
                             </page>
                         </notebook>
                     </sheet>
@@ -515,6 +524,8 @@
                         <button name="action_submit_selected" type="object" string="Submit Selected"
                                 class="btn-primary"/>
                     </header>
+<!--                    <field name="name"/>-->
+                    <field name="question" widget="html"/>
                     <field name="subject_id"/>
                     <field name="topic_id"/>
                     <field name="stopic_id"/>
@@ -532,49 +543,51 @@
                 <form>
                     <header>
                         <field name="can_submit" invisible="1"/>
+                        <field name="can_review" invisible="1"/>
+                        <field name="is_reviewer" invisible="1"/>
                         <button name="action_submit" string="Submit" type="object" class="btn-primary"
                                 invisible="not can_submit"/>
-                        <button name="action_submit_all" string="Submit All Questions" type="object"
-                                invisible="state != 'draft'"/>
+<!--                        <button name="action_submit_all" string="Submit All Questions" type="object"-->
+<!--                                invisible="state != 'draft'"/>-->
                         <field name="state" widget="statusbar"
                                statusbar_visible="draft,submitted,approved,cancel"/>
                     </header>
                     <sheet>
                         <group>
                             <group>
-                                <field name="subject_id"/>
-                                <field name="topic_id"/>
-                                <field name="stopic_id"/>
+                                <field name="subject_id" readonly="state != 'draft'"/>
+                                <field name="topic_id" readonly="state != 'draft'"/>
+                                <field name="stopic_id" readonly="state != 'draft'"/>
                             </group>
                             <group>
-                                <field name="type_id"/>
-                                <field name="skill_id"/>
-                                <field name="difficulty_level_id"/>
-                                <field name="time_id"/>
-                                <field name="is_reserve"/>
+                                <field name="type_id" readonly="state != 'draft'"/>
+                                <field name="skill_id" readonly="state != 'draft'"/>
+                                <field name="difficulty_level_id" readonly="state != 'draft'"/>
+                                <!--<field name="time_id"/>-->
+                                <field name="is_reserve" readonly="state != 'draft' and not can_review"/>
                             </group>
                         </group>
                         <group>
-                            <field name="question" widget="html"/>
+                            <field name="question" widget="html" readonly="state != 'draft'"/>
                         </group>
                         <group>
-                            <field name="reviewer_remarks" readonly="1"/>
+                            <field name="reviewer_remarks" readonly="state == 'draft' or not is_reviewer"/>
                         </group>
                         <notebook>
                             <page name="Options" string="Options">
                                 <group>
-                                    <field name="ans1_correct"/>
-                                    <field name="ans1"/>
+                                    <field name="ans1_correct" readonly="state != 'draft'"/>
+                                    <field name="ans1" readonly="state != 'draft'"/>
 
-                                    <field name="ans2_correct"/>
-                                    <field name="ans2"/>
+                                    <field name="ans2_correct" readonly="state != 'draft'"/>
+                                    <field name="ans2" readonly="state != 'draft'"/>
 
 
-                                    <field name="ans3_correct"/>
-                                    <field name="ans3"/>
+                                    <field name="ans3_correct" readonly="state != 'draft'"/>
+                                    <field name="ans3" readonly="state != 'draft'"/>
 
-                                    <field name="ans4_correct"/>
-                                    <field name="ans4"/>
+                                    <field name="ans4_correct" readonly="state != 'draft'"/>
+                                    <field name="ans4" readonly="state != 'draft'"/>
 
                                 </group>
                             </page>
@@ -730,7 +743,7 @@
         </record>
 
 
-        <menuitem name="Entry Test" id="cbt_menu_root"/>
+        <menuitem name="Entry Test" id="cbt_menu_root" groups="base.group_user,cbt.group_cbt_admin,cbt.group_cbt_managed,cbt.group_cbt_faculty,cbt.group_cbt_creator,cbt.group_cbt_reviewer"/>
         <menuitem name="Configure Users" id="cbt_menu_1" parent="cbt_menu_root" groups="cbt.group_cbt_admin"/>
         <menuitem name="Employee Setup" id="cbt_employee_root" parent="cbt_menu_1"/>
 
@@ -783,12 +796,14 @@
         <menuitem
                 name="Configure Question Bank"
                 id="cbt_question_bank"
-                parent="cbt_menu_root"/>
+                parent="cbt_menu_root"
+                groups="cbt.group_cbt_faculty,cbt.group_cbt_creator,cbt.group_cbt_reviewer,cbt.group_cbt_admin,cbt.group_cbt_managed"/>
 
         <menuitem
                 name="Question Attributes"
                 id="cbt_qas"
-                parent="cbt_question_bank"/>
+                parent="cbt_question_bank"
+                groups="cbt.group_cbt_faculty,cbt.group_cbt_creator,cbt.group_cbt_reviewer,cbt.group_cbt_admin,cbt.group_cbt_managed"/>
 
         <menuitem
                 name="Question Types"
@@ -811,12 +826,12 @@
                 action="cbt_question_difficulty_level_action"
                 groups="cbt.group_cbt_admin"/>
 
-        <menuitem
+        <!--<menuitem
                 name="Question Timings"
                 id="cbt_question_time_menu"
                 parent="cbt_qas"
                 action="cbt_question_time_action"
-                groups="cbt.group_cbt_admin"/>
+                groups="cbt.group_cbt_admin"/>-->
 
         <menuitem name="Create Question" id="cbt_mcqs" parent="cbt_qas"
                   action="cbt_mcqs_setupaction_window"

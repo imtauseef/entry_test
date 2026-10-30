@@ -36,8 +36,12 @@ class CBTSubject(models.Model):
 
     topic_ids = fields.One2many(
         'cbt.subject.topic', 'subject_id', string="Topics")
-    role_ids = fields.One2many(
-        'cbt.employee.role', 'subject_id', string='Faculty')
+    # Shares the relation table of ``cbt.employee.role.subject_ids`` so both
+    # the legacy single subject and the new multi-select subjects are visible
+    # from the subject form.
+    role_ids = fields.Many2many(
+        'cbt.employee.role', 'cbt_employee_role_subject_rel',
+        'subject_id', 'role_id', string='Faculty')
 
     # @api.onchange('topic_ids')
     def _compute_topics(self):
@@ -56,6 +60,7 @@ class CBTSubject(models.Model):
 class CBTSubjectTopic(models.Model):
     _name = 'cbt.subject.topic'
     _description = 'Topics'
+    _inherit = ['cbt.line.access']
 
     subject_id = fields.Many2one(
         'cbt.subject', 'Subject', ondelete='cascade', required=True)
@@ -68,8 +73,9 @@ class CBTSubjectTopic(models.Model):
 
     sub_topic_ids = fields.One2many(
         'cbt.subject.subtopic', 'topic_id', string=" Sub Topics")
-    role_ids = fields.One2many(
-        'cbt.employee.role', 'topic_id', string='Faculty')
+    role_ids = fields.Many2many(
+        'cbt.employee.role', 'cbt_employee_role_topic_rel',
+        'topic_id', 'role_id', string='Faculty')
 
     def _compute_sub_topics(self):
         for rec in self:
@@ -81,6 +87,7 @@ class CBTSubjectTopic(models.Model):
 class CBTSubjectSubTopic(models.Model):
     _name = 'cbt.subject.subtopic'
     _description = 'Sub Topic'
+    _inherit = ['cbt.line.access']
 
     name = fields.Char(string='Sub Topic', required=True)
     code = fields.Char(string='Code')
@@ -91,33 +98,252 @@ class CBTSubjectSubTopic(models.Model):
         'cbt.subject.topic', string="Topic", ondelete='cascade')
     subject_id = fields.Many2one(
         'cbt.subject', string="Subject", related='topic_id.subject_id', store=True)
-    role_ids = fields.One2many(
-        'cbt.employee.role', 'subtopic_id', string='Faculty')
+    role_ids = fields.Many2many(
+        'cbt.employee.role', 'cbt_employee_role_subtopic_rel',
+        'subtopic_id', 'role_id', string='Faculty')
 
 
 class CBTEmployeeRole(models.Model):
     _name = 'cbt.employee.role'
     _description = 'Employee Role'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _inherit = ['cbt.line.access', 'mail.thread', 'mail.activity.mixin']
+
+    @api.onchange('user_id')
+    def _onchange_user_id(self):
+        if self.user_id and not self.employee_id:
+            employee = self._cbt_employee_for_user(self.user_id)
+            if employee:
+                self.employee_id = employee.id
 
     employee_id = fields.Many2one(
-        'hr.employee', "Faculty", required="True", tracking=True)
+        'hr.employee', "Faculty", required=True, tracking=True)
+    user_id = fields.Many2one(
+        'res.users', "User", index=True, ondelete='cascade', tracking=True,
+        help="CBT user this faculty role applies to. It is filled "
+             "automatically when the faculty employee is linked to a user.")
+    # Legacy single-value fields. They are kept so existing data, imports and
+    # custom code keep working; the User Rights screen uses the multi-select
+    # fields below.
     subject_id = fields.Many2one(
-        'cbt.subject', "Subject", required="True", tracking=True)
-    topic_id = fields.Many2one('cbt.subject.topic', "Topic", tracking=True)
+        'cbt.subject', "Subject", tracking=True,
+        help="Legacy single subject. New records use Subjects.")
+    topic_id = fields.Many2one(
+        'cbt.subject.topic', "Topic", tracking=True,
+        help="Legacy single topic. New records use Topics.")
     subtopic_id = fields.Many2one(
-        'cbt.subject.subtopic', "Sub Topic", tracking=True)
+        'cbt.subject.subtopic', "Sub Topic", tracking=True,
+        help="Legacy single sub topic. New records use Sub Topics.")
+    subject_ids = fields.Many2many(
+        'cbt.subject', 'cbt_employee_role_subject_rel', 'role_id',
+        'subject_id', string="Subjects", tracking=True)
+    topic_ids = fields.Many2many(
+        'cbt.subject.topic', 'cbt_employee_role_topic_rel', 'role_id',
+        'topic_id', string="Topics", tracking=True)
+    subtopic_ids = fields.Many2many(
+        'cbt.subject.subtopic', 'cbt_employee_role_subtopic_rel', 'role_id',
+        'subtopic_id', string="Sub Topics", tracking=True)
     create_access = fields.Boolean(
-        'Create Access', default=True, tracking=True)
+        'Question Creator', default=True, tracking=True)
     review_access = fields.Boolean(
-        'Review Access', default=True, tracking=True)
+        'Reviewer', default=True, tracking=True)
 
-    @api.depends('employee_id', 'subject_id')
+    # ------------------------------------------------------------------
+    # Selection helpers (accept both the legacy m2o and the new m2m fields)
+    # ------------------------------------------------------------------
+    def _cbt_subjects(self):
+        self.ensure_one()
+        return self.subject_id | self.subject_ids
+
+    def _cbt_topics(self):
+        self.ensure_one()
+        return self.topic_id | self.topic_ids
+
+    def _cbt_subtopics(self):
+        self.ensure_one()
+        return self.subtopic_id | self.subtopic_ids
+
+    @api.model
+    def _cbt_user_domain(self, user):
+        """Match the roles attached to ``user`` (new and legacy rows)."""
+        return ['|', ('user_id', '=', user.id),
+                ('employee_id.user_id', '=', user.id)]
+
+    @api.model
+    def _cbt_subject_domain(self, subject_id):
+        """Match the roles covering ``subject_id`` (new and legacy rows)."""
+        return ['|', ('subject_id', '=', subject_id),
+                ('subject_ids', 'in', [subject_id])]
+
+    @api.model
+    def _cbt_user_roles(self, user, access_field=None):
+        """Roles of ``user``, optionally only those granting ``access_field``."""
+        domain = self._cbt_user_domain(user)
+        if access_field:
+            domain.append((access_field, '=', True))
+        return self.sudo().search(domain)
+
+    @api.model
+    def _cbt_has_access(self, user, subject_id, access_field):
+        """Whether ``user`` is granted ``access_field`` on ``subject_id``."""
+        if not user or not subject_id:
+            return False
+        domain = (self._cbt_user_domain(user)
+                  + self._cbt_subject_domain(subject_id)
+                  + [(access_field, '=', True)])
+        return bool(self.sudo().search_count(domain))
+
+    @api.model
+    def _cbt_employee_for_user(self, user):
+        """Return the ``hr.employee`` of ``user``, creating it when missing."""
+        Employee = self.env['hr.employee'].sudo()
+        # ``employee_id`` is the employee of the current company: prefer it so
+        # a role does not land on an unrelated (other company) employee.
+        employee = getattr(user.sudo(), 'employee_id', False)
+        if not employee:
+            employee = Employee.with_context(active_test=False).search(
+                [('user_id', '=', user.id)], limit=1)
+        email = False
+        try:
+            email = getattr(user, 'email', False) or \
+                    getattr(user.partner_id, 'email', False)
+        except Exception:
+            email = False
+        if not employee:
+            vals = {
+                'name': user.name or user.login or _('Faculty'),
+                'user_id': user.id,
+            }
+            if email:
+                vals['work_email'] = email
+            try:
+                employee = Employee.create(vals)
+            except Exception:
+                employee = Employee.create({
+                    'name': user.name or user.login or _('Faculty'),
+                    'user_id': user.id,
+                })
+        try:
+            if employee and not getattr(employee, 'work_email', False) and email:
+                employee.sudo().write({'work_email': email})
+            partner = getattr(employee, 'work_contact_id', False) or getattr(employee, 'address_id', False)
+            if not partner and getattr(user, 'partner_id', False):
+                partner = user.partner_id
+            if partner and not getattr(partner, 'email', False) and email:
+                partner.sudo().write({'email': email})
+        except Exception:
+            pass
+        return employee
+
+    @api.model
+    def _cbt_vals_has_subject(self, vals):
+        """Whether the create values already carry at least one subject."""
+        if vals.get('subject_id'):
+            return True
+        value = vals.get('subject_ids')
+        if not value:
+            return False
+        # A recordset may be passed by Python callers.
+        if getattr(value, '_ids', None) is not None:
+            return bool(value._ids)
+        if isinstance(value, (list, tuple)):
+            for command in value:
+                if isinstance(command, int):
+                    return True
+                if not isinstance(command, (list, tuple)) or len(command) < 2:
+                    continue
+                if command[0] == 6:
+                    if command[2]:
+                        return True
+                elif command[0] in (0, 4):
+                    return True
+        return False
+
+    @api.model
+    def _cbt_prepare_vals(self, vals, records=None):
+        """Derive the user / employee link before storing a role row."""
+        vals = dict(vals)
+        vals.pop('id', None)
+        explicit_employee = bool(vals.get('employee_id'))
+        user = (self.env['res.users'].sudo().browse(vals['user_id'])
+                if vals.get('user_id') else None)
+        employee = (self.env['hr.employee'].sudo().browse(vals['employee_id'])
+                    if explicit_employee else None)
+        if not employee and records is not None and len(records) == 1:
+            employee = records.employee_id
+        if explicit_employee and not user and employee and employee.user_id:
+            vals['user_id'] = employee.user_id.id
+            user = employee.user_id
+        if user and not employee:
+            # Prefer existing employee linked to this user
+            user_emp = getattr(user, 'employee_id', False) or \
+                       self.env['hr.employee'].sudo().with_context(
+                           active_test=False).search(
+                           [('user_id', '=', user.id)], limit=1)
+            if user_emp:
+                vals['employee_id'] = user_emp.id
+                employee = user_emp
+            elif records is None or len(records) == 1:
+                vals['employee_id'] = self._cbt_employee_for_user(user).id
+                employee = self.env['hr.employee'].sudo().browse(vals['employee_id'])
+        if user and employee and not getattr(employee, 'user_id', False):
+            other = self.env['hr.employee'].sudo().with_context(
+                active_test=False).search([
+                    ('user_id', '=', user.id),
+                    ('company_id', '=', employee.company_id.id),
+                ], limit=1)
+            if other and other != employee:
+                # If another employee already linked to same user, use it
+                vals['employee_id'] = other.id
+                employee = other
+            else:
+                try:
+                    employee.sudo().write({'user_id': user.id})
+                except Exception:
+                    # If constraint fails, try to find/use existing employee for user
+                    user_emp = getattr(user, 'employee_id', False)
+                    if user_emp:
+                        vals['employee_id'] = user_emp.id
+                    else:
+                        raise
+        elif user and employee and employee.user_id and employee.user_id.id != user.id:
+            # Another employee is linked to this user - use the user's employee
+            user_emp = getattr(user, 'employee_id', False)
+            if user_emp and user_emp.id != employee.id:
+                vals['employee_id'] = user_emp.id
+            else:
+                raise ValidationError(_(
+                    "The user '%s' is already linked to another employee.") % user.name)
+        return vals
+
+    @api.constrains('subject_id', 'subject_ids')
+    def _check_at_least_one_subject(self):
+        for rec in self:
+            if not rec.subject_id and not rec.subject_ids:
+                raise ValidationError(_(
+                    "Select at least one subject for the faculty role."))
+
+    @api.constrains('employee_id', 'user_id')
+    def _check_employee_user(self):
+        for rec in self:
+            if not rec.employee_id:
+                continue
+            employee_user = rec.employee_id.user_id
+            if rec.user_id and employee_user and employee_user != rec.user_id:
+                raise ValidationError(_(
+                    "The faculty '%s' is already linked to another user.")
+                    % rec.employee_id.name)
+
+    @api.depends('employee_id', 'subject_id', 'subject_ids')
     def _compute_display_name(self):
         for rec in self:
             name = 'New'
-            if rec.employee_id and rec.subject_id:
-                name = rec.employee_id.name + ' - ' + rec.subject_id.name
+            subjects = rec._cbt_subjects()
+            if subjects:
+                owner = rec.employee_id.name or rec.user_id.name or ''
+                if owner:
+                    name = owner + ' - ' + ', '.join(subjects.mapped('name'))
+                else:
+                    name = ', '.join(subjects.mapped('name'))
             rec.display_name = name
 
     def _sync_groups_for_users(self, users):
@@ -127,42 +353,79 @@ class CBTEmployeeRole(models.Model):
             'cbt.group_cbt_reviewer', raise_if_not_found=False)
         if not creator or not reviewer:
             return
+        managed = self.env.ref(
+            'cbt.group_cbt_managed', raise_if_not_found=False)
+        faculty_group = self.env.ref(
+            'cbt.group_cbt_faculty', raise_if_not_found=False)
         Role = self.env['cbt.employee.role'].sudo()
         for user in users.sudo():
             if not user:
                 continue
-            roles = Role.search([('employee_id.user_id', '=', user.id)])
-            if any(roles.mapped('create_access')):
-                creator.sudo().write({'users': [(4, user.id)]})
+            roles = Role.search(Role._cbt_user_domain(user))
+            if managed and managed in user.groups_id and not roles:
+                continue
+            if roles and faculty_group and faculty_group not in user.groups_id:
+                faculty_group.sudo().write({'users': [(4, user.id)]})
+            has_create = any(r.create_access for r in roles)
+            has_review = any(r.review_access for r in roles)
+            if has_create:
+                if creator not in user.groups_id:
+                    creator.sudo().write({'users': [(4, user.id)]})
             else:
-                creator.sudo().write({'users': [(3, user.id)]})
-            if any(roles.mapped('review_access')):
-                reviewer.sudo().write({'users': [(4, user.id)]})
+                if creator in user.groups_id:
+                    creator.sudo().write({'users': [(3, user.id)]})
+            if has_review:
+                if reviewer not in user.groups_id:
+                    reviewer.sudo().write({'users': [(4, user.id)]})
             else:
-                reviewer.sudo().write({'users': [(3, user.id)]})
+                if reviewer in user.groups_id:
+                    reviewer.sudo().write({'users': [(3, user.id)]})
 
     def _sync_role_groups(self):
-        self._sync_groups_for_users(self.mapped('employee_id.user_id'))
+        self._sync_groups_for_users(
+            self.mapped('user_id') | self.mapped('employee_id.user_id'))
 
     @api.model
     def _sync_all_role_groups(self):
+        records = self.search([])
         self._sync_groups_for_users(
-            self.search([]).mapped('employee_id.user_id'))
+            records.mapped('user_id') | records.mapped('employee_id.user_id'))
 
-    @api.model
-    def create(self, vals):
-        record = super().create(vals)
-        record._sync_role_groups()
-        return record
+    @api.model_create_multi
+    def create(self, vals_list):
+        prepared = []
+        for vals in vals_list:
+            vals = self._cbt_prepare_vals(vals)
+            if not vals.get('employee_id'):
+                raise ValidationError(_(
+                    "A faculty employee (or a user) is required for a faculty "
+                    "role."))
+            if not self._cbt_vals_has_subject(vals):
+                raise ValidationError(_(
+                    "Select at least one subject for the faculty role."))
+            prepared.append(vals)
+        if self._cbt_can_elevate():
+            records = super(CBTEmployeeRole, self.sudo()).create(prepared)
+        else:
+            records = super().create(prepared)
+        records._sync_role_groups()
+        return records
 
     def write(self, vals):
-        result = super().write(vals)
+        vals = self._cbt_prepare_vals(vals, records=self)
+        if self._cbt_can_elevate():
+            result = super(CBTEmployeeRole, self.sudo()).write(vals)
+        else:
+            result = super().write(vals)
         self._sync_role_groups()
         return result
 
     def unlink(self):
-        users = self.mapped('employee_id.user_id')
-        result = super().unlink()
+        users = self.mapped('user_id') | self.mapped('employee_id.user_id')
+        if self._cbt_can_elevate():
+            result = super(CBTEmployeeRole, self.sudo()).unlink()
+        else:
+            result = super().unlink()
         self._sync_groups_for_users(users)
         return result
 
@@ -278,6 +541,7 @@ class CBTSession(models.Model):
 class CBTSessionLine(models.Model):
     _name = 'cbt.session.line'
     _description = 'Sessions list'
+    _inherit = ['cbt.line.access']
 
     session_no = fields.Integer(string='Session No.')
     time = fields.Float('Session Time')
@@ -308,6 +572,7 @@ class CBTprogramCourses(models.Model):
 class CBTQuestionRepeatTrack(models.Model):
     _name = 'cbt.question.repeat.track'
     _description = 'Track Quesions repeat'
+    _inherit = ['cbt.line.access']
 
     paper_id = fields.Many2one('cbt.paper', 'Paper ID', required=True)
     date = fields.Datetime(string='Date', default=datetime.now())
@@ -321,14 +586,13 @@ class CBTMCQS(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     def _get_default_subjects(self):
-        subject_list = []
-        employees = self.env['cbt.employee.role'].search([
-            ('create_access', '=', True), ('employee_id.user_id', '=', self.env.user.id)])
-        if employees:
-            for employee in employees:
-                for sub_id in employee.subject_id:
-                    subject_list.append(sub_id.id)
-        return [('id', 'in', subject_list)]
+        if self.env.su or self.env.user.has_group('cbt.group_cbt_admin'):
+            return []
+        role_model = self.env['cbt.employee.role']
+        roles = role_model._cbt_user_roles(self.env.user, 'create_access')
+        subject_list = set(roles.mapped('subject_id').ids)
+        subject_list.update(roles.mapped('subject_ids').ids)
+        return [('id', 'in', list(subject_list))]
 
     @api.model
     def _get_generation_pool(self, domain=None):
@@ -351,7 +615,7 @@ class CBTMCQS(models.Model):
     skill_id = fields.Many2one('cbt.question.skill', required=True)
     difficulty_level_id = fields.Many2one(
         'cbt.question.difficulty.level', required=True)
-    time_id = fields.Many2one('cbt.question.time', required=True)
+    # time_id = fields.Many2one('cbt.question.time', required=False)
     question = fields.Html(string='Question', required=True)
     is_reserve = fields.Boolean(
         string='Reserve Question', default=False, index=True, tracking=True,
@@ -388,10 +652,24 @@ class CBTMCQS(models.Model):
     reviewed_user = fields.Many2one('res.users', 'Reviewed By', readonly=True)
     reviewer_remarks = fields.Text(
         string='Reviewer Remarks', tracking=True)
+    is_reviewer = fields.Boolean(compute='_compute_is_reviewer', store=False)
     state = fields.Selection([
         ('draft', 'Draft'), ('submitted', 'Submitted'),
         ('approved', 'Approved'), ('cancel', 'Cancel')
     ], 'Status', default='draft')
+
+    @api.depends()
+    def _compute_is_reviewer(self):
+        role_model = self.env['cbt.employee.role']
+        user = self.env.user
+        for rec in self:
+            if user.has_group('cbt.group_cbt_admin'):
+                rec.is_reviewer = True
+                continue
+            if rec.subject_id and role_model._cbt_has_access(user, rec.subject_id.id, 'review_access'):
+                rec.is_reviewer = True
+            else:
+                rec.is_reviewer = False
     paper_id = fields.Many2one('cbt.paper.criteria', 'Paper ID')
     question_repeat_ids = fields.One2many(
         'cbt.question.repeat.track', 'question_id', "Questions Track")
@@ -412,12 +690,10 @@ class CBTMCQS(models.Model):
     @api.depends('current_user', 'state', 'subject_id')
     def _compute_can_review(self):
         user = self.env.user
+        role_model = self.env['cbt.employee.role']
         for rec in self:
-            is_reviewer = bool(self.env['cbt.employee.role'].search_count([
-                ('review_access', '=', True),
-                ('employee_id.user_id', '=', user.id),
-                ('subject_id', '=', rec.subject_id.id),
-            ]))
+            is_reviewer = bool(rec.subject_id) and role_model._cbt_has_access(
+                user, rec.subject_id.id, 'review_access')
             rec.can_review = bool(
                 rec.state == 'submitted'
                 and rec.current_user.id != user.id
@@ -428,11 +704,9 @@ class CBTMCQS(models.Model):
     def create(self, vals):
         if not (self.env.su or self.env.user.has_group('cbt.group_cbt_admin')):
             subject_id = vals.get('subject_id')
-            allowed = bool(self.env['cbt.employee.role'].search_count([
-                ('create_access', '=', True),
-                ('employee_id.user_id', '=', self.env.user.id),
-                ('subject_id', '=', subject_id),
-            ]))
+            employee_role = self.env['cbt.employee.role']
+            allowed = employee_role._cbt_has_access(
+                self.env.user, subject_id, 'create_access')
             if not allowed:
                 raise UserError(_(
                     "You are not allowed to create questions. Only users with "
@@ -449,13 +723,13 @@ class CBTMCQS(models.Model):
         """
         if self.env.su or self.env.user.has_group('cbt.group_cbt_admin'):
             return
+        role_model = self.env['cbt.employee.role']
         for rec in self:
-            roles = self.env['cbt.employee.role'].search([
-                ('employee_id.user_id', '=', self.env.user.id),
-                ('subject_id', '=', rec.subject_id.id),
-            ])
-            has_create = any(roles.mapped('create_access'))
-            has_review = any(roles.mapped('review_access'))
+            subject_id = rec.subject_id.id
+            has_create = role_model._cbt_has_access(
+                self.env.user, subject_id, 'create_access')
+            has_review = role_model._cbt_has_access(
+                self.env.user, subject_id, 'review_access')
             if rec.state == 'approved':
                 if not has_review:
                     raise UserError(_(
@@ -486,18 +760,15 @@ class CBTMCQS(models.Model):
             self.id)
 
     def get_filtered_record(self):
-        subject_list = []
-        record_ids = []
-        employees = self.env['cbt.employee.role'].search([
-            ('review_access', '=', True), ('employee_id.user_id', '=', self.env.user.id)])
-        if employees:
-            for employee in employees:
-                for sub_id in employee.subject_id:
-                    subject_list.append(sub_id.id)
+        role_model = self.env['cbt.employee.role']
+        roles = role_model._cbt_user_roles(self.env.user, 'review_access')
+        subject_list = set(roles.mapped('subject_id').ids)
+        subject_list.update(roles.mapped('subject_ids').ids)
         review_questions = self.env['cbt.mcqs'].search([
-            ('current_user', '!=', self.env.user.id), ('subject_id', 'in', subject_list), ('state', '=', 'submitted')])
-        for qes in review_questions:
-            record_ids.append(qes.id)
+            ('current_user', '!=', self.env.user.id),
+            ('subject_id', 'in', list(subject_list)),
+            ('state', '=', 'submitted')])
+        record_ids = review_questions.ids
         treeview_id = self.env.ref('cbt.cbt_question_review_tree').id
         formview_id = self.env.ref('cbt.cbt_question_review_form').id
         return {
@@ -562,39 +833,43 @@ class CBTMCQS(models.Model):
     def _get_topic(self):
         topic_list = []
         if self.subject_id:
-            topics = self.env['cbt.subject.topic'].search([
-                ('role_ids.employee_id.user_id', '=', self.current_user.id), ('subject_id', '=', self.subject_id.id)])
-            if topics:
-                for topic in topics:
-                    topic_list.append(topic.id)
-                return {'domain': {'topic_id': [('id', 'in', topic_list)]}}
-            else:
-                topics_else = self.env['cbt.subject.topic'].search(
+            role_model = self.env['cbt.employee.role']
+            role_user = self.current_user or self.env.user
+            roles = role_model.sudo().search(
+                role_model._cbt_user_domain(role_user)
+                + role_model._cbt_subject_domain(self.subject_id.id))
+            # Roles without any topic restriction grant the whole subject.
+            restricted = set(roles.mapped('topic_id').ids)
+            restricted.update(roles.mapped('topic_ids').ids)
+            topics = self.env['cbt.subject.topic'].browse(
+                list(restricted)).filtered(
+                    lambda topic: topic.subject_id.id == self.subject_id.id)
+            if not topics:
+                topics = self.env['cbt.subject.topic'].search(
                     [('subject_id', '=', self.subject_id.id)])
-                for topic in topics_else:
-                    topic_list.append(topic.id)
-                return {'domain': {'topic_id': [('id', 'in', topic_list)]}}
-        else:
-            return {'domain': {'topic_id': [('id', 'in', topic_list)]}}
+            topic_list = topics.ids
+        return {'domain': {'topic_id': [('id', 'in', topic_list)]}}
 
     @api.onchange('topic_id')
     def _get_subtopic(self):
         subtopic_list = []
-        if self.subject_id and self.topic_id:
-            subtopics = self.env['cbt.subject.subtopic'].search([
-                ('role_ids.employee_id.user_id', '=', self.current_user.id), ('topic_id', '=', self.topic_id.id)])
-            if subtopics:
-                for subtopic in subtopics:
-                    subtopic_list.append(subtopic.id)
-                return {'domain': {'stopic_id': [('id', 'in', subtopic_list)]}}
-            else:
-                subtopics_else = self.env['cbt.subject.subtopic'].search(
+        if self.topic_id:
+            role_model = self.env['cbt.employee.role']
+            role_user = self.current_user or self.env.user
+            roles = role_model.sudo().search(
+                role_model._cbt_user_domain(role_user))
+            # Roles without any sub topic restriction grant every sub topic
+            # of the selected topic.
+            restricted = set(roles.mapped('subtopic_id').ids)
+            restricted.update(roles.mapped('subtopic_ids').ids)
+            subtopics = self.env['cbt.subject.subtopic'].browse(
+                list(restricted)).filtered(
+                    lambda subtopic: subtopic.topic_id.id == self.topic_id.id)
+            if not subtopics:
+                subtopics = self.env['cbt.subject.subtopic'].search(
                     [('topic_id', '=', self.topic_id.id)])
-                for subtopic in subtopics_else:
-                    subtopic_list.append(subtopic.id)
-                return {'domain': {'stopic_id': [('id', 'in', subtopic_list)]}}
-        else:
-            return {'domain': {'stopic_id': [('id', 'in', subtopic_list)]}}
+            subtopic_list = subtopics.ids
+        return {'domain': {'stopic_id': [('id', 'in', subtopic_list)]}}
 
     def _action_question_list(self):
         return {
@@ -644,9 +919,54 @@ class CBTMCQS(models.Model):
                       "the question for correction."))
             rec.state = 'draft'
             rec.reviewed_user = self.env.user
-            rec.message_post(body=_(
-                "Question returned for correction by %s. Remarks: %s") % (
-                self.env.user.name, rec.reviewer_remarks))
+            try:
+                company = self.env.company.sudo()
+                if not getattr(company, 'email', False):
+                    try:
+                        domain = (company.name or 'cbt').lower().replace(' ', '').replace('.', '')
+                        company.write({'email': 'noreply@%s.local' % domain})
+                    except Exception:
+                        pass
+                user = self.env.user.sudo()
+                partner = user.partner_id.sudo() if user.partner_id else False
+                email_from = getattr(company, 'email', False) or \
+                             (getattr(partner, 'email', False) if partner else False) or \
+                             getattr(user, 'email', False) or \
+                             'noreply@localhost'
+                try:
+                    if partner and not getattr(partner, 'email', False):
+                        partner.write({'email': email_from})
+                    if user and not getattr(user, 'email', False) and partner and partner.email:
+                        user.write({'email': partner.email})
+                    ICP = self.env['ir.config_parameter'].sudo()
+                    if not ICP.get_param('mail.default.from'):
+                        ICP.set_param('mail.default.from', email_from)
+                except Exception:
+                    pass
+                try:
+                    rec.sudo().with_context(
+                        mail_notify_force_send=False,
+                        mail_create_nosubscribe=True,
+                        mail_notrack=True,
+                        mail_auto_subscribe_no_notify=True,
+                        mail_server_id=False,
+                        default_email_from=email_from,
+                        email_from=email_from,
+                    ).message_post(body=_(
+                        "Question returned for correction by %s. Remarks: %s") % (
+                        self.env.user.name, rec.reviewer_remarks),
+                        message_type='comment', subtype_xmlid='mail.mt_note',
+                        author_id=partner.id if partner else self.env.user.partner_id.id)
+                except Exception:
+                    try:
+                        rec.sudo().with_context(mail_notify_force_send=False, mail_create_nosubscribe=True, default_email_from=email_from).message_post(body=_(
+                            "Question returned for correction by %s. Remarks: %s") % (
+                            self.env.user.name, rec.reviewer_remarks),
+                            message_type='comment', subtype_xmlid='mail.mt_note')
+                    except Exception:
+                        pass
+            except Exception:
+                pass
         return self.get_filtered_record()
 
     def approve_question(self):
@@ -656,23 +976,178 @@ class CBTMCQS(models.Model):
                     _("You are not allowed to review this question."))
             rec.state = 'approved'
             rec.reviewed_user = self.env.user
-            rec.message_post(body=_("Question approved by %s.") % (
-                self.env.user.name))
+            try:
+                company = self.env.company.sudo()
+                if not getattr(company, 'email', False):
+                    try:
+                        domain = (company.name or 'cbt').lower().replace(' ', '').replace('.', '')
+                        company.write({'email': 'noreply@%s.local' % domain})
+                    except Exception:
+                        pass
+                user = self.env.user.sudo()
+                partner = user.partner_id.sudo() if user.partner_id else False
+                email_from = getattr(company, 'email', False) or \
+                             (getattr(partner, 'email', False) if partner else False) or \
+                             getattr(user, 'email', False) or \
+                             'noreply@localhost'
+                try:
+                    if partner and not getattr(partner, 'email', False):
+                        partner.write({'email': email_from})
+                    if user and not getattr(user, 'email', False) and partner and partner.email:
+                        user.write({'email': partner.email})
+                    ICP = self.env['ir.config_parameter'].sudo()
+                    ICP.set_param('mail.default.from', email_from)
+                    if not ICP.get_param('mail.catchall.domain'):
+                        ICP.set_param('mail.catchall.domain', email_from.split('@')[-1] if '@' in email_from else 'localhost')
+                except Exception:
+                    pass
+                try:
+                    rec.sudo().with_context(
+                        mail_notify_force_send=False,
+                        mail_create_nosubscribe=True,
+                        mail_notrack=True,
+                        mail_auto_subscribe_no_notify=True,
+                        mail_server_id=False,
+                        default_email_from=email_from,
+                        email_from=email_from,
+                    ).message_post(body=_("Question approved by %s.") % (
+                        self.env.user.name),
+                        message_type='comment', subtype_xmlid='mail.mt_note',
+                        author_id=partner.id if partner else self.env.user.partner_id.id)
+                except Exception:
+                    try:
+                        rec.sudo().with_context(mail_notify_force_send=False, mail_create_nosubscribe=True).message_post(body=_("Question approved by %s.") % (
+                            self.env.user.name),
+                            message_type='comment', subtype_xmlid='mail.mt_note')
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+        return self.get_filtered_record()
 
     def reject_question(self):
         for rec in self:
+            # Validate review permission
             if not rec.can_review:
                 raise UserError(
-                    _("You are not allowed to review this question."))
+                    _("You are not allowed to review this question.")
+                )
+
+            # Require rejection remarks
             if not rec.reviewer_remarks:
                 raise UserError(
-                    _("Please mention the reason / remarks for rejection."))
-            rec.state = 'draft'
-            rec.reviewed_user = self.env.user
-            rec.message_post(body=_(
-                "Question rejected and returned to the developer by %s. "
-                "Remarks: %s") % (
-                self.env.user.name, rec.reviewer_remarks))
+                    _("Please mention the reason / remarks for rejection.")
+                )
+
+            # Update the question with elevated rights after validation
+            rec.sudo().write({
+                'state': 'draft',
+                'reviewed_user': self.env.user.id,
+            })
+
+            try:
+                company = self.env.company.sudo()
+
+                # Get a sender email
+                if not getattr(company, 'email', False):
+                    try:
+                        domain = (
+                            (company.name or 'cbt')
+                            .lower()
+                            .replace(' ', '')
+                            .replace('.', '')
+                        )
+                        company.write({
+                            'email': 'noreply@%s.local' % domain
+                        })
+                    except Exception:
+                        pass
+
+                user = self.env.user.sudo()
+                partner = (
+                    user.partner_id.sudo()
+                    if user.partner_id
+                    else False
+                )
+
+                email_from = (
+                        getattr(company, 'email', False)
+                        or (
+                            getattr(partner, 'email', False)
+                            if partner else False
+                        )
+                        or getattr(user, 'email', False)
+                        or 'noreply@localhost'
+                )
+
+                try:
+                    if partner and not getattr(partner, 'email', False):
+                        partner.write({'email': email_from})
+
+                    if (
+                            user
+                            and not getattr(user, 'email', False)
+                            and partner
+                            and partner.email
+                    ):
+                        user.write({'email': partner.email})
+
+                    ICP = self.env['ir.config_parameter'].sudo()
+
+                    if not ICP.get_param('mail.default.from'):
+                        ICP.set_param('mail.default.from', email_from)
+
+                except Exception:
+                    pass
+
+                # Post the rejection message in the chatter
+                try:
+                    rec.sudo().with_context(
+                        mail_notify_force_send=False,
+                        mail_create_nosubscribe=True,
+                        mail_notrack=True,
+                        mail_auto_subscribe_no_notify=True,
+                        mail_server_id=False,
+                        default_email_from=email_from,
+                        email_from=email_from,
+                    ).message_post(
+                        body=_(
+                            "Question rejected and returned to the developer "
+                            "by %s. Remarks: %s"
+                        ) % (
+                                 self.env.user.name,
+                                 rec.reviewer_remarks,
+                             ),
+                        message_type='comment',
+                        subtype_xmlid='mail.mt_note',
+                        author_id=partner.id if partner
+                        else self.env.user.partner_id.id,
+                    )
+
+                except Exception:
+                    try:
+                        rec.sudo().with_context(
+                            mail_notify_force_send=False,
+                            mail_create_nosubscribe=True,
+                            default_email_from=email_from,
+                        ).message_post(
+                            body=_(
+                                "Question rejected and returned to the developer "
+                                "by %s. Remarks: %s"
+                            ) % (
+                                     self.env.user.name,
+                                     rec.reviewer_remarks,
+                                 ),
+                            message_type='comment',
+                            subtype_xmlid='mail.mt_note',
+                        )
+                    except Exception:
+                        pass
+
+            except Exception:
+                # Preserve the original behavior if notification setup fails.
+                pass
+
         return self.get_filtered_record()
 
 

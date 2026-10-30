@@ -130,3 +130,15 @@ access_cbt_report_print_wizard_creator,access.cbt.report.print.wizard.creator,mo
 access_cbt_report_print_wizard_reviewer,access.cbt.report.print.wizard.reviewer,model_cbt_report_print_wizard,cbt.group_cbt_reviewer,1,1,1,1
 access_cbt_report_print_wizard_user,access.cbt.report.print.wizard.user,model_cbt_report_print_wizard,cbt.group_cbt_user,1,1,1,1
 access_cbt_report_print_wizard_admin,access.cbt.report.print.wizard.admin,model_cbt_report_print_wizard,cbt.group_cbt_admin,1,1,1,1
+
+access_cbt_user_right_admin,access.cbt.user.right.admin,model_cbt_user_right,cbt.group_cbt_admin,1,1,1,1
+access_cbt_user_right_manager,access.cbt.user.right.manager,model_cbt_user_right,cbt.group_cbt_rights_manager,1,1,1,1
+
+access_cbt_model_security_admin,access.cbt.model.security.admin,model_cbt_model_security,cbt.group_cbt_admin,1,1,1,1
+access_cbt_model_security_manager,access.cbt.model.security.manager,model_cbt_model_security,cbt.group_cbt_rights_manager,1,1,1,1
+
+access_cbt_menu_security_admin,access.cbt.menu.security.admin,model_cbt_menu_security,cbt.group_cbt_admin,1,1,1,1
+access_cbt_menu_security_manager,access.cbt.menu.security.manager,model_cbt_menu_security,cbt.group_cbt_rights_manager,1,1,1,1
+
+access_cbt_rights_manager_users,access.cbt.rights.manager.users,base.model_res_users,cbt.group_cbt_rights_manager,1,1,1,0
+access_cbt_rights_admin_users,access.cbt.rights.admin.users,base.model_res_users,cbt.group_cbt_admin,1,1,1,0

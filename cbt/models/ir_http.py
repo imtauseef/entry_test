@@ -45,6 +45,29 @@ class IrHttp(models.AbstractModel):
     _inherit = 'ir.http'
 
     @classmethod
+    def _get_session_info(cls):
+        info = super()._get_session_info()
+        # Flag the managed CBT users so the web client can hide the Odoo app
+        # switcher and pin them to their CBT home action.
+        info['cbt_managed'] = False
+        info['cbt_home_action_id'] = False
+        try:
+            if request and request.env and request.session.uid:
+                user = request.env['res.users'].sudo().browse(
+                    request.session.uid).exists()
+                if user:
+                    managed = request.env.ref(
+                        'cbt.group_cbt_managed', raise_if_not_found=False)
+                    info['cbt_managed'] = bool(
+                        managed and managed in user.groups_id
+                        and not user.has_group('base.group_system'))
+                    if info['cbt_managed'] and user.action_id:
+                        info['cbt_home_action_id'] = user.action_id.id
+        except Exception:  # never break the web client session info
+            pass
+        return info
+
+    @classmethod
     def _authenticate(cls, endpoint):
         super()._authenticate(endpoint)
         cls._cbt_enforce_session()

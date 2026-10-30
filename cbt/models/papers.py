@@ -252,6 +252,7 @@ class CBTPaperReplacementLog(models.Model):
     _name = 'cbt.paper.replacement.log'
     _description = 'Paper Question Replacement Log'
     _order = 'replace_datetime desc, id desc'
+    _inherit = ['cbt.line.access']
 
     paper_id = fields.Many2one(
         'cbt.paper', 'Paper', required=True, ondelete='cascade', index=True)
