@@ -90,10 +90,10 @@
             </field>
         </record>
 
-        <menuitem
+        <!-- <menuitem
                 name="Faculty Roles"
                 id="cbt_employee_role_menu"
                 parent="cbt_employee_root"
-                action="cbt_employee_role_action"/>
+                action="cbt_employee_role_action"/> -->
     </data>
 </odoo>

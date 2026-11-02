@@ -32,6 +32,6 @@
         name="Export Candidate Results Workbook"
         action="cbt_portal.prepare_result_wizard_action"
         parent="cbt_portal.menu_cbt_portal_main"
-        groups="cbt.group_cbt_admin"/>
+        groups="cbt_portal.group_cbt_admin"/>
 
 </odoo>

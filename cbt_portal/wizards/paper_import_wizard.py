@@ -7,7 +7,7 @@ import re
 from collections import defaultdict
 
 from odoo import fields, models, _
-from odoo.addons.cbt.models.allocation_xlsx import (
+from ..models.allocation_xlsx import (
     decrypt_xlsx,
     excel_password_prompt_action,
     load_allocation_xlsx,
@@ -504,7 +504,6 @@ class CBTPaperImportWizard(models.TransientModel):
                     'source_template_paper_id': allocation[
                         'source_template_paper_id'],
                     'source_payload_hash': allocation['payload_sha256'],
-                    'participant_id': False,
                     'server_id': allocation['_server_id'],
                     'user_id': portal_user.id,
                     'login': portal_user.login,

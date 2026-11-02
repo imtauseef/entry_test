@@ -7,3 +7,4 @@ from . import test_faculty_access
 from . import test_question_health
 from . import test_excel_password
 from . import test_user_rights_faculty
+from . import test_slot_time_validation

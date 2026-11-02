@@ -2,7 +2,7 @@
 import base64
 
 from odoo import fields, models, _
-from odoo.addons.cbt.models.allocation_xlsx import (
+from .allocation_xlsx import (
     build_allocation_xlsx,
     encrypt_xlsx,
     excel_password_prompt_action,
@@ -43,7 +43,7 @@ class CBTPaperExportBatch(models.Model):
     ]
 
     def _check_cbt_admin(self):
-        if not self.env.user.has_group('cbt.group_cbt_admin'):
+        if not self.env.user.has_group('cbt_portal.group_cbt_admin'):
             raise UserError(_('Only CBT administrators may manage test batches.'))
 
     def action_start_test(self):

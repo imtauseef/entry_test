@@ -5,10 +5,11 @@ import io
 import json
 import zipfile
 from datetime import datetime
+from types import SimpleNamespace
 from unittest import mock
 
 from odoo import fields
-from odoo.addons.cbt.models.allocation_xlsx import (
+from odoo.addons.cbt_portal.models.allocation_xlsx import (
     build_allocation_xlsx,
     decrypt_xlsx,
     encrypt_xlsx,
@@ -25,15 +26,33 @@ class TestOfflinePaperImport(TransactionCase):
         self.odoo_password = 'offline-test-admin-password'
         self.workbook_password = 'offline-transfer-password-2026'
         self.env.user.sudo().write({'password': self.odoo_password})
-        self.participant = self.env['cbt.participant'].create({
-            'name': 'Offline Import Candidate',
-            'login': 'offline-import-candidate',
-            'password': 'test-password',
-            'cid': 9876,
+        self.env.user.sudo().write({
+            'groups_id': [(4, self.env.ref('cbt_portal.group_cbt_admin').id)],
         })
-        user_sync = self.participant._sync_portal_user()
-        self.portal_user = self.env['res.users'].sudo().browse(
-            user_sync['user_id'])
+        self.has_source_addon = self.env.get('cbt.participant') is not None
+        if self.has_source_addon:
+            self.participant = self.env['cbt.participant'].create({
+                'name': 'Offline Import Candidate',
+                'login': 'offline-import-candidate',
+                'password': 'test-password',
+                'cid': 9876,
+            })
+            user_sync = self.participant._sync_portal_user()
+            self.portal_user = self.env['res.users'].sudo().browse(
+                user_sync['user_id'])
+        else:
+            self.participant = SimpleNamespace(
+                name='Offline Import Candidate',
+                login='offline-import-candidate',
+                password='test-password',
+                cid=9876,
+            )
+            self.portal_user = self.env['res.users'].sudo().create({
+                'name': self.participant.name,
+                'login': self.participant.login,
+                'password': self.participant.password,
+                'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+            })
         self.source_system_id = 'source-system-test'
         self.source_export_id = (
             '%s:cbt.student.paper:20' % self.source_system_id)
@@ -185,6 +204,28 @@ class TestOfflinePaperImport(TransactionCase):
             odoo_password=self.odoo_password,
             workbook_password=workbook_password)
 
+    def test_admin_can_finish_one_candidate_without_finishing_batch(self):
+        wizard = self._create_wizard(self._workbook())
+        self._import_allocation(wizard)
+        paper = self.env['cbt.paper.export'].search([
+            ('source_export_id', '=', self.source_export_id),
+        ])
+        batch = paper.batch_id
+        batch.action_start_test()
+        paper.action_start_candidate_test()
+
+        self.assertTrue(paper.paper_started)
+        self.assertEqual(batch.state, 'active')
+        self.assertFalse(paper.end_paper)
+
+        paper.action_finish_candidate_test()
+
+        self.assertTrue(paper.end_paper)
+        self.assertTrue(paper.end_paper_time)
+        self.assertEqual(paper.session_ids[-1].end_time, fields.Datetime.to_string(
+            paper.end_paper_time))
+        self.assertEqual(batch.state, 'active')
+
     def test_import_requires_admin_and_workbook_passwords(self):
         wizard = self._create_wizard(b'not-an-xlsx-file')
         with self.assertRaisesRegex(UserError, 'Odoo login password is incorrect'):
@@ -222,7 +263,6 @@ class TestOfflinePaperImport(TransactionCase):
             ('source_export_id', '=', self.source_export_id),
         ])
         self.assertEqual(len(paper), 1)
-        self.assertFalse(paper.participant_id)
         self.assertEqual(paper.user_id, self.portal_user.id)
         self.assertEqual(paper.login, self.portal_user.login)
         self.assertEqual(self.portal_user.sudo().password, password_hash)
@@ -329,9 +369,14 @@ class TestOfflinePaperImport(TransactionCase):
         self.assertEqual(paper._cbt_remaining_seconds(deadline), 0)
 
     def test_generator_export_is_importable_as_candidate_paper(self):
-        self.env.user.write({
-            'groups_id': [(4, self.env.ref('cbt.group_cbt_admin').id)],
-        })
+        if not self.has_source_addon:
+            self.skipTest('Requires the separate CBT source addon.')
+        groups = [(4, self.env.ref('cbt_portal.group_cbt_admin').id)]
+        cbt_admin = self.env.ref(
+            'cbt.group_cbt_admin', raise_if_not_found=False)
+        if cbt_admin:
+            groups.append((4, cbt_admin.id))
+        self.env.user.write({'groups_id': groups})
         program = self.env['cbt.program'].create({
             'name': 'Offline Test Program',
             'code': 'OFFLINE-IMPORT',
@@ -475,7 +520,6 @@ class TestOfflinePaperImport(TransactionCase):
             ('source_export_id', '=', paper_rows[1][0]),
         ])
         self.assertEqual(len(imported), 1)
-        self.assertFalse(imported.participant_id)
         self.assertEqual(imported.user_id, self.portal_user.id)
         self.assertEqual(imported.batch_id.name, generator.name)
         self.assertEqual(imported.paper_name, generated_paper.name)

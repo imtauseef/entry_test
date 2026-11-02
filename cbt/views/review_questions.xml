@@ -11,7 +11,7 @@
                            domain="[('subject_id', '=', subject_id)]" options="{'no_open': True}"/>
                     <field name="stopic_id"
                            domain="[('topic_id', '=', topic_id)]" options="{'no_open': True}"/>
-                    <field name="old_id" optional="hide"/>
+                    <!-- <field name="old_id" optional="hide"/> -->
                     <field name="difficulty_level_id" options="{'no_open': True}"/>
                     <field name="is_reserve"/>
                     <field name="is_suspended" optional="show"/>

@@ -62,6 +62,7 @@ class CbtExcelPasswordPrompt extends Component {
             }
             this.clearPasswords();
             await this.action.doAction(payload.result);
+            await this.action.restore();
         } catch (error) {
             this.clearPasswords();
             this.state.error = error.data?.arguments?.[0] ||
@@ -78,8 +79,9 @@ class CbtExcelPasswordPrompt extends Component {
         this.state.confirmWorkbookPassword = "";
     }
 
-    cancel() {
-        this.action.doAction({ type: "ir.actions.act_window_close" });
+    async cancel() {
+        this.clearPasswords();
+        await this.action.restore();
     }
 }
 

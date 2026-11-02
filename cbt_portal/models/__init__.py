@@ -2,3 +2,5 @@
 from . import model
 from . import paper_export_batch
 from . import question_feedback
+from . import allocation_xlsx
+from . import res_users

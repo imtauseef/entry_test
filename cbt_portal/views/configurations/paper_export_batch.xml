@@ -25,6 +25,7 @@
                             invisible="state != 'imported'"/>
                     <button name="action_finish_test" string="Finish Test"
                             type="object" class="btn-primary"
+                            confirm="Finish this test batch now? All candidates in this batch who have not already finished will be stopped, and no candidate will be able to continue the test."
                             invisible="state != 'active'"/>
                     <button name="action_open_results_export_password_prompt" string="Export Results Workbook"
                             type="object" invisible="state not in ('finished', 'result_collected')"/>
@@ -75,6 +76,6 @@
               name="Test Batches"
               parent="menu_cbt_portal_main"
               action="cbt_paper_export_batch_action"
-              groups="cbt.group_cbt_admin"
+              groups="cbt_portal.group_cbt_admin"
               sequence="30"/>
 </odoo>

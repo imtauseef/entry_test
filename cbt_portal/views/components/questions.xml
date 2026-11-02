@@ -8,15 +8,18 @@
                     <t t-foreach="section.question_ids" t-as="question">
                         <t t-if="question in paper.line_ids">
 
+                        <t t-set="sr" t-value="sr+1"/>
                         <t t-set="question_feedback"
                            t-value="paper.feedback_ids.filtered(lambda feedback: feedback.question_id == question)[:1]"/>
                         <div class="cbt-question"
                              t-att-data-question-id="question.id"
+                             t-att-data-question-number="sr"
+                             t-att-data-answered="'true' if question.is_answered else 'false'"
                              t-att-data-feedback-type-id="question_feedback.feedback_type_id.id or ''"
                              t-att-data-feedback-text="question_feedback.feedback_text or ''">
 
                             <div class="cbt-question-head">
-                                <span class="cbt-qno"><t t-set="sr" t-value="sr+1"/>Q<t t-esc="sr"/>.</span>
+                                <span class="cbt-qno">Q<t t-esc="sr"/>.</span>
                                 <div class="cbt-mark">
                                     <input type="checkbox" class="filled-in"
                                            t-attf-id="mk_{{question.id}}"
@@ -125,6 +128,31 @@
                 </button>
                 <div class="pageNumbers"/>
             </div>
+            <div class="cbt-question-jump">
+                <label>
+                    <span>Go to question</span>
+                    <select class="browser-default cbt-question-jump-select">
+                        <option value="">Select a question</option>
+                        <t t-set="jump_number" t-value="0"/>
+                        <t t-foreach="section.question_ids" t-as="jump_question">
+                            <t t-if="jump_question in paper.line_ids">
+                                <t t-set="jump_number" t-value="jump_number+1"/>
+                                <option t-att-value="jump_number"
+                                        t-att-data-question-id="jump_question.id"
+                                        t-att-data-answered="'true' if jump_question.is_answered else 'false'">
+                                    Question <t t-esc="jump_number"/> -
+                                    <t t-if="jump_question.is_answered">Answered</t>
+                                    <t t-else="">Unanswered</t>
+                                </option>
+                            </t>
+                        </t>
+                    </select>
+                </label>
+                <button type="button" class="cbt-question-jump-go">
+                    Go
+                </button>
+            </div>
+            <!--
             <div class="left-align cbt-unanswered">
                 <t t-set="uq" t-value="0"/>
                  <b> Unanswered questions: </b>
@@ -138,6 +166,7 @@
                     </t>
                   </t>
             </div>
+            -->
         </div>
 
     </template>

@@ -376,8 +376,8 @@ class CBTCenter(models.Model):
 
     name = fields.Char(string='City Name', required=True)
     code = fields.Char(string='City Code', required=True)
-    etest_id = fields.Many2one('cbt.test', tracking=True)
-    type_id = fields.Many2one('cbt.test.type', tracking=True)
+    etest_id = fields.Many2one('cbt.test')
+    type_id = fields.Many2one('cbt.test.type')
     test_type = fields.Selection(
         [('cbt', 'Computer Based Test'), ('pbt', 'Paper Based Test')], default="cbt")
     sequence = fields.Integer(default=10)
@@ -395,8 +395,58 @@ class CBTSlot(models.Model):
     name = fields.Char(string='Name')
     date = fields.Date('Test Date', required=True)
     time = fields.Float(string='Test Time', required=True)
-    time_to = fields.Float(string='Time To')
+    time_to = fields.Float(string='Time To', required=True)
     duration = fields.Float('Duration (M)')
+
+    @api.constrains('time', 'time_to')
+    def _check_slot_times(self):
+        for rec in self:
+            if not 0 <= rec.time < 24:
+                raise ValidationError(
+                    _('The test start time must be between 00:00 and 23:59.'))
+            if not 0 < rec.time_to < 24:
+                raise ValidationError(
+                    _('The test end time must be after 00:00 and before 24:00.'))
+            if rec.time_to == rec.time:
+                raise ValidationError(
+                    _('The test end time must be different from the start time.'))
+
+    @api.depends('time', 'time_to')
+    def _compute_slot_duration(self):
+        for rec in self:
+            if rec.time not in (False, None) and rec.time_to not in (False, None):
+                diff = rec.time_to - rec.time
+                if diff <= 0:
+                    diff += 24
+                rec.duration = diff * 60.0
+
+    @api.onchange('time', 'time_to')
+    def _onchange_slot_duration(self):
+        self._compute_slot_duration()
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            time_val = vals.get('time')
+            time_to_val = vals.get('time_to')
+            if time_val not in (False, None) and time_to_val not in (False, None):
+                diff = time_to_val - time_val
+                if diff <= 0:
+                    diff += 24
+                vals['duration'] = diff * 60.0
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if 'time' in vals or 'time_to' in vals:
+            for rec in self:
+                time_val = vals.get('time', rec.time)
+                time_to_val = vals.get('time_to', rec.time_to)
+                if time_val not in (False, None) and time_to_val not in (False, None):
+                    diff = time_to_val - time_val
+                    if diff <= 0:
+                        diff += 24
+                    rec.duration = diff * 60.0
+        return super().write(vals)
     active_time = fields.Boolean('Active', default=True)
     capacity = fields.Integer('Capacity')
     center_id = fields.Many2one('cbt.center')

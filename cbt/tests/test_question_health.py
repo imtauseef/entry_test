@@ -63,8 +63,6 @@ class TestQuestionHealth(TransactionCase):
         criteria = env['cbt.paper.criteria'].create({
             'name': 'Health Criteria',
             'duration': '60',
-            'total_questions': '1',
-            'total_questions_compute': '1',
             'program_ids': [(6, 0, [program.id])],
         })
         generator = env['cbt.paper.generator'].create({

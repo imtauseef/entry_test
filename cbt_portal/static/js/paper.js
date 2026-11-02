@@ -76,14 +76,34 @@ $(document).ready(function() {
                     page: data.current_q ? parseInt(data.current_q) : 1
                 });
             });
-            $(".previous-step").text("Prev");
-            $(".next-step").text("Next Section");
         },
         error: function(data) {
             parseRemaining("");
             startCountdown();
         }
     });
+    window.setInterval(function() {
+        if (!countdownStarted) {
+            return;
+        }
+        $.ajax({
+            url: "/cbt/paper/currentState",
+            type: "GET",
+            dataType: "json",
+            cache: false,
+            success: function(data) {
+                if (cbtSessionEnded(data)) {
+                    return;
+                }
+                if (data.paper_state) {
+                    window.location.href = "/cbt/paper/finish/page";
+                }
+            },
+            error: function(error) {
+                console.error('Unable to check candidate test status:', error);
+            }
+        });
+    }, 5000);
     var interval = setInterval(function() {
         if (!countdownStarted) {
             return;
@@ -109,6 +129,41 @@ $(document).ready(function() {
     window.addEventListener('contextmenu', function (e) {
         e.preventDefault();
     }, false);
+});
+
+function updateQuestionJump(questionId, answered) {
+    $('.cbt-question[data-question-id="' + questionId + '"]').each(function() {
+        var question = $(this);
+        question.attr('data-answered', answered ? 'true' : 'false');
+        var pager = question.closest('.cbt-paginate');
+        var option = pager.find(
+            '.cbt-question-jump-select option[data-question-id="' +
+                questionId + '"]');
+        option.attr('data-answered', answered ? 'true' : 'false');
+        option.text(
+            'Question ' + question.attr('data-question-number') + ' - ' +
+            (answered ? 'Answered' : 'Unanswered'));
+    });
+}
+
+$(document).on('click', '.cbt-question-jump-go', function() {
+    var pager = $(this).closest('.cbt-paginate');
+    var selectedPage = Number(pager.find(
+        '.cbt-question-jump-select').val());
+    var plugin = pager.length
+        ? $.data(pager.get(0), 'plugin_paginga')
+        : null;
+    if (
+        !plugin ||
+        !Number.isInteger(selectedPage) ||
+        selectedPage < 1 ||
+        selectedPage > plugin.totalPages
+    ) {
+        return;
+    }
+    plugin.currentPage = selectedPage;
+    plugin.setHistoryUrl();
+    plugin.showPage();
 });
 
 document.addEventListener('click', function(event) {
@@ -411,6 +466,7 @@ function rec_answer(question, subject, paper, answer_no, answer) {
             console.log(data.message);
             console.log(data.total_q);
             console.log(data.answered);
+            updateQuestionJump(question, true);
             jQuery("#total").html(data.total_q);
             jQuery("#answered").html(data.answered);
             jQuery("#total_finish_paper").html(data.total_q);
@@ -452,6 +508,7 @@ function rec_theory_answer(question, subject, paper, answer, immediate) {
             contentType: false,
             processData: false,
             success: function(data) {
+                updateQuestionJump(question, Boolean((answer || '').trim()));
                 jQuery("#total").html(data.total_q);
                 jQuery("#answered").html(data.answered);
                 jQuery("#total_finish_paper").html(data.total_q);

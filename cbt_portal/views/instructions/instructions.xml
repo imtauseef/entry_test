@@ -22,15 +22,17 @@
                             <div class="cbt-instructions" t-if="instructions">
                                 <t t-out="instructions.instruction"/>
                             </div>
-                            <p class="cbt-note" t-if="error_message">Unable to load instructions.</p>
+                            <p id="paper_error" class="cbt-note">
+                                Waiting for the administrator to start the test.
+                            </p>
                             <div class="divider mt-2"></div>
-                            <div t-if="paper and not end_paper" id="paper_start" style="display:none;" class="mt-2 center-align">
+                            <div t-if="not end_paper" id="paper_start" style="display:none;" class="mt-2 center-align">
                                 <a href="/cbt/paper" class="waves-effect waves-light btn cbt-btn gradient-45deg-green-teal">
                                     Start Test
                                 </a>
                             </div>
-                            <div t-if="paper and not end_paper" id="paper_start_time" style="display:none;" class="mt-2 center-align cbt-note">
-                                Please wait, paper will start at <b><t t-esc="'%02d:%02d' % (divmod(paper.test_time * 60, 60))"/></b>
+                            <div t-if="not end_paper" id="paper_start_time" style="display:none;" class="mt-2 center-align cbt-note">
+                                Please wait, paper will start at <b id="paper_start_at"/>
                             </div>
                             <div t-if="end_paper" class="mt-2 center-align cbt-note">
                                 Paper already attempted.
@@ -40,7 +42,7 @@
                 </div>
             </div>
             <t t-call-assets="cbt_portal.assets_dashboard" t-css="false"/>
-            <script src="/cbt_portal/static/js/instructions.js"/>
+            <script src="/cbt_portal/static/js/instructions.js?v=2"/>
         </t>
     </template>
 

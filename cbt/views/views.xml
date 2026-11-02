@@ -10,7 +10,7 @@
                     <field name="sequence" widget="handle"/>
                     <field name="code"/>
                     <field name="name"/>
-                    <field name="old_id"/>
+                    <!-- <field name="old_id"/> -->
                     <field name="description"/>
                 </tree>
             </field>
@@ -54,7 +54,7 @@
                         <group>
                             <group>
                                 <field name="name" required="1"/>
-                                <field name="old_id"/>
+                                <!-- <field name="old_id"/> -->
                             </group>
                             <group>
                                 <field name="code" required="1"/>
@@ -110,7 +110,7 @@
                     <field name="sequence" widget="handle"/>
                     <field name="code"/>
                     <field name="name"/>
-                    <field name="old_id"/>
+                    <!-- <field name="old_id"/> -->
                     <field name="subject_id" options="{'no_open': True}"/>
                     <field name="sub_topic_count"/>
                 </tree>
@@ -126,7 +126,7 @@
                             <group>
                                 <field name="name" required="1"/>
                                 <field name="code" required="1"/>
-                                <field name="old_id"/>
+                                <!-- <field name="old_id"/> -->
                             </group>
                             <group>
                                 <field name="subject_id"
@@ -140,7 +140,7 @@
                                         <field name="sequence" widget="handle"/>
                                         <field name="code" required="1"/>
                                         <field name="name" required="1"/>
-                                        <field name="old_id"/>
+                                        <!-- <field name="old_id"/> -->
                                     </tree>
                                 </field>
                             </page>
@@ -259,7 +259,7 @@
                     <field name="sequence" widget="handle"/>
                     <field name="code" required="1"/>
                     <field name="name" required="1"/>
-                    <field name="old_id"/>
+                    <!-- <field name="old_id"/> -->
                     <field name="is_theory"/>
                     <field name="description"/>
                 </tree>
@@ -289,7 +289,7 @@
                 <tree editable="bottom">
                     <field name="sequence" widget="handle"/>
                     <field name="name" required="1"/>
-                    <field name="old_id"/>
+                    <!-- <field name="old_id"/> -->
                     <field name="description"/>
                 </tree>
             </field>
@@ -318,7 +318,7 @@
                     <field name="sequence" widget="handle"/>
                     <field name="code" required="1"/>
                     <field name="name" required="1"/>
-                    <field name="old_id"/>
+                    <!-- <field name="old_id"/> -->
                     <field name="description"/>
                 </tree>
             </field>
@@ -537,7 +537,7 @@
                     <field name="subject_id" options="{'no_open': True}"/>
                     <field name="topic_id" options="{'no_open': True}"/>
                     <field name="stopic_id" options="{'no_open': True}"/>
-                    <field name="old_id" optional="hide"/>
+                    <!-- <field name="old_id" optional="hide"/> -->
                     <field name="difficulty_level_id" options="{'no_open': True}"/>
                     <field name="type_id" options="{'no_open': True}"/>
                     <field name="question" widget="html"/>
@@ -579,7 +579,7 @@
                                        domain="[('topic_id', '=', topic_id)]"
                                        options="{'no_open': True}"
                                        readonly="state != 'draft'"/>
-                                <field name="old_id"/>
+                                <!-- <field name="old_id"/> -->
                             </group>
                             <group>
                                 <field name="type_id" options="{'no_open': True}"/>
@@ -897,8 +897,8 @@
 
 
         <menuitem name="Entry Test" id="cbt_menu_root" groups="base.group_user,cbt.group_cbt_admin,cbt.group_cbt_managed,cbt.group_cbt_faculty,cbt.group_cbt_creator,cbt.group_cbt_reviewer"/>
-        <menuitem name="Configure Users" id="cbt_menu_1" parent="cbt_menu_root" groups="cbt.group_cbt_admin"/>
-        <menuitem name="Employee Setup" id="cbt_employee_root" parent="cbt_menu_1"/>
+        <!-- <menuitem name="Configure Users" id="cbt_menu_1" parent="cbt_menu_root" groups="cbt.group_cbt_admin"/>
+        <menuitem name="Employee Setup" id="cbt_employee_root" parent="cbt_menu_1"/> -->
 
 
         <menuitem name="Configure Exams" id="cbt_exams" parent="cbt_menu_root" groups="cbt.group_cbt_admin"/>

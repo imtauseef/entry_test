@@ -7,9 +7,17 @@
     'author': "NUST",
     'company': 'NUST Holdings',
     'website': "",
-    'version': '0.1',
-    'depends': ['base','website','cbt'],
+    'version': '0.2',
+    'depends': ['base', 'website'],
+    'external_dependencies': {
+        'python': ['msoffcrypto'],
+    },
     'assets': {
+        'web.assets_backend': [
+            'cbt_portal/static/src/js/excel_password_prompt.js',
+            'cbt_portal/static/src/css/excel_password_prompt.css',
+            'cbt_portal/static/src/xml/excel_password_prompt.xml',
+        ],
         'cbt_portal.assets_dashboard': [
             'cbt_portal/static/lib/materialize/css/materialize.min.css',
             'cbt_portal/static/lib/material-icons/material-icons.css',

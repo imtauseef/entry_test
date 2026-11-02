@@ -31,11 +31,11 @@
             <field name="arch" type="xml">
                 <form>
                     <header>
-                        <button name="action_force_logout" type="object"
+                        <!-- <button name="action_force_logout" type="object"
                                 string="Force Logout / Reset Session"
                                 class="btn-primary"
                                 groups="cbt.group_cbt_admin"
-                                confirm="This will end the participant's active session. Continue?"/>
+                                confirm="This will end the participant's active session. Continue?"/> -->
                     </header>
                     <sheet>
                         <group>

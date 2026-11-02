@@ -40,7 +40,7 @@ class CBTPaperConduct(models.Model):
         string='Portal End Time', readonly=True, copy=False)
     score = fields.Integer(
         'Test Score', compute='_compute_test_score', store=True)
-    user_token = fields.Char('User Token', tracking=True, readonly="True")
+    user_token = fields.Char('User Token', tracking=True, readonly=True)
     last_question_attempt_id = fields.Many2one(
         'cbt.mcqs', 'Last Question Attempt')
     question_attempt_id = fields.One2many(
