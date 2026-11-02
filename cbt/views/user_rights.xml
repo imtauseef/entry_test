@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ================================================================= -->
+        <!-- User list (User Rights screen)                                    -->
+        <!-- ================================================================= -->
+        <record id="cbt_user_rights_tree" model="ir.ui.view">
+            <field name="name">res.users.cbt.rights.tree</field>
+            <field name="model">res.users</field>
+            <field name="arch" type="xml">
+                <tree create="true" edit="true" delete="false"
+                      decoration-muted="not active">
+                    <field name="name"/>
+                    <field name="login"/>
+                    <field name="cbt_role" optional="show"/>
+                    <field name="active"/>
+                    <field name="cbt_rights_count" optional="show"/>
+                    <field name="cbt_managed_user" column_invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- ================================================================= -->
+        <!-- Dedicated CBT user form                                           -->
+        <!--                                                                   -->
+        <!-- A standalone form (it does NOT inherit base.view_users_form) so   -->
+        <!-- the reviewer only sees the CBT user fields and the menu rights.   -->
+        <!-- ================================================================= -->
+        <record id="cbt_user_rights_form" model="ir.ui.view">
+            <field name="name">res.users.cbt.rights.form</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" eval="False"/>
+            <field name="priority">99</field>
+            <field name="arch" type="xml">
+                <form string="CBT User" create="true" edit="true">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="User Name"
+                                       required="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="login" required="1"/>
+                                <field name="email" widget="email"/>
+                                <field name="cbt_role" required="1"/>
+                                <field name="active"/>
+                            </group>
+                            <group>
+                                <field name="password" password="True"
+                                       autocomplete="new-password"
+                                       placeholder="Required when creating a user; leave empty to keep unchanged"/>
+                                <field name="cbt_rights_count"/>
+                            </group>
+                        </group>
+
+                        <!-- ADMIN SCREEN: MENU PERMISSIONS -->
+                        <group string="CBT Menu Permissions" invisible="cbt_role != 'admin'">
+                            <div class="o_row">
+                                <button name="action_cbt_select_all"
+                                        string="Grant All" type="object"
+                                        class="btn-primary"/>
+                                <button name="action_cbt_deselect_all"
+                                        string="Revoke All" type="object"
+                                        class="btn-secondary"/>
+                            </div>
+                        </group>
+                        <field name="cbt_right_ids" nolabel="1" invisible="cbt_role != 'admin'">
+                            <tree editable="bottom" create="false"
+                                  delete="false">
+                                <field name="menu_label"/>
+                                <field name="models_label" optional="show"/>
+                                <field name="can_see"/>
+                                <field name="can_read" readonly="1"/>
+                                <field name="can_write"/>
+                                <field name="can_create"/>
+                                <field name="menu_id" column_invisible="1"/>
+                                <field name="menu_security_id" column_invisible="1"/>
+                            </tree>
+                        </field>
+
+                        <!-- FACULTY SCREEN: ROLE ASSIGNMENT -->
+                        <group string="Faculty Role Assignment" invisible="cbt_role != 'faculty'"/>
+                        <field name="cbt_faculty_role_ids" nolabel="1" invisible="cbt_role != 'faculty'"
+                               context="{'default_user_id': id}">
+                            <tree editable="bottom">
+                                <field name="user_id" readonly="1" force_save="1"/>
+                                <field name="employee_id" readonly="1" force_save="1"/>
+                                <field name="subject_ids" widget="many2many_tags" required="1" options="{'no_create': True}"/>
+                                <field name="topic_ids" widget="many2many_tags"
+                                       domain="[('subject_id', 'in', subject_ids)]"
+                                       options="{'no_create': True}"/>
+                                <field name="subtopic_ids" widget="many2many_tags"
+                                       domain="[('topic_id', 'in', topic_ids)]"
+                                       options="{'no_create': True}"/>
+                                <field name="create_access" string="Question Creator"/>
+                                <field name="review_access" string="Reviewer"/>
+                            </tree>
+                            <form>
+                                <sheet>
+                                    <group>
+                                        <group>
+                                            <field name="user_id" readonly="1" force_save="1"/>
+                                            <field name="employee_id" readonly="1" force_save="1"/>
+                                        </group>
+                                        <group>
+                                            <field name="subject_ids" widget="many2many_tags" required="1" options="{'no_create': True}"/>
+                                            <field name="topic_ids" widget="many2many_tags"
+                                                   domain="[('subject_id', 'in', subject_ids)]"
+                                                   options="{'no_create': True}"/>
+                                            <field name="subtopic_ids" widget="many2many_tags"
+                                                   domain="[('topic_id', 'in', topic_ids)]"
+                                                   options="{'no_create': True}"/>
+                                            <field name="create_access" string="Question Creator"/>
+                                            <field name="review_access" string="Reviewer"/>
+                                        </group>
+                                    </group>
+                                </sheet>
+                            </form>
+                        </field>
+                        <div class="text-muted mt-2" invisible="cbt_role != 'faculty'">
+                            For each row, assign the subjects this faculty can work on. Topics will appear based on selected subjects, and sub-topics based on selected topics.
+                            Use "Question Creator" to allow creating questions and "Reviewer" to allow reviewing submitted questions.
+                        </div>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- ================================================================= -->
+        <!-- Action                                                            -->
+        <!-- ================================================================= -->
+        <record id="action_cbt_user_rights" model="ir.actions.act_window">
+            <field name="name">User Rights</field>
+            <field name="res_model">res.users</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="cbt_user_rights_tree"/>
+            <field name="domain">[('cbt_managed_user', '=', True)]</field>
+            <field name="context">{'create': True, 'form_view_ref': 'cbt.cbt_user_rights_form', 'cbt_user_rights_screen': True}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a CBT user and grant the menus it may use.
+                </p>
+            </field>
+        </record>
+
+        <!-- ================================================================= -->
+        <!-- Menu                                                              -->
+        <!-- ================================================================= -->
+        <menuitem id="menu_cbt_user_rights"
+                  name="User Rights"
+                  parent="cbt.cbt_menu_root"
+                  action="action_cbt_user_rights"
+                  groups="cbt.group_cbt_rights_manager,cbt.group_cbt_admin"
+                  sequence="95"/>
+
+    </data>
+
+    <data noupdate="0">
+        <!-- Discover the CBT menus, create the permission groups / ACLs and
+             refresh every stored user configuration. Runs on install and on
+             every upgrade, so newly added CBT menus appear automatically. -->
+        <function model="cbt.menu.security" name="sync_all"/>
+    </data>
+</odoo>
