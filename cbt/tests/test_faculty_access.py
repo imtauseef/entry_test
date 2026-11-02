@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-<<<<<<< HEAD
-=======
 from datetime import datetime, timedelta
 
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase, tagged
 
@@ -211,8 +208,6 @@ class TestFacultyAccess(TransactionCase):
         self.assertEqual(question.current_user, self.faculty)
         self.assertEqual(question.state, 'draft')
 
-<<<<<<< HEAD
-=======
     def test_question_hierarchy_constraint_applies_to_admin_writes(self):
         with self.assertRaises(ValidationError):
             self.own_draft.sudo().write({
@@ -303,7 +298,6 @@ class TestFacultyAccess(TransactionCase):
             self.faculty).action_refresh_question_health()
         self.assertEqual(action['tag'], 'reload')
 
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
     def test_role_scope_must_match_hierarchy(self):
         with self.assertRaises(ValidationError):
             self.env['cbt.employee.role'].create({
@@ -312,8 +306,6 @@ class TestFacultyAccess(TransactionCase):
                 'topic_id': self.topic_b.id,
             })
 
-<<<<<<< HEAD
-=======
     def test_creator_cannot_see_own_submitted_until_approved(self):
         self.own_draft.with_user(self.faculty).action_submit()
         self.assertEqual(self.own_draft.state, 'submitted')
@@ -335,7 +327,6 @@ class TestFacultyAccess(TransactionCase):
         self.assertIn(self.own_draft, faculty_questions)
         self.own_draft.with_user(self.faculty).read(['question'])
 
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
     def test_review_workflow_respects_scope(self):
         self.own_draft.with_user(self.faculty).action_submit()
         self.assertEqual(self.own_draft.state, 'submitted')
@@ -350,8 +341,6 @@ class TestFacultyAccess(TransactionCase):
         subjects = self.env['cbt.subject'].with_user(self.admin).search([])
         self.assertIn(self.subject_a, subjects)
         self.assertIn(self.subject_b, subjects)
-<<<<<<< HEAD
-=======
 
     def test_question_changes_are_audited(self):
         question = self._question(
@@ -520,4 +509,3 @@ class TestFacultyAccess(TransactionCase):
         self.assertFalse(question.can_suspend)
         with self.assertRaises(UserError):
             question.action_suspend()
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a

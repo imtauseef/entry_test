@@ -71,8 +71,8 @@
                                 </field>
                             </page>
                             <page name="role" string="Faculty Role">
-<<<<<<< HEAD
-                                <field name="role_ids" readonly="1">
+                                <field name="role_ids" readonly="1"
+                                       options="{'no_open': True}">
                                     <tree>
                                         <field name="employee_id"/>
                                         <field name="subject_ids" widget="many2many_tags"/>
@@ -82,9 +82,6 @@
                                         <field name="review_access"/>
                                     </tree>
                                 </field>
-=======
-                                <field name="role_ids" options="{'no_open': True}"/>
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
                             </page>
                         </notebook>
                     </sheet>
@@ -537,22 +534,13 @@
                         <button name="action_submit_selected" type="object" string="Submit Selected"
                                 class="btn-primary"/>
                     </header>
-<<<<<<< HEAD
-<!--                    <field name="name"/>-->
-                    <field name="question" widget="html"/>
-                    <field name="subject_id"/>
-                    <field name="topic_id"/>
-                    <field name="stopic_id"/>
-                    <field name="difficulty_level_id"/>
-                    <field name="type_id"/>
-=======
                     <field name="subject_id" options="{'no_open': True}"/>
                     <field name="topic_id" options="{'no_open': True}"/>
                     <field name="stopic_id" options="{'no_open': True}"/>
                     <field name="old_id" optional="hide"/>
                     <field name="difficulty_level_id" options="{'no_open': True}"/>
                     <field name="type_id" options="{'no_open': True}"/>
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
+                    <field name="question" widget="html"/>
                     <field name="is_reserve" optional="show"/>
                     <field name="is_suspended" optional="show"/>
                     <field name="state"/>
@@ -566,22 +554,15 @@
                 <form>
                     <header>
                         <field name="can_submit" invisible="1"/>
-<<<<<<< HEAD
+                        <field name="can_suspend" invisible="1"/>
                         <field name="can_review" invisible="1"/>
                         <field name="is_reviewer" invisible="1"/>
-                        <button name="action_submit" string="Submit" type="object" class="btn-primary"
-                                invisible="not can_submit"/>
-<!--                        <button name="action_submit_all" string="Submit All Questions" type="object"-->
-<!--                                invisible="state != 'draft'"/>-->
-=======
-                        <field name="can_suspend" invisible="1"/>
                         <button name="action_submit" string="Submit" type="object" class="btn-primary"
                                 invisible="not can_submit"/>
                         <button name="action_submit_all" string="Submit All Questions" type="object"
                                 invisible="state != 'draft'"/>
                         <button name="action_suspend" string="Suspend" type="object"
                                 class="btn-secondary" invisible="not can_suspend"/>
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
                         <field name="state" widget="statusbar"
                                statusbar_visible="draft,submitted,approved,cancel"/>
                     </header>
@@ -589,23 +570,15 @@
                         <field name="is_theory" invisible="1"/>
                         <group>
                             <group>
-<<<<<<< HEAD
-                                <field name="subject_id" readonly="state != 'draft'"/>
-                                <field name="topic_id" readonly="state != 'draft'"/>
-                                <field name="stopic_id" readonly="state != 'draft'"/>
-                            </group>
-                            <group>
-                                <field name="type_id" readonly="state != 'draft'"/>
-                                <field name="skill_id" readonly="state != 'draft'"/>
-                                <field name="difficulty_level_id" readonly="state != 'draft'"/>
-                                <!--<field name="time_id"/>-->
-                                <field name="is_reserve" readonly="state != 'draft' and not can_review"/>
-=======
                                 <field name="subject_id" options="{'no_open': True}"/>
                                 <field name="topic_id"
-                                       domain="[('subject_id', '=', subject_id)]" options="{'no_open': True}"/>
+                                       domain="[('subject_id', '=', subject_id)]"
+                                       options="{'no_open': True}"
+                                       readonly="state != 'draft'"/>
                                 <field name="stopic_id"
-                                       domain="[('topic_id', '=', topic_id)]" options="{'no_open': True}"/>
+                                       domain="[('topic_id', '=', topic_id)]"
+                                       options="{'no_open': True}"
+                                       readonly="state != 'draft'"/>
                                 <field name="old_id"/>
                             </group>
                             <group>
@@ -613,8 +586,7 @@
                                 <field name="skill_id" options="{'no_open': True}"/>
                                 <field name="difficulty_level_id" options="{'no_open': True}"/>
                                 <field name="time_id" options="{'no_open': True}"/>
-                                <field name="is_reserve"/>
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
+                                <field name="is_reserve" readonly="state != 'draft' and not can_review"/>
                             </group>
                         </group>
                         <group>
@@ -631,44 +603,36 @@
                                            readonly="state != 'draft'"/>
                                 </group>
                                 <group>
-<<<<<<< HEAD
                                     <field name="ans1_correct" readonly="state != 'draft'"/>
-                                    <field name="ans1" readonly="state != 'draft'"/>
+                                    <field name="ans1"
+                                           required="not is_theory"
+                                           readonly="state != 'draft'"/>
 
                                     <field name="ans2_correct" readonly="state != 'draft'"/>
-                                    <field name="ans2" readonly="state != 'draft'"/>
-=======
-                                    <field name="ans1_correct"/>
-                                    <field name="ans1"
-                                           required="not is_theory"/>
-
-                                    <field name="ans2_correct"/>
                                     <field name="ans2"
-                                           required="not is_theory"/>
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
+                                           required="not is_theory"
+                                           readonly="state != 'draft'"/>
 
                                     <field name="ans3_correct"
-                                           invisible="option_quantity == '2'"/>
+                                           invisible="option_quantity == '2'"
+                                           readonly="state != 'draft'"/>
                                     <field name="ans3"
-                                           invisible="option_quantity == '2'"/>
+                                           invisible="option_quantity == '2'"
+                                           readonly="state != 'draft'"/>
 
-<<<<<<< HEAD
-                                    <field name="ans3_correct" readonly="state != 'draft'"/>
-                                    <field name="ans3" readonly="state != 'draft'"/>
-
-                                    <field name="ans4_correct" readonly="state != 'draft'"/>
-                                    <field name="ans4" readonly="state != 'draft'"/>
-=======
                                     <field name="ans4_correct"
-                                           invisible="option_quantity in ['2', '3']"/>
+                                           invisible="option_quantity in ['2', '3']"
+                                           readonly="state != 'draft'"/>
                                     <field name="ans4"
-                                           invisible="option_quantity in ['2', '3']"/>
+                                           invisible="option_quantity in ['2', '3']"
+                                           readonly="state != 'draft'"/>
 
                                     <field name="ans5_correct"
-                                           invisible="option_quantity in ['2', '3', '4']"/>
+                                           invisible="option_quantity in ['2', '3', '4']"
+                                           readonly="state != 'draft'"/>
                                     <field name="ans5"
-                                           invisible="option_quantity in ['2', '3', '4']"/>
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
+                                           invisible="option_quantity in ['2', '3', '4']"
+                                           readonly="state != 'draft'"/>
 
                                     <field name="ans6_correct"
                                            invisible="option_quantity in ['2', '3', '4', '5']"/>

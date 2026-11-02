@@ -64,14 +64,11 @@
             'cbt/static/src/js/excel_password_prompt.js',
             'cbt/static/src/js/sync_participants_action.js',
             'cbt/static/src/js/hide_review_action_menu.js',
-<<<<<<< HEAD
-            'cbt/static/src/js/hide_apps_menu.js',
-            'cbt/static/src/js/block_internal_links.js',
-=======
             'cbt/static/src/css/question_health.css',
             'cbt/static/src/css/excel_password_prompt.css',
             'cbt/static/src/xml/excel_password_prompt.xml',
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
+            'cbt/static/src/js/hide_apps_menu.js',
+            'cbt/static/src/js/block_internal_links.js',
         ],
     },
 }

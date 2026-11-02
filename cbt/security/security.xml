@@ -61,7 +61,23 @@
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
 
-<<<<<<< HEAD
+        <record model="ir.rule" id="cbt_subject_topic_faculty_rule">
+            <field name="name">Topic: Faculty Own Subjects</field>
+            <field name="model_id" ref="model_cbt_subject_topic"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
+            <field name="domain_force">[('subject_id.role_ids', 'any', [('employee_id.user_id', '=', user.id)])]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record model="ir.rule" id="cbt_subject_topic_admin_rule">
+            <field name="name">Topic: Admin All</field>
+            <field name="model_id" ref="model_cbt_subject_topic"/>
+            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
         <!-- ===================== User Rights feature ===================== -->
 
         <!-- Administrators of the User Rights screen. -->
@@ -93,26 +109,6 @@
             <field name="groups" eval="[(4, ref('cbt.group_cbt_managed'))]"/>
             <field name="domain_force">['|', '|', '&amp;', ('state', '=', 'draft'), ('current_user', '=', user.id), '&amp;', ('state', '=', 'submitted'), ('current_user', '!=', user.id), ('state', 'in', ['approved', 'cancel'])]</field>
         </record>
-
-    </data>
-=======
-        <record model="ir.rule" id="cbt_subject_topic_faculty_rule">
-            <field name="name">Topic: Faculty Own Subjects</field>
-            <field name="model_id" ref="model_cbt_subject_topic"/>
-            <field name="groups" eval="[(4, ref('cbt.group_cbt_faculty'))]"/>
-            <field name="domain_force">[('subject_id.role_ids', 'any', [('employee_id.user_id', '=', user.id)])]</field>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="False"/>
-            <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
-        </record>
-        <record model="ir.rule" id="cbt_subject_topic_admin_rule">
-            <field name="name">Topic: Admin All</field>
-            <field name="model_id" ref="model_cbt_subject_topic"/>
-            <field name="groups" eval="[(4, ref('cbt.group_cbt_admin'))]"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
-        </record>
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
 
         <record model="ir.rule" id="cbt_subject_subtopic_faculty_rule">
             <field name="name">Sub Topic: Faculty Own Subjects</field>

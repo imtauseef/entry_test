@@ -434,7 +434,17 @@ class CBTEmployeeRole(models.Model):
         self._sync_groups_for_users(
             records.mapped('user_id') | records.mapped('employee_id.user_id'))
 
-<<<<<<< HEAD
+    @api.model
+    def _cleanup_legacy_faculty_rules(self):
+        """Drop the broad rules shipped before subject-scoped access."""
+        for xmlid in (
+            'cbt.partner_view_rule_faculty_submitted',
+            'cbt.paper_replacement_log_rule_faculty',
+        ):
+            rule = self.env.ref(xmlid, raise_if_not_found=False)
+            if rule:
+                rule.sudo().unlink()
+
     @api.model_create_multi
     def create(self, vals_list):
         prepared = []
@@ -454,24 +464,6 @@ class CBTEmployeeRole(models.Model):
             records = super().create(prepared)
         records._sync_role_groups()
         return records
-=======
-    @api.model
-    def _cleanup_legacy_faculty_rules(self):
-        """Drop the broad rules shipped before subject-scoped access."""
-        for xmlid in (
-            'cbt.partner_view_rule_faculty_submitted',
-            'cbt.paper_replacement_log_rule_faculty',
-        ):
-            rule = self.env.ref(xmlid, raise_if_not_found=False)
-            if rule:
-                rule.sudo().unlink()
-
-    @api.model
-    def create(self, vals):
-        record = super().create(vals)
-        record._sync_role_groups()
-        return record
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
 
     def write(self, vals):
         vals = self._cbt_prepare_vals(vals, records=self)
@@ -665,19 +657,11 @@ class CBTMCQS(models.Model):
     def _get_default_subjects(self):
         if self.env.su or self.env.user.has_group('cbt.group_cbt_admin'):
             return []
-<<<<<<< HEAD
         role_model = self.env['cbt.employee.role']
         roles = role_model._cbt_user_roles(self.env.user, 'create_access')
         subject_list = set(roles.mapped('subject_id').ids)
         subject_list.update(roles.mapped('subject_ids').ids)
         return [('id', 'in', list(subject_list))]
-=======
-        employees = self.env['cbt.employee.role'].search([
-            ('create_access', '=', True),
-            ('employee_id.user_id', '=', self.env.user.id),
-        ])
-        return [('id', 'in', employees.mapped('subject_id').ids)]
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
 
     @api.model
     def _get_generation_pool(self, domain=None):
@@ -806,16 +790,10 @@ class CBTMCQS(models.Model):
     skill_id = fields.Many2one(
         'cbt.question.skill', required=True, tracking=True)
     difficulty_level_id = fields.Many2one(
-<<<<<<< HEAD
-        'cbt.question.difficulty.level', required=True)
-    # time_id = fields.Many2one('cbt.question.time', required=False)
-    question = fields.Html(string='Question', required=True)
-=======
         'cbt.question.difficulty.level', required=True, tracking=True)
     time_id = fields.Many2one(
         'cbt.question.time', required=True, tracking=True)
     question = fields.Html(string='Question', required=True, tracking=True)
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
     is_reserve = fields.Boolean(
         string='Reserve Question', default=False, index=True, tracking=True,
         help="Reserve questions are kept out of paper generation and out of "
@@ -874,8 +852,9 @@ class CBTMCQS(models.Model):
     state = fields.Selection([
         ('draft', 'Draft'), ('submitted', 'Under Review'),
         ('approved', 'Approved'), ('cancel', 'Cancel')
-<<<<<<< HEAD
-    ], 'Status', default='draft')
+    ], 'Status', default='draft', tracking=True)
+    paper_id = fields.Many2one(
+        'cbt.paper.criteria', 'Paper ID', tracking=True)
 
     @api.depends()
     def _compute_is_reviewer(self):
@@ -889,12 +868,8 @@ class CBTMCQS(models.Model):
                 rec.is_reviewer = True
             else:
                 rec.is_reviewer = False
-    paper_id = fields.Many2one('cbt.paper.criteria', 'Paper ID')
-=======
-    ], 'Status', default='draft', tracking=True)
     paper_id = fields.Many2one(
         'cbt.paper.criteria', 'Paper ID', tracking=True)
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
     question_repeat_ids = fields.One2many(
         'cbt.question.repeat.track', 'question_id', "Questions Track")
     feedback_ids = fields.One2many(
@@ -1372,18 +1347,17 @@ class CBTMCQS(models.Model):
     @api.model
     def create(self, vals):
         if not (self.env.su or self.env.user.has_group('cbt.group_cbt_admin')):
-<<<<<<< HEAD
+            current_user_id = vals.get('current_user') or self.env.user.id
+            if current_user_id != self.env.user.id:
+                raise UserError(_(
+                    "You cannot create a question for another user."))
             subject_id = vals.get('subject_id')
             employee_role = self.env['cbt.employee.role']
             allowed = employee_role._cbt_has_access(
                 self.env.user, subject_id, 'create_access')
             if not allowed:
-=======
-            current_user_id = vals.get('current_user') or self.env.user.id
-            if current_user_id != self.env.user.id:
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
                 raise UserError(_(
-                    "You cannot create a question for another user."))
+                    "You cannot create questions outside your assigned subjects."))
             if (vals.get('state') or 'draft') != 'draft':
                 raise UserError(_("New questions must be created as drafts."))
             self._cbt_check_question_scope(

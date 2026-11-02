@@ -41,17 +41,11 @@
                             <group>
                                 <field name="subject_id" readonly="1"
                                        options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
-<<<<<<< HEAD
                                 <field name="topic_id" readonly="1"
-                                       options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
-                                <field name="stopic_id" readonly="1"
-=======
-                                <field name="topic_id"
                                        domain="[('subject_id', '=', subject_id)]"
                                        options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
-                                <field name="stopic_id"
+                                <field name="stopic_id" readonly="1"
                                        domain="[('topic_id', '=', topic_id)]"
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
                                        options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,'no_create':True,}"/>
                             </group>
                             <group>
@@ -88,33 +82,33 @@
                                     <field name="ans2_correct" readonly="1"/>
                                     <field name="ans2" readonly="1"/>
 
-<<<<<<< HEAD
-                                    <field name="ans3_correct" readonly="1"/>
-                                    <field name="ans3" readonly="1"/>
-
-                                    <field name="ans4_correct" readonly="1"/>
-                                    <field name="ans4" readonly="1"/>
-=======
                                     <field name="ans3_correct"
-                                           invisible="option_quantity == '2'"/>
+                                           invisible="option_quantity == '2'"
+                                           readonly="1"/>
                                     <field name="ans3"
-                                           invisible="option_quantity == '2'"/>
+                                           invisible="option_quantity == '2'"
+                                           readonly="1"/>
 
                                     <field name="ans4_correct"
-                                           invisible="option_quantity in ['2', '3']"/>
+                                           invisible="option_quantity in ['2', '3']"
+                                           readonly="1"/>
                                     <field name="ans4"
-                                           invisible="option_quantity in ['2', '3']"/>
+                                           invisible="option_quantity in ['2', '3']"
+                                           readonly="1"/>
 
                                     <field name="ans5_correct"
-                                           invisible="option_quantity in ['2', '3', '4']"/>
+                                           invisible="option_quantity in ['2', '3', '4']"
+                                           readonly="1"/>
                                     <field name="ans5"
-                                           invisible="option_quantity in ['2', '3', '4']"/>
+                                           invisible="option_quantity in ['2', '3', '4']"
+                                           readonly="1"/>
 
                                     <field name="ans6_correct"
-                                           invisible="option_quantity in ['2', '3', '4', '5']"/>
+                                           invisible="option_quantity in ['2', '3', '4', '5']"
+                                           readonly="1"/>
                                     <field name="ans6"
-                                           invisible="option_quantity in ['2', '3', '4', '5']"/>
->>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
+                                           invisible="option_quantity in ['2', '3', '4', '5']"
+                                           readonly="1"/>
                                 </group>
                             </page>
                             <page name="theory" string="Theory"
