@@ -31,6 +31,13 @@ class CBTPaperConduct(models.Model):
     program = fields.Many2one(
         'cbt.program', 'program', related='participant_id.program', store=True)
     date = fields.Date('Paper Conduct Date', required=True, tracking=True)
+    result_batch_id = fields.Many2one(
+        'cbt.paper.result.batch', string='Offline Result Batch',
+        index=True, ondelete='restrict', copy=False)
+    portal_started_at = fields.Datetime(
+        string='Portal Start Time', readonly=True, copy=False)
+    portal_ended_at = fields.Datetime(
+        string='Portal End Time', readonly=True, copy=False)
     score = fields.Integer(
         'Test Score', compute='_compute_test_score', store=True)
     user_token = fields.Char('User Token', tracking=True, readonly="True")
@@ -56,43 +63,25 @@ class CBTPaperConduct(models.Model):
     def subject_wise_score(self):
         for rec in self:
             rec.subject_score_id.unlink()
-            attempt = self.env['cbt.paper.attempt'].search(
-                [('attempt_id', '=', rec.id)], order='question_id desc')
-            if not attempt:
-                continue
-            subject_name = attempt[0].question_id.subject_id.name
-            subject_id = 0
-            ans = 0
-            count = 1
-            subject_count = 0
-            for att in attempt:
-                if subject_name == att.question_id.subject_id.name:
-                    ans = int(ans) + att.score
-                    subject_name = att.question_id.subject_id.name
-                    subject_id = att.question_id.subject_id.id
-                    subject_count = int(subject_count) + 1
-                elif count != len(attempt):
-                    data = {
-                        'conduct': rec.id,
-                        'subject_id': subject_id,
-                        'score': ans,
-                        'total_score': subject_count,
-
-                    }
-                    self.env['cbt.paper.subject.score'].create(data)
-                    ans = att.score
-                    subject_name = att.question_id.subject_id.name
-                    subject_id = att.question_id.subject_id.id
-                    subject_count = 1
-
-                if count == len(attempt):
-                    # subject_count = int(subject_count) + 1
-                    data = {
-                        'conduct': rec.id,
-                        'subject_id': subject_id,
-                        'score': ans,
-                        'total_score': subject_count,
-                    }
-                    self.env['cbt.paper.subject.score'].create(data)
-
-                count = int(count)+1
+            attempts = self.env['cbt.paper.attempt'].search([
+                ('attempt_id', '=', rec.id),
+            ])
+            subject_totals = {}
+            for attempt in attempts:
+                subject = attempt.question_id.subject_id
+                if not subject:
+                    continue
+                totals = subject_totals.setdefault(subject.id, {
+                    'score': 0,
+                    'total_score': 0,
+                })
+                totals['score'] += attempt.score
+                totals['total_score'] += 1
+            self.env['cbt.paper.subject.score'].create([
+                {
+                    'conduct': rec.id,
+                    'subject_id': subject_id,
+                    **totals,
+                }
+                for subject_id, totals in subject_totals.items()
+            ])

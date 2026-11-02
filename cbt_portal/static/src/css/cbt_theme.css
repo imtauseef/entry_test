@@ -198,6 +198,111 @@
 .cbt-note {
   color: #546e7a;
 }
+.cbt-help-modal {
+  max-height: 85%;
+  overflow: hidden;
+  border-radius: 14px;
+}
+.cbt-help-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(45deg, #283593, #1976d2);
+  color: #fff;
+}
+.cbt-help-icon {
+  font-size: 2rem;
+}
+.cbt-help-header h4 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.cbt-help-header p {
+  margin: 0.25rem 0 0;
+  opacity: 0.9;
+}
+.cbt-help-modal .modal-content {
+  max-height: 58vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+.cbt-help-modal .modal-content img {
+  max-width: 100%;
+  height: auto;
+}
+.cbt-help-footer {
+  padding: 0.75rem 1rem;
+}
+.cbt-feedback-modal {
+  max-height: 85%;
+  overflow: hidden;
+  border-radius: 14px;
+}
+.cbt-feedback-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(45deg, #006064, #26a69a);
+  color: #fff;
+}
+.cbt-feedback-header .material-icons {
+  font-size: 2rem;
+}
+.cbt-feedback-header h4 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.cbt-feedback-header p {
+  margin: 0.25rem 0 0;
+  opacity: 0.9;
+}
+.cbt-feedback-modal .modal-content {
+  max-height: 58vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+.cbt-feedback-options {
+  margin-bottom: 1.25rem;
+}
+.cbt-feedback-options p {
+  margin: 0.5rem 0;
+}
+.cbt-feedback-status {
+  color: #b71c1c;
+}
+.cbt-feedback-footer {
+  padding: 0.75rem 1rem;
+}
+.cbt-feedback-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1002;
+  background: rgba(0, 0, 0, 0.5);
+}
+.cbt-feedback-modal.cbt-feedback-fallback-open {
+  position: fixed;
+  z-index: 1003;
+  top: 50%;
+  left: 50%;
+  display: block !important;
+  width: min(90vw, 600px);
+  max-height: 85vh;
+  margin: 0;
+  overflow-y: auto;
+  background: #fff;
+  transform: translate(-50%, -50%);
+}
+.cbt-feedback-fallback-active {
+  overflow: hidden;
+}
+.cbt-feedback-text-hint {
+  margin-top: -0.75rem;
+  font-size: 0.85rem;
+}
 .cbt-warn-icon {
   color: #f9a825;
   font-size: 48px;
@@ -242,6 +347,7 @@ ul.stepper .step-content {
 }
 .cbt-question-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
@@ -303,16 +409,73 @@ ul.stepper .step-content {
 
 /* Pager */
 .cbt-paginate .pager {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.4rem;
   margin: 0.75rem 0;
+  padding: 0.55rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: #f5f7fa;
+  border: 1px solid #e3e8ef;
+  border-radius: 10px;
 }
-.cbt-paginate .pager div {
-  border-radius: 6px;
+.cbt-paginate .pager .cbt-nav-button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  min-height: 40px;
+  margin: 0;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1;
   cursor: pointer;
   user-select: none;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 5px rgba(38, 50, 56, 0.16);
 }
-.cbt-paginate .pager div.disabled {
-  opacity: 0.4;
+.cbt-paginate .pager .cbt-nav-button .material-icons {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+.cbt-paginate .pager .cbt-nav-question {
+  background: linear-gradient(45deg, #1565c0, #1e88e5);
+}
+.cbt-paginate .pager .cbt-nav-section {
+  background: linear-gradient(45deg, #00838f, #26a69a);
+}
+.cbt-paginate .pager .cbt-nav-help {
+  background: linear-gradient(45deg, #5e35b1, #3949ab);
+}
+.cbt-paginate .pager .cbt-nav-feedback {
+  background: linear-gradient(45deg, #c62828, #ef5350);
+}
+.cbt-paginate .pager .cbt-nav-feedback.has-feedback {
+  border-color: #8e0000;
+  box-shadow: 0 0 0 2px rgba(198, 40, 40, 0.2);
+}
+.cbt-paginate .pager .cbt-nav-button:hover,
+.cbt-paginate .pager .cbt-nav-button:focus {
+  filter: brightness(0.92);
+  color: #fff;
+}
+.cbt-paginate .pager .cbt-nav-button.disabled,
+.cbt-paginate .pager .cbt-nav-button:disabled {
+  opacity: 0.42;
   cursor: default;
+  pointer-events: none;
+  box-shadow: none;
+}
+.cbt-paginate .pager .pageNumbers {
+  display: none;
 }
 .cbt-paginate .pageNumbers a {
   color: #1565c0 !important;

@@ -44,6 +44,7 @@
                         </div>
                         <input type="hidden" id="timer" t-att-value="'%02d:%02d' % (divmod(paper.test_time * 60, 60))"/>
                         <input type="hidden" id="duration" t-att-value="paper.test_duration"/>
+                        <input type="hidden" id="paper_id" t-att-value="paper.id"/>
                     </div>
                 </div>
             </div>

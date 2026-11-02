@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="cbt_paper_result_import_wizard_view" model="ir.ui.view">
+        <field name="name">cbt.paper.result.import.wizard.form</field>
+        <field name="model">cbt.paper.result.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Offline Test Results">
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1" invisible="1"/>
+                        <field name="xlsx_file" filename="name" required="1"/>
+                    </group>
+                    <p class="text-muted">
+                        Import the results workbook exported by the portal
+                        instance. Existing candidate results are never overwritten.
+                    </p>
+                </sheet>
+                <footer>
+                    <button name="action_open_import_password_prompt" string="Import Results"
+                            type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="cbt_paper_result_import_wizard_action" model="ir.actions.act_window">
+        <field name="name">Import Offline Test Results</field>
+        <field name="res_model">cbt.paper.result.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

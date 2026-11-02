@@ -1,0 +1,98 @@
+<odoo>
+    <data>
+        <record id="cbt_mcqs_audit_log_tree" model="ir.ui.view">
+            <field name="name">cbt.mcqs.audit.log.tree</field>
+            <field name="model">cbt.mcqs.audit.log</field>
+            <field name="arch" type="xml">
+                <tree create="false" edit="false" delete="false">
+                    <field name="create_date" string="Date"/>
+                    <field name="question_ref" string="Question ID"/>
+                    <field name="question_name" string="Question"/>
+                    <field name="subject_id" options="{'no_open': True}"/>
+                    <field name="action"/>
+                    <field name="question_state" optional="show"/>
+                    <field name="user_id" options="{'no_open': True}"/>
+                    <field name="change_summary"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="cbt_mcqs_audit_log_form" model="ir.ui.view">
+            <field name="name">cbt.mcqs.audit.log.form</field>
+            <field name="model">cbt.mcqs.audit.log</field>
+            <field name="arch" type="xml">
+                <form create="false" edit="false" delete="false">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="question_name"/>
+                                <field name="question_ref"/>
+                                <field name="subject_id" options="{'no_open': True}"/>
+                                <field name="action"/>
+                                <field name="question_state"/>
+                            </group>
+                            <group>
+                                <field name="create_date"/>
+                                <field name="user_id" options="{'no_open': True}"/>
+                            </group>
+                        </group>
+                        <group string="Change Summary">
+                            <field name="change_summary" nolabel="1"/>
+                        </group>
+                        <notebook>
+                            <page name="before" string="Before">
+                                <field name="old_values" nolabel="1"/>
+                            </page>
+                            <page name="after" string="After">
+                                <field name="new_values" nolabel="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="cbt_mcqs_audit_log_search" model="ir.ui.view">
+            <field name="name">cbt.mcqs.audit.log.search</field>
+            <field name="model">cbt.mcqs.audit.log</field>
+            <field name="arch" type="xml">
+                <search string="Question Audit Log">
+                    <field name="question_name"/>
+                    <field name="question_ref"/>
+                    <field name="subject_id" options="{'no_open': True}"/>
+                    <field name="user_id" options="{'no_open': True}"/>
+                    <field name="action"/>
+                    <field name="create_date"/>
+                    <filter name="created" string="Created"
+                            domain="[('action', '=', 'create')]"/>
+                    <filter name="updated" string="Updated"
+                            domain="[('action', '=', 'update')]"/>
+                    <filter name="deleted" string="Deleted"
+                            domain="[('action', '=', 'delete')]"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_action" string="Action" domain="[]"
+                                context="{'group_by': 'action'}"/>
+                        <filter name="group_user_id" string="Changed By" domain="[]"
+                                context="{'group_by': 'user_id'}"/>
+                        <filter name="group_subject_id" string="Subject" domain="[]"
+                                context="{'group_by': 'subject_id'}"/>
+                        <filter name="group_create_date" string="Date" domain="[]"
+                                context="{'group_by': 'create_date:day'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_mcqs_audit_log_action" model="ir.actions.act_window">
+            <field name="name">Question Audit Log</field>
+            <field name="res_model">cbt.mcqs.audit.log</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem name="Question Audit Log"
+                  id="cbt_mcqs_audit_log_menu"
+                  parent="cbt_question_bank"
+                  action="cbt_mcqs_audit_log_action"
+                  groups="cbt.group_cbt_faculty,cbt.group_cbt_admin"/>
+    </data>
+</odoo>

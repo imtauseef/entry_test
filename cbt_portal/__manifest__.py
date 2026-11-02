@@ -27,7 +27,9 @@
         'views/instructions/instructions.xml',
         'views/configurations/paper.xml',
         'views/configurations/instructions.xml',
+        'views/configurations/question_feedback.xml',
         'views/configurations/menu.xml',
+        'views/configurations/paper_export_batch.xml',
         
         'views/components/widgets.xml',
         'views/components/questions.xml',
@@ -37,6 +39,7 @@
         'reports/solved_paper.xml',
         'wizards/prepare_result.xml',
         'wizards/date_transfer_wizard.xml',
+        'wizards/paper_import_wizard.xml',
         # 'views/layout/layout_page.xml',
     ],
     'application': True,

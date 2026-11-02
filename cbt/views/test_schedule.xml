@@ -31,7 +31,7 @@
                         </group>
                         <notebook colspan="4">
                             <page string="Test Timing">
-                                <field name="slot_ids">
+                                <field name="slot_ids" options="{'no_open': True}">
                                     <tree editable="bottom">
                                         <field name="date" />
                                         <field name="time" widget="float_time"/>

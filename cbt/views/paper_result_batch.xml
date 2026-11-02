@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="cbt_paper_result_batch_tree" model="ir.ui.view">
+        <field name="name">cbt.paper.result.batch.tree</field>
+        <field name="model">cbt.paper.result.batch</field>
+        <field name="arch" type="xml">
+            <tree create="0" edit="0" delete="0">
+                <field name="name"/>
+                <field name="source_batch_export_id" column_invisible="1"/>
+                <field name="paper_generate_id"/>
+                <field name="source_generator_id" column_invisible="1"/>
+                <field name="imported_at"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="cbt_paper_result_batch_form" model="ir.ui.view">
+        <field name="name">cbt.paper.result.batch.form</field>
+        <field name="model">cbt.paper.result.batch</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0">
+                <header>
+                    <button name="action_open_final_result_list_password_prompt"
+                            string="Final Result List"
+                            type="object"
+                            class="btn-primary"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="source_system_id" invisible="1"/>
+                            <field name="source_batch_export_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="source_generator_id" invisible="1"/>
+                            <field name="paper_generate_id"/>
+                            <field name="imported_at"/>
+                            <field name="result_payload_sha256" invisible="1"/>
+                        </group>
+                    </group>
+                    <field name="conduct_ids" readonly="1">
+                        <tree create="0" edit="0" delete="0">
+                            <field name="paper_id"/>
+                            <field name="participant_id"/>
+                            <field name="date"/>
+                            <field name="score"/>
+                            <field name="portal_started_at"/>
+                            <field name="portal_ended_at"/>
+                        </tree>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="cbt_paper_result_batch_action" model="ir.actions.act_window">
+        <field name="name">Imported Offline Results</field>
+        <field name="res_model">cbt.paper.result.batch</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'create': False}</field>
+    </record>
+
+    <menuitem id="cbt_paper_result_batch_menu"
+              name="Imported Offline Results"
+              parent="cbt_config_paper_menu"
+              action="cbt_paper_result_batch_action"
+              groups="cbt.group_cbt_admin"
+              sequence="41"/>
+    <menuitem id="cbt_paper_result_import_menu"
+              name="Import Offline Results"
+              parent="cbt_config_paper_menu"
+              action="cbt_paper_result_import_wizard_action"
+              groups="cbt.group_cbt_admin"
+              sequence="40"/>
+</odoo>

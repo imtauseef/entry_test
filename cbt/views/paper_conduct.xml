@@ -6,10 +6,10 @@
             <field name="model">cbt.paper.conduct</field>
             <field name="arch" type="xml">
                 <tree>
-                    <field name="paper_id"/>
-		    <field name="slot_id"/>
-		    <field name="participant_id"/>
-		    <field name="program"/>
+                    <field name="paper_id" options="{'no_open': True}"/>
+		    <field name="slot_id" options="{'no_open': True}"/>
+		    <field name="participant_id" options="{'no_open': True}"/>
+		    <field name="program" options="{'no_open': True}"/>
                     <field name="date"/>
                     <field name="score"/>
                 </tree>
@@ -27,30 +27,36 @@
                     <sheet>
                         <group>
                             <group>
-                                <field name="paper_id"/>
+                                <field name="paper_id" options="{'no_open': True}"/>
                                 <field name="score"/>
                             </group>
                             <group>
                                 <field name="date"/>
-                                <field name="last_question_attempt_id"/>
+                                <field name="result_batch_id" options="{'no_open': True}"/>
+                                <field name="portal_started_at"/>
+                                <field name="portal_ended_at"/>
+                                <field name="last_question_attempt_id" options="{'no_open': True}"/>
                                 <field name="user_token"/>
                             </group>
                         </group>
                         <notebook colspan="4">
                             <page string="Questions Score">
-                                <field name="question_attempt_id">
+                                <field name="question_attempt_id" options="{'no_open': True}">
                                     <tree>
-                                        <field name="question_id"/>
+                                        <field name="question_id" options="{'no_open': True}"/>
                                         <field name="participant_answer"/>
+                                        <field name="theory_answer"/>
+                                        <field name="answer_recorded_at"/>
+                                        <field name="mark_review"/>
                                         <field name="score"/>
 
                                     </tree>
                                 </field>
                             </page>
                             <page string="Subject Score">
-                                <field name="subject_score_id">
+                                <field name="subject_score_id" options="{'no_open': True}">
                                     <tree>
-                                        <field name="subject_id"/>
+                                        <field name="subject_id" options="{'no_open': True}"/>
                                         <field name="score"/>
                                         <field name="total_score"/>
                                     </tree>

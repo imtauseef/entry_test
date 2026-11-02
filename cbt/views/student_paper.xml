@@ -6,8 +6,8 @@
             <field name="model">cbt.student.paper</field>
             <field name="arch" type="xml">
                 <tree create="false">
-                    <field name="participant_id"/>
-                    <field name="main_paper_id"/>
+                    <field name="participant_id" options="{'no_open': True}"/>
+                    <field name="main_paper_id" options="{'no_open': True}"/>
                 </tree>
             </field>
         </record>
@@ -28,11 +28,11 @@
                     <sheet>
                         <group>
                             <group>
-                                <field name="participant_id" required="1"/>
-                                <field name="main_paper_id"/>
+                                <field name="participant_id" required="1" options="{'no_open': True}"/>
+                                <field name="main_paper_id" options="{'no_open': True}"/>
                             </group>
                         </group>
-                        <field name="questions" required="1"/>
+                        <field name="questions" required="1" options="{'no_open': True}"/>
                     </sheet>
                     <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>

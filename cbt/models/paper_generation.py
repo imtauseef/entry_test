@@ -1,7 +1,14 @@
+import base64
+import hashlib
+import html
+import json
 import re
+import uuid
+from datetime import datetime, timedelta
+from urllib.parse import unquote, urlsplit
 
 from odoo import fields, models, _, api
-from datetime import datetime, date
+from datetime import date
 from dateutil.relativedelta import relativedelta
 from odoo.tools.safe_eval import safe_eval
 import pdb
@@ -10,6 +17,16 @@ from odoo.exceptions import AccessError, UserError, RedirectWarning, ValidationE
 
 from odoo.http import content_disposition, Controller, request, route
 import random
+
+from .allocation_xlsx import (
+    build_allocation_xlsx,
+    encrypt_xlsx,
+    excel_password_prompt_action,
+    offline_image_key,
+    offline_image_placeholder,
+    transform_html_image_sources,
+    verify_excel_admin_password,
+)
 
 
 class CBTPaperGenerator(models.Model):
@@ -68,10 +85,10 @@ class CBTPaperGenerator(models.Model):
                 rules_number = []
                 rules_remain_number = []
                 if not self.enable_repeat_question:
-                    count_subject_questions = len(self.env['cbt.mcqs'].search(
+                    count_subject_questions = len(self.env['cbt.mcqs']._get_generation_pool(
                         [('subject_id', '=', rules.subjects.id), ('state', '=', 'approved'), ('id', 'not in', tracked.ids)]))
                 if self.enable_repeat_question:
-                    count_subject_questions = len(self.env['cbt.mcqs'].search(
+                    count_subject_questions = len(self.env['cbt.mcqs']._get_generation_pool(
                         [('subject_id', '=', rules.subjects.id), ('state', '=', 'approved')]))
 
                 if count_subject_questions < int(rules.no_questions):
@@ -80,12 +97,12 @@ class CBTPaperGenerator(models.Model):
                         rules.subjects.name))
 
                 elif count_subject_questions >= int(rules.no_questions):
-                    if self.env['cbt.mcqs'].search([('subject_id', '=', rules.subjects.id)]):
+                    if self.env['cbt.mcqs']._get_generation_pool([('subject_id', '=', rules.subjects.id)]):
                         if not self.enable_repeat_question:
-                            question_env_list = self.env['cbt.mcqs'].search(
+                            question_env_list = self.env['cbt.mcqs']._get_generation_pool(
                                 [('subject_id', '=', rules.subjects.id), ('state', '=', 'approved'), ('id', 'not in', tracked.ids)])
                         if self.enable_repeat_question:
-                            question_env_list = self.env['cbt.mcqs'].search(
+                            question_env_list = self.env['cbt.mcqs']._get_generation_pool(
                                 [('subject_id', '=', rules.subjects.id), ('state', '=', 'approved')])
 
                         if not rules.difficulty_rules:
@@ -100,10 +117,10 @@ class CBTPaperGenerator(models.Model):
                             if not rules.topic_rules and not rules.type_rules:
                                 for rules_diff in rules.difficulty_rules:
                                     if not self.enable_repeat_question:
-                                        count_subject_questions = len(self.env['cbt.mcqs'].search([('subject_id', '=', rules.subjects.id), ('state', '=', 'approved'), ('id', 'not in', tracked.ids),
+                                        count_subject_questions = len(self.env['cbt.mcqs']._get_generation_pool([('subject_id', '=', rules.subjects.id), ('state', '=', 'approved'), ('id', 'not in', tracked.ids),
                                                                                                    ('difficulty_level_id', '=', rules_diff.difficulty_level_id.id)]))
                                     if self.enable_repeat_question:
-                                        count_subject_questions = len(self.env['cbt.mcqs'].search([('subject_id', '=', rules.subjects.id), ('state', '=', 'approved'),
+                                        count_subject_questions = len(self.env['cbt.mcqs']._get_generation_pool([('subject_id', '=', rules.subjects.id), ('state', '=', 'approved'),
                                                                                                    ('difficulty_level_id', '=', rules_diff.difficulty_level_id.id)]))
 
                                     if count_subject_questions < int(rules_diff.no_questions):
@@ -149,11 +166,11 @@ class CBTPaperGenerator(models.Model):
                                     m += 1
                                 for rules_topic in rules.topic_rules:
                                     if not self.enable_repeat_question:
-                                        count_subject_questions = len(self.env['cbt.mcqs'].search(
+                                        count_subject_questions = len(self.env['cbt.mcqs']._get_generation_pool(
                                             [('subject_id', '=', rules.subjects.id), ('state', '=', 'approved'), ('id', 'not in', tracked.ids),
                                                 ('topic_id', '=', rules_topic.topic_id.id)]))
                                     if self.enable_repeat_question:
-                                        count_subject_questions = len(self.env['cbt.mcqs'].search(
+                                        count_subject_questions = len(self.env['cbt.mcqs']._get_generation_pool(
                                             [('subject_id', '=', rules.subjects.id), ('state', '=', 'approved'),
                                                 ('topic_id', '=', rules_topic.topic_id.id)]))
 
@@ -200,7 +217,7 @@ class CBTPaperGenerator(models.Model):
                                                                     count = 0
                                                     elif not rules_topic.sub_topic_id:
                                                         if not self.enable_repeat_question:
-                                                            count_topic_questions = self.env['cbt.mcqs'].search(
+                                                            count_topic_questions = self.env['cbt.mcqs']._get_generation_pool(
                                                                 [('subject_id', '=', rules.subjects.id),
                                                                  ('state', '=',
                                                                  'approved'),
@@ -211,7 +228,7 @@ class CBTPaperGenerator(models.Model):
                                                                  ('difficulty_level_id', '=', diff_list[
                                                                      0])])
                                                         if self.enable_repeat_question:
-                                                            count_topic_questions = self.env['cbt.mcqs'].search(
+                                                            count_topic_questions = self.env['cbt.mcqs']._get_generation_pool(
                                                                 [('subject_id', '=', rules.subjects.id),
                                                                  ('state', '=',
                                                                  'approved'),
@@ -220,6 +237,11 @@ class CBTPaperGenerator(models.Model):
                                                                  ('difficulty_level_id', '=', diff_list[
                                                                      0])])
 
+                                                        if not count_topic_questions:
+                                                            raise ValidationError(
+                                                                _("Topic criteria defined not correct. There are less "
+                                                                  "questions in question bank then the defined "
+                                                                  "criteria."))
                                                         random_id = random.choice(
                                                             count_topic_questions)
                                                         if count_topic_questions:
@@ -370,10 +392,420 @@ class CBTPaperGenerator(models.Model):
                     })
         self.state = 'assign'
 
+    def action_open_allocation_export_password_prompt(self):
+        return excel_password_prompt_action(
+            self, '_export_allocation_workbook', 'export',
+            _('Export Allocation Workbook'))
+
+    def _export_allocation_workbook(
+            self, odoo_password=None, workbook_password=None):
+        """Export this generator's student-paper allocations without portal models."""
+        self.ensure_one()
+        verify_excel_admin_password(self.env, odoo_password)
+
+        now = fields.Datetime.now()
+        self._check_allocation_export_window(self.slot_id, now)
+        allocated_papers = self.env['cbt.student.paper'].search([
+            ('main_paper_id.generator_id', '=', self.id),
+        ], order='id')
+        if not allocated_papers:
+            raise UserError(_('No students have been allocated papers from this generator.'))
+
+        parameters = self.env['ir.config_parameter'].sudo()
+        source_system_id = parameters.get_param('cbt.offline_source_system_id')
+        if not source_system_id:
+            source_system_id = uuid.uuid4().hex
+            parameters.set_param('cbt.offline_source_system_id', source_system_id)
+
+        def source_id(model, record_id):
+            return '%s:%s:%s' % (source_system_id, model, record_id)
+
+        manifest_rows = [
+            ['schema_version', '4.0'],
+            ['source_system_id', source_system_id],
+            ['exported_at', fields.Datetime.now()],
+            ['source_generator_id', source_id('cbt.paper.generator', self.id)],
+            ['source_generator_name', self.name or ''],
+            ['export_id', uuid.uuid4().hex],
+            ['paper_export_count', len(allocated_papers)],
+            ['participant_count', len(set(
+                allocated_papers.mapped('participant_id').ids))],
+            ['image_count', 0],
+            ['paper_export_model', 'cbt.paper.export'],
+            [
+                'credential_warning',
+                'The Participants sheet contains candidate passwords. '
+                'The workbook is encrypted; share its password separately and '
+                'delete temporary copies after transfer.',
+            ],
+            [
+                'allocation_warning',
+                self.env.context.get('cbt_allocation_warning', ''),
+            ],
+        ]
+        participant_rows = [[
+            'source_student_id',
+            'login',
+            'name',
+            'password',
+        ]]
+        paper_rows = [[
+            'source_export_id',
+            'source_generator_id',
+            'source_student_id',
+            'login',
+            'name',
+            'cid',
+            'source_paper_id',
+            'source_template_paper_id',
+            'paper_name',
+            'program',
+            'test_center',
+            'test_date',
+            'test_time',
+            'test_duration',
+            'shuffle_section',
+            'source_schedule_id',
+            'payload_sha256',
+        ]]
+        question_rows = [[
+            'source_student_id',
+            'source_paper_id',
+            'source_question_id',
+            'subject_name',
+            'name',
+            'question_order',
+            'is_theory',
+            'correct_answer',
+        ]]
+        option_rows = [[
+            'source_student_id',
+            'source_paper_id',
+            'source_question_id',
+            'source_option_id',
+            'sequence',
+            'option_label',
+            'name',
+        ]]
+        image_rows = [[
+            'image_key', 'mimetype', 'chunk_index', 'chunk_count', 'data_base64',
+        ]]
+        images_by_key = {}
+        exported_students = set()
+
+        def image_content(src, question):
+            source = html.unescape(src)
+            if source.startswith('data:'):
+                header, separator, encoded_image = source.partition(',')
+                if (
+                        not separator
+                        or not header.startswith('data:image/')
+                        or ';base64' not in header):
+                    raise UserError(_(
+                        'Question %s contains an unsupported embedded image.'
+                    ) % question.display_name)
+                mimetype = header[5:].split(';', 1)[0].lower()
+                try:
+                    image_data = base64.b64decode(
+                        encoded_image, validate=True)
+                except (ValueError, TypeError) as exc:
+                    raise UserError(_(
+                        'Question %s contains an invalid embedded image.'
+                    ) % question.display_name) from exc
+            else:
+                path = unquote(urlsplit(source).path).strip('/').split('/')
+                attachment_id = False
+                if (
+                        len(path) >= 4
+                        and path[0] == 'web'
+                        and path[1] in ('image', 'content')
+                        and path[2] == 'ir.attachment'):
+                    attachment_id = path[3]
+                elif (
+                        len(path) >= 3
+                        and path[0] == 'web'
+                        and path[1] in ('image', 'content')
+                        and path[2].split('-', 1)[0].isdigit()):
+                    attachment_id = path[2].split('-', 1)[0]
+                if not attachment_id or not attachment_id.isdigit():
+                    raise UserError(_(
+                        'Question %s contains an image URL that cannot be '
+                        'included in an offline workbook.'
+                    ) % question.display_name)
+                attachment = self.env['ir.attachment'].sudo().browse(
+                    int(attachment_id)).exists()
+                if not attachment or not attachment.datas:
+                    raise UserError(_(
+                        'Question %s refers to an image attachment that no '
+                        'longer exists.'
+                    ) % question.display_name)
+                mimetype = (attachment.mimetype or '').lower()
+                if not re.fullmatch(r'image/[a-z0-9.+-]+', mimetype):
+                    raise UserError(_(
+                        'Question %s refers to an attachment that is not an image.'
+                    ) % question.display_name)
+                image_data = base64.b64decode(attachment.datas)
+            if (
+                    not image_data
+                    or not re.fullmatch(r'image/[a-z0-9.+-]+', mimetype)):
+                raise UserError(_(
+                    'Question %s contains an empty or invalid image.'
+                ) % question.display_name)
+            image_key = offline_image_key(mimetype, image_data)
+            images_by_key.setdefault(image_key, (mimetype, image_data))
+            return offline_image_placeholder(image_key)
+
+        def portable_html(value, question):
+            return transform_html_image_sources(
+                value, lambda src: image_content(src, question))
+
+        for allocated in allocated_papers:
+            participant = allocated.participant_id
+            generated_paper = allocated.main_paper_id
+            if not participant.login:
+                raise UserError(_(
+                    'Participant %s has no login and cannot be mapped on the portal instance.'
+                ) % participant.display_name)
+            if not participant.password:
+                raise UserError(_(
+                    'Participant %s has no password to provision a portal account.'
+                ) % participant.display_name)
+
+            student_key = source_id('cbt.participant', participant.id)
+            if student_key not in exported_students:
+                participant_rows.append([
+                    student_key,
+                    participant.login,
+                    participant.name or participant.login,
+                    participant.password,
+                ])
+                exported_students.add(student_key)
+            allocation_key = source_id('cbt.student.paper', allocated.id)
+            template_key = source_id('cbt.paper', generated_paper.id)
+            slot = participant.slot_id
+            if not slot or not slot.date or slot.time is False:
+                raise UserError(_(
+                    'Participant %s is missing a valid examination schedule.'
+                ) % participant.display_name)
+            test_time = float(slot.time)
+            if not math.isfinite(test_time) or not 0 <= test_time < 24:
+                raise UserError(_(
+                    'Participant %s has an invalid examination start time.'
+                ) % participant.display_name)
+            duration = float(slot.duration or 0)
+            if not math.isfinite(duration) or not duration.is_integer():
+                raise UserError(_(
+                    'The examination duration must be a whole number of minutes.'
+                ))
+            test_duration = int(duration)
+            if test_duration <= 0:
+                raise UserError(_(
+                    'The examination duration must be greater than zero.'
+                ))
+            test_center = participant.center_id or slot.center_id
+            self._check_allocation_export_window(slot, now)
+            allocation_values = [
+                allocation_key,
+                source_id('cbt.paper.generator', self.id),
+                student_key,
+                participant.login,
+                participant.name or participant.login,
+                participant.cid or 0,
+                allocation_key,
+                template_key,
+                generated_paper.name or '',
+                participant.program.name if participant.program else '',
+                test_center.name if test_center else '',
+                fields.Date.to_string(slot.date) if slot and slot.date else '',
+                test_time,
+                test_duration,
+                bool(self.criteria_id.random_section),
+                source_id('cbt.slot', slot.id) if slot else '',
+            ]
+
+            question_ids = allocated.question_sequence or allocated.questions.ids
+            question_ids = [int(question_id) for question_id in question_ids]
+            if len(question_ids) != len(set(question_ids)):
+                raise UserError(_(
+                    'An allocated paper has duplicate question ordering data.'
+                ))
+            question_ids.extend(
+                question_id for question_id in allocated.questions.ids
+                if question_id not in question_ids
+            )
+            if not question_ids:
+                raise UserError(_(
+                    'Allocated paper %s does not contain any questions.'
+                ) % generated_paper.display_name)
+            questions_by_id = {
+                question.id: question for question in allocated.questions
+            }
+
+            allocation_questions = []
+            allocation_options = []
+            for position, question_id in enumerate(question_ids, start=1):
+                question = questions_by_id.get(question_id)
+                if not question:
+                    raise UserError(_(
+                        'An allocated paper has a question order referencing a missing question.'
+                    ))
+                question_key = source_id('cbt.mcqs', question.id)
+                source_answer = generated_paper._question_correct_answer(question)
+                answer_key = ''
+                question_options = [
+                    (index, option) for index, option in enumerate([
+                        question.ans1, question.ans2, question.ans3,
+                        question.ans4, question.ans5, question.ans6,
+                    ], start=1) if option
+                ]
+                if not question.is_theory and not question_options:
+                    raise UserError(_(
+                        'Multiple-choice question %s has no answer options.'
+                    ) % question.display_name)
+                if source_answer:
+                    correct_source_position = ord(source_answer) - 64
+                    visible_positions = [
+                        position for position, option in question_options
+                    ]
+                    if correct_source_position not in visible_positions:
+                        raise UserError(_(
+                            'Question %s marks an empty option as correct.'
+                        ) % question.display_name)
+                    answer_key = chr(
+                        64 + visible_positions.index(correct_source_position) + 1)
+                question_text = portable_html(question.question or '', question)
+                if len(question_text) > 32767:
+                    raise UserError(_(
+                        'Question %s exceeds Excel\'s maximum cell length.'
+                    ) % question.display_name)
+                allocation_questions.append([
+                    student_key,
+                    allocation_key,
+                    question_key,
+                    question.subject_id.name if question.subject_id else '',
+                    question_text,
+                    position,
+                    bool(question.is_theory),
+                    answer_key,
+                ])
+                if not question.is_theory:
+                    for option_position, (source_position, option_text) in enumerate(
+                            question_options, start=1):
+                        allocation_options.append([
+                            student_key,
+                            allocation_key,
+                            question_key,
+                            '%s:option:%s' % (question_key, source_position),
+                            option_position,
+                            chr(64 + option_position),
+                            portable_html(option_text, question),
+                        ])
+
+            payload = {
+                'paper_export': allocation_values,
+                'questions': allocation_questions,
+                'options': allocation_options,
+            }
+            payload_hash = hashlib.sha256(json.dumps(
+                payload, ensure_ascii=False, sort_keys=True,
+                separators=(',', ':'),
+            ).encode('utf-8')).hexdigest()
+            paper_rows.append(allocation_values + [payload_hash])
+            question_rows.extend(allocation_questions)
+            option_rows.extend(allocation_options)
+
+        for image_key, (mimetype, image_data) in sorted(images_by_key.items()):
+            image_base64 = base64.b64encode(image_data).decode('ascii')
+            chunks = [
+                image_base64[index:index + 30000]
+                for index in range(0, len(image_base64), 30000)
+            ]
+            for chunk_index, chunk in enumerate(chunks, start=1):
+                image_rows.append([
+                    image_key,
+                    mimetype,
+                    chunk_index,
+                    len(chunks),
+                    chunk,
+                ])
+        manifest_rows = [
+            [key, len(images_by_key) if key == 'image_count' else value]
+            for key, value in manifest_rows
+        ]
+
+        workbook = build_allocation_xlsx([
+            ('Manifest', manifest_rows),
+            ('Participants', participant_rows),
+            ('Papers', paper_rows),
+            ('Questions', question_rows),
+            ('Answer Options', option_rows),
+            ('Images', image_rows),
+        ])
+        encoded = base64.b64encode(
+            encrypt_xlsx(workbook, workbook_password))
+        attachment = self.env['ir.attachment'].sudo().create({
+            'name': '%s_allocation.xlsx' % (self.name or 'paper_allocation'),
+            'datas': encoded,
+            'mimetype': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'res_model': 'cbt.paper.generator',
+            'res_id': self.id,
+            'type': 'binary',
+        })
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/web/content/%s?download=1' % attachment.id,
+            'target': 'new',
+        }
+
+    def _check_allocation_export_window(self, slot, now):
+        if not slot or not slot.date or slot.time is False:
+            raise UserError(_(
+                'A valid test slot with a date and start time is required '
+                'before exporting the allocation workbook.'
+            ))
+
+        start_hour = float(slot.time)
+        if not math.isfinite(start_hour) or not 0 <= start_hour < 24:
+            raise UserError(_('The test slot has an invalid start time.'))
+
+        slot_date = fields.Date.to_date(slot.date)
+        start_at = datetime.combine(
+            slot_date, datetime.min.time()) + timedelta(hours=start_hour)
+        if slot.time_to is not False and slot.time_to is not None:
+            end_hour = float(slot.time_to)
+            if not math.isfinite(end_hour) or not 0 <= end_hour < 24:
+                raise UserError(_('The test slot has an invalid end time.'))
+            end_at = datetime.combine(
+                slot_date, datetime.min.time()) + timedelta(hours=end_hour)
+            if end_at <= start_at:
+                end_at += timedelta(days=1)
+        else:
+            duration = float(slot.duration or 0)
+            if not math.isfinite(duration) or duration <= 0:
+                raise UserError(_(
+                    'The test slot must have a valid end time or positive duration.'
+                ))
+            end_at = start_at + timedelta(minutes=duration)
+
+        now_local = fields.Datetime.context_timestamp(
+            self, now).replace(tzinfo=None)
+        if now_local <= start_at - timedelta(hours=24):
+            raise UserError(_(
+                'The allocation workbook can only be exported during the '
+                '24 hours before the test slot starts. Export opens at %s.'
+            ) % (start_at - timedelta(hours=24)).strftime('%Y-%m-%d %H:%M'))
+        if now_local > end_at:
+            raise UserError(_(
+                'The allocation workbook cannot be exported after the test '
+                'slot ends at %s.'
+            ) % end_at.strftime('%Y-%m-%d %H:%M'))
+
     def generate_multi_paper_student(self):
         '''
         allocate papers to students
         '''
+        if not self.env.user.has_group('cbt.group_cbt_admin'):
+            raise AccessError(_('Only CBT administrators may allocate candidate papers.'))
         # active_id = self.env.context.get('active_id')
 
         paper_generator = self.env['cbt.paper.generator'].sudo().search(
@@ -383,14 +815,15 @@ class CBTPaperGenerator(models.Model):
             [('program', 'in', paper_generator.program_ids.ids), ('slot_id', '=', paper_generator.slot_id.id)])
 
         papers = paper_generator.papers
-        paper_id = [paper.id for paper in papers]
+        paper_ids = papers.ids
+        available_paper_ids = paper_ids[:]
         unique_mode = paper_generator.criteria_id.unique_questions
         warning_message = ''
+        if not papers:
+            raise UserError(_(
+                "No paper has been generated yet. Run 'Generate Papers' "
+                "before allocating them to students."))
         if unique_mode:
-            if not papers:
-                raise UserError(_(
-                    "No paper has been generated yet. Run 'Generate Papers' "
-                    "before allocating them to students."))
             if len(participants) > len(papers):
                 warning_message = _(
                     "There are %(participants)s participants but only "
@@ -399,14 +832,22 @@ class CBTPaperGenerator(models.Model):
                     'participants': len(participants),
                     'papers': len(papers),
                 }
+        existing_allocations = self.env['cbt.student.paper'].search([
+            ('main_paper_id.generator_id', '=', paper_generator.id),
+            ('participant_id', 'in', participants.ids),
+        ])
+        already_allocated = set(existing_allocations.mapped('participant_id').ids)
         for index, participant in enumerate(participants):
+            if participant.id in already_allocated:
+                continue
             if unique_mode:
                 paper = papers[index % len(papers)]
             else:
-                random.shuffle(paper_id)
-                paper = papers.filtered(
-                    lambda x: x.id == paper_id[0])
-                paper_id.pop(0)
+                if not available_paper_ids:
+                    available_paper_ids = paper_ids[:]
+                random.shuffle(available_paper_ids)
+                paper = self.env['cbt.paper'].browse(
+                    available_paper_ids.pop())
             question_list = [ques.id for ques in paper.questions]
             random.shuffle(question_list)
             papers_data = {
@@ -416,78 +857,10 @@ class CBTPaperGenerator(models.Model):
             }
             participant_paper = self.env['cbt.student.paper'].create(
                 papers_data)
+            participant_paper.question_sequence = question_list
             participant_paper.main_paper_id.slot_id.duration = paper_generator.criteria_id.duration
-            participant_test_data = {
-                'name': participant_paper.participant_id.name,
-                'paper_name': participant_paper.main_paper_id.name,
-                'program': participant.program.name,
-                'test_time': participant.slot_id.time,
-                'test_duration': participant_paper.main_paper_id.slot_id.duration,
-                'test_date': participant.slot_id.date,
-                'login': participant.login,
-                'cid': participant.cid,
-            }
-            if paper_generator.criteria_id.random_section:
-                participant_test_data.update({
-                    'shuffle_section': True,
-                })
-
-            participant_test = self.env['cbt.paper.export'].create(
-                participant_test_data)
-            participant_test.server_id = participant_paper.id
-            server_id = participant_paper.id
-
-            participant_test_question = []
-            for rec in participant_paper.questions:
-                question = rec.question
-                subject = rec.subject_id.name
-
-                test_paper_subject = self.env['cbt.subject.export'].search(
-                    [('name', '=ilike', subject)], limit=1)
-                if not test_paper_subject:
-                    test_paper_subject = self.env['cbt.subject.export'].create({
-                        'name': subject,
-                    })
-                correct_answer = ''
-
-                if rec.ans1_correct:
-                    correct_answer = 'A'
-                if rec.ans2_correct:
-                    correct_answer = 'B'
-                if rec.ans3_correct:
-                    correct_answer = 'C'
-                if rec.ans4_correct:
-                    correct_answer = 'D'
-                if rec.ans5_correct:
-                    correct_answer = 'E'
-                if rec.ans6_correct:
-                    correct_answer = 'F'
-                test_question = participant_test.line_ids.create({
-                    'paper_id': participant_test.id,
-                    'name': rec.question,
-                    'server_id': rec.id,
-                    'subject_id': test_paper_subject.id,
-                    'correct_answer': correct_answer,
-
-                })
-                options = [rec.ans1, rec.ans2, rec.ans3,
-                           rec.ans4, rec.ans5, rec.ans6]
-
-                for opt in options:
-                    participant_test.line_ids.option_ids.create({
-                        'question_id': test_question.id,
-                        'name': opt,
-                        'server_id': test_question.id,
-                    })
-                # test_question.answer = correct_answer
-
-            self.env.cr.commit()
             paper.student_paper_gen = True
         self.state = 'done'
-
-        return {
-            'warning': {
-                'title': 'Warning!',
-                'message': warning_message or 'The warning text'}
-
-        }
+        return self.with_context(
+            cbt_allocation_warning=warning_message,
+        ).action_open_allocation_export_password_prompt()

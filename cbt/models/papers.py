@@ -65,8 +65,9 @@ class CBTPaper(models.Model):
         """Return ``(recordset, match_level)`` of question-bank questions usable
         to replace ``old_question`` on this paper.
 
-        The pool is the normal question bank (approved, non-reserve) of the
-        same discipline (subject), never already present on this paper, and
+        The pool is the normal question bank (approved, non-reserve,
+        non-suspended) of the same discipline (subject), never already present
+        on this paper, and
         (when the criteria batch is unique) never used by a sibling paper.
         Reserve questions are *not* a replacement source any more: they are the
         destination of the question being replaced. The preferred level
@@ -87,7 +88,7 @@ class CBTPaper(models.Model):
             domain.append(('id', 'not in', sibling_papers.mapped('questions').ids))
 
         # ``_get_generation_pool`` is the single source of truth for what
-        # belongs to the question bank (approved + non-reserve).
+        # belongs to the question bank (approved + non-reserve + non-suspended).
         pool = self.env['cbt.mcqs']._get_generation_pool(domain)
         exact = pool.filtered(
             lambda q: q.topic_id.id == old_question.topic_id.id
@@ -129,6 +130,11 @@ class CBTPaper(models.Model):
         line.name = new_question.question
         line.server_id = new_question.id
         line.correct_answer = self._question_correct_answer(new_question)
+        line.is_theory = new_question.is_theory
+        line.answer = 0
+        line.answer_alphabet = False
+        line.theory_answer = False
+        line.mark_review = False
 
         SubjectExport = self.env.get('cbt.subject.export')
         if SubjectExport is not None and new_question.subject_id:
@@ -143,15 +149,17 @@ class CBTPaper(models.Model):
         OptionExport = self.env.get('cbt.paper.line.option.export')
         if OptionExport is not None:
             line.option_ids.unlink()
-            options = [new_question.ans1, new_question.ans2, new_question.ans3,
-                       new_question.ans4, new_question.ans5, new_question.ans6]
-            for option in options:
-                if option:
-                    OptionExport.create({
-                        'question_id': line.id,
-                        'name': option,
-                        'server_id': new_question.id,
-                    })
+            if not new_question.is_theory:
+                options = [new_question.ans1, new_question.ans2,
+                           new_question.ans3, new_question.ans4,
+                           new_question.ans5, new_question.ans6]
+                for option in options:
+                    if option:
+                        OptionExport.create({
+                            'question_id': line.id,
+                            'name': option,
+                            'server_id': new_question.id,
+                        })
         return True
 
     def action_replace_question(self, old_question_id):

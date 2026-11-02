@@ -13,6 +13,9 @@ class CBTStudentPaper(models.Model):
     questions = fields.Many2many('cbt.mcqs', 'student_paper_questions_rel', 'student_paper_id', 'questions_id',
                                  string='Entry Test Questions', tracking=True)
     participant_id = fields.Many2one('cbt.participant', 'Participant', required=True, tracking=True)
+    question_sequence = fields.Json(
+        string='Question Sequence', copy=False,
+        help='Question IDs in the candidate-specific presentation order.')
 
     @api.depends('participant_id', 'main_paper_id')
     def _compute_display_name(self):
@@ -21,4 +24,3 @@ class CBTStudentPaper(models.Model):
             if record.participant_id and record.main_paper_id:
                 name = record.participant_id.name + ' - ' + record.main_paper_id.name
             record.display_name = name
-

@@ -6,6 +6,7 @@
             <field name="model">cbt.employee.role</field>
             <field name="arch" type="xml">
                 <tree>
+<<<<<<< HEAD
                     <field name="employee_id"/>
                     <field name="user_id" optional="show"/>
                     <field name="subject_ids" widget="many2many_tags"/>
@@ -13,6 +14,12 @@
                     <field name="subtopic_ids" widget="many2many_tags"/>
                     <field name="create_access"/>
                     <field name="review_access"/>
+=======
+                    <field name="employee_id" options="{'no_open': True}"/>
+                    <field name="subject_id" options="{'no_open': True}"/>
+                    <field name="topic_id" options="{'no_open': True}"/>
+                    <field name="subtopic_id" options="{'no_open': True}"/>
+>>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
                 </tree>
             </field>
         </record>
@@ -52,11 +59,18 @@
         <field name="priority" eval="14"/>
         <field name="arch" type="xml">
             <search string="Employee Roles">
+<<<<<<< HEAD
                 <field name="employee_id"/>
                 <field name="user_id"/>
                 <field name="subject_ids"/>
                 <field name="topic_ids"/>
                 <field name="subtopic_ids"/>
+=======
+                <field name="employee_id" options="{'no_open': True}"/>
+                <field name="subject_id" options="{'no_open': True}"/>
+                <field name="topic_id" options="{'no_open': True}"/>
+                <field name="subtopic_id" options="{'no_open': True}"/>
+>>>>>>> 606c10b8a70af998fa283402c30ebc22264f721a
                 <newline/>
                  <group expand="0" string="Group By...">
                      <filter name="employee_id" string="Employees" domain="[]" context="{'group_by':'employee_id'}"/>

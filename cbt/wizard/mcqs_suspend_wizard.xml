@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="cbt_mcqs_suspend_wizard_view" model="ir.ui.view">
+            <field name="name">cbt.mcqs.suspend.wizard.form</field>
+            <field name="model">cbt.mcqs.suspend.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Suspend Question">
+                    <group>
+                        <field name="question_id" options="{'no_open': True}"/>
+                        <field name="reason" placeholder="Why is this question being suspended?"/>
+                        <field name="suspended_from"/>
+                        <field name="suspended_until"/>
+                    </group>
+                    <footer>
+                        <button name="action_suspend" string="Suspend"
+                                type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary"
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

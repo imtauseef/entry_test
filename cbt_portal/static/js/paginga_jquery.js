@@ -44,7 +44,12 @@ $(document).ready(function(){
 
             if(this.totalPages <= 1)
             {
-                $(this.element).find(this.settings.pager).hide();
+                var pager = $(this.element).find(this.settings.pager);
+                if (!pager.hasClass("cbt-test-navigation")) {
+                    pager.hide();
+                    return;
+                }
+                this.init();
             }
             else
             {

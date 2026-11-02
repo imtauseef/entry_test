@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="cbt_paper_import_wizard_view" model="ir.ui.view">
+        <field name="name">cbt.paper.import.wizard.form</field>
+        <field name="model">cbt.paper.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Paper Allocation Workbook">
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1" invisible="1"/>
+                        <field name="xlsx_file" filename="name" required="1"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_open_import_password_prompt" string="Import" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="cbt_paper_import_wizard_action" model="ir.actions.act_window">
+        <field name="name">Import Paper Allocation Workbook</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">cbt.paper.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="menu_cbt_portal_import_workbook"
+        name="Import Allocation Workbook"
+        parent="menu_cbt_portal_main"
+        action="cbt_paper_import_wizard_action"
+        groups="cbt.group_cbt_admin"
+        sequence="25"/>
+</odoo>

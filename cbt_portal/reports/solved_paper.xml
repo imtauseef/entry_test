@@ -133,45 +133,53 @@
                                         </table>
 
                                     </p>
-                                    <table class="">
-                                        <tbody>
-                                            <t t-set="ca" t-value="str(question.correct_answer).lower() if question.correct_answer else ''"/>
-                                            <t t-set="candidate_answer" t-value="str(question.answer_alphabet).lower() if question.answer_alphabet else ''"/>
+                                    <t t-if="question.uses_paragraph">
+                                        <p>
+                                            <strong>Answer:</strong>
+                                            <span t-out="question.theory_answer or ''"/>
+                                        </p>
+                                    </t>
+                                    <t t-else="">
+                                        <table class="">
+                                            <tbody>
+                                                <t t-set="ca" t-value="str(question.correct_answer).lower() if question.correct_answer else ''"/>
+                                                <t t-set="candidate_answer" t-value="str(question.answer_alphabet).lower() if question.answer_alphabet else ''"/>
 
-                                            <t t-set="alpha" t-value="'a'"/>
-                                            <t t-foreach="question.option_ids" t-as="option">
-                                                <t t-if="option.name">
+                                                <t t-set="alpha" t-value="'a'"/>
+                                                <t t-foreach="question.option_ids" t-as="option">
+                                                    <t t-if="option.name">
 
-                                                    <tr class='mb-1'>
-                                                        <td style="width: 1%; padding: 0.25rem;">
-                                                            <p>(<t t-esc="alpha"/>).</p>
-                                                        </td>
-                                                        <t t-if=" alpha == ca  ">
-                                                            <td style="padding: 0.25rem;">
-                                                                <span t-attf-style="{{ 'color:#adff2f' if alpha == ca else '' }}" t-out="option.name"/>
+                                                        <tr class='mb-1'>
+                                                            <td style="width: 1%; padding: 0.25rem;">
+                                                                <p>(<t t-esc="alpha"/>).</p>
                                                             </td>
-                                                        </t>
-                                                        <t t-else=" alpha != ca ">
-                                                            <t t-if=" alpha == candidate_answer ">
+                                                            <t t-if=" alpha == ca  ">
                                                                 <td style="padding: 0.25rem;">
-                                                                    <span t-attf-style="{{ 'color:red' if alpha == candidate_answer else '' }}" t-out="option.name"/>
+                                                                    <span t-attf-style="{{ 'color:#adff2f' if alpha == ca else '' }}" t-out="option.name"/>
                                                                 </td>
                                                             </t>
-                                                            <t t-if=" alpha != candidate_answer ">
-                                                                <td style="padding: 0.25rem;">
-                                                                    <span t-out="option.name"/>
-                                                                    <!-- <span t-out="option.name"/> -->
-                                                                </td>
+                                                            <t t-else=" alpha != ca ">
+                                                                <t t-if=" alpha == candidate_answer ">
+                                                                    <td style="padding: 0.25rem;">
+                                                                        <span t-attf-style="{{ 'color:red' if alpha == candidate_answer else '' }}" t-out="option.name"/>
+                                                                    </td>
+                                                                </t>
+                                                                <t t-if=" alpha != candidate_answer ">
+                                                                    <td style="padding: 0.25rem;">
+                                                                        <span t-out="option.name"/>
+                                                                        <!-- <span t-out="option.name"/> -->
+                                                                    </td>
+                                                                </t>
                                                             </t>
-                                                        </t>
 
-                                                    </tr>
+                                                        </tr>
+                                                    </t>
+                                                    <t t-set="alpha" t-value="chr(ord(alpha) + 1)"/>
                                                 </t>
-                                                <t t-set="alpha" t-value="chr(ord(alpha) + 1)"/>
-                                            </t>
 
-                                        </tbody>
-                                    </table>
+                                            </tbody>
+                                        </table>
+                                    </t>
                                     <t t-set="i" t-value="i+1"/>
                                 </div>
                                 <t t-set="question_section" t-value="question.subject_id"/>

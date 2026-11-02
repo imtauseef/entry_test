@@ -72,6 +72,94 @@
                     <div class="section section-form-wizard">
                         <t t-call="cbt_portal.cbt_widgets" t-if="paper"/>
                         <t t-call="cbt_portal.cbt_sections" t-if="paper"/>
+                        <div t-if="paper" id="cbt_question_feedback"
+                             class="modal cbt-feedback-modal" role="dialog"
+                             aria-labelledby="cbt-feedback-title">
+                            <div class="cbt-feedback-header">
+                                <span class="material-icons" aria-hidden="true">rate_review</span>
+                                <div>
+                                    <h4 id="cbt-feedback-title">Question Feedback</h4>
+                                    <p>Tell us about a concern with this question.</p>
+                                </div>
+                            </div>
+                            <div class="modal-content">
+                                <input type="hidden" id="cbt_feedback_question_id"/>
+                                <input type="hidden" id="cbt_feedback_csrf"
+                                       t-att-value="request.csrf_token()"/>
+                                <div class="cbt-feedback-options"
+                                     t-if="feedback_types">
+                                    <t t-foreach="feedback_types" t-as="feedback_type">
+                                        <p>
+                                            <label>
+                                                <input class="with-gap"
+                                                       name="cbt_feedback_type"
+                                                       type="radio"
+                                                       t-att-value="feedback_type.id"
+                                                       t-att-data-is-other="feedback_type.is_other"/>
+                                                <span><t t-esc="feedback_type.name"/></span>
+                                            </label>
+                                        </p>
+                                    </t>
+                                </div>
+                                <p t-else="" class="cbt-note">
+                                    Feedback options are not configured. You can still type your feedback below.
+                                </p>
+                                <div class="input-field">
+                                    <textarea id="cbt_feedback_text"
+                                              class="materialize-textarea"
+                                              maxlength="32767"></textarea>
+                                    <label for="cbt_feedback_text">
+                                        Additional details (optional)
+                                    </label>
+                                </div>
+                                <p id="cbt_feedback_text_hint"
+                                   class="cbt-note cbt-feedback-text-hint">
+                                    Select Other to describe a different concern, or add details to your feedback.
+                                </p>
+                                <p id="cbt_feedback_status"
+                                   class="cbt-feedback-status" role="status"/>
+                            </div>
+                            <div class="modal-footer cbt-feedback-footer">
+                                <a href="#!"
+                                   class="modal-close waves-effect waves-red btn-flat">
+                                    Cancel
+                                </a>
+                                <button type="button" id="cbt_feedback_clear"
+                                        class="waves-effect waves-light btn-flat">
+                                    Clear
+                                </button>
+                                <button type="button" id="cbt_feedback_save"
+                                        class="waves-effect waves-light btn cbt-btn gradient-45deg-indigo-light-blue">
+                                    Save Feedback
+                                </button>
+                            </div>
+                        </div>
+                        <div t-if="paper" id="cbt_help_instructions"
+                             class="modal cbt-help-modal"
+                             role="dialog" aria-labelledby="cbt-help-title">
+                            <div class="cbt-help-header">
+                                <span class="material-icons cbt-help-icon"
+                                      aria-hidden="true">help_outline</span>
+                                <div>
+                                    <h4 id="cbt-help-title">Test Instructions</h4>
+                                    <p>Review these instructions while taking your test.</p>
+                                </div>
+                            </div>
+                            <div class="modal-content cbt-instructions">
+                                <t t-if="instructions">
+                                    <t t-out="instructions.instruction"/>
+                                </t>
+                                <p t-else="" class="cbt-note">
+                                    Instructions are not available. Please contact the invigilator.
+                                </p>
+                            </div>
+                            <div class="modal-footer cbt-help-footer">
+                                <a href="#!"
+                                   class="modal-close waves-effect waves-light btn cbt-btn gradient-45deg-indigo-light-blue">
+                                    Close
+                                </a>
+                            </div>
+                        </div>
                         <div t-if="not paper" class="card cbt-panel">
                             <div class="card-content">
                                 <p class="cbt-note center-align">Unable to load your paper. Please contact the invigilator.</p>

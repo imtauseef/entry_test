@@ -1,0 +1,3 @@
+msoffcrypto-tool>=5.4.2,<6
+cryptography>=45.0.7,<47
+pyOpenSSL>=25.3.0,<26

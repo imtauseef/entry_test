@@ -9,7 +9,7 @@
                     <group>
                     
                     <group>
-                        <field name="program_id"></field>
+                        <field name="program_id" options="{'no_open': True}"></field>
                         <!-- <field name="slot_id"></field> -->
                     </group>
                     <group>
