@@ -221,6 +221,7 @@ class CBTGeneratePaper(models.Model):
 class CBTPaperCriteriaRule(models.Model):
     _name = 'cbt.paper.criteria.rule'
     _description = 'Paper rules'
+    _inherit = ['cbt.line.access']
 
     subjects = fields.Many2one('cbt.subject', 'Subjects', required=True)
     topic_rules = fields.One2many('cbt.paper.criteria.rule.topic', 'criteria_rule_id', 'Topic Rules')
@@ -240,7 +241,10 @@ class CBTPaperCriteriaRule(models.Model):
 
     @api.model
     def create(self, vals):
-        result = super().create(vals)
+        if self._cbt_can_elevate():
+            result = super(CBTPaperCriteriaRule, self.sudo()).create(vals)
+        else:
+            result = super().create(vals)
         if not vals.get('difficulty_rules'):
             raise UserError(_("Please Define Paper Difficulty Criteria in Paper Rules"))
         elif vals.get('no_questions') != vals.get('total_questions_difficulty_rule'):
@@ -266,7 +270,10 @@ class CBTPaperCriteriaRule(models.Model):
         self.total_questions_topic_rule = str(count)
 
     def write(self, vals):
-        result = super().write(vals)
+        if self._cbt_can_elevate():
+            result = super(CBTPaperCriteriaRule, self.sudo()).write(vals)
+        else:
+            result = super().write(vals)
         if not self.difficulty_rules:
             raise UserError(_("Please Define Paper Difficulty Criteria in Paper Rules"))
         elif self.no_questions != self.total_questions_difficulty_rule:
@@ -281,6 +288,7 @@ class CBTPaperCriteriaRule(models.Model):
 class CBTPaperCriteriaRuleTopic(models.Model):
     _name = 'cbt.paper.criteria.rule.topic'
     _description = 'Paper Rule Topic'
+    _inherit = ['cbt.line.access']
 
     topic_id = fields.Many2one('cbt.subject.topic', 'Topic')
     sub_topic_id = fields.Many2one('cbt.subject.subtopic', 'Sub Topic')
@@ -295,6 +303,7 @@ class CBTPaperCriteriaRuleTopic(models.Model):
 class CBTPaperCriteriaRuleDifficulty(models.Model):
     _name = 'cbt.paper.criteria.rule.difficulty'
     _description = 'Paper Rule Difficulty'
+    _inherit = ['cbt.line.access']
 
     difficulty_level_id = fields.Many2one('cbt.question.difficulty.level', 'Difficulty Level', required=True)
     criteria_rule_id = fields.Many2one('cbt.paper.criteria.rule', 'Criteria Rule')
@@ -304,6 +313,7 @@ class CBTPaperCriteriaRuleDifficulty(models.Model):
 class CBTPaperCriteriaRuleType(models.Model):
     _name = 'cbt.paper.criteria.rule.type'
     _description = 'Paper Rule Type'
+    _inherit = ['cbt.line.access']
 
     type_id = fields.Many2one('cbt.question.type', 'Type')
     criteria_rule_id = fields.Many2one('cbt.paper.criteria.rule', 'Criteria Rule')

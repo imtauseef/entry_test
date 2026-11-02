@@ -390,6 +390,7 @@ class CBTSlot(models.Model):
     _name = "cbt.slot"
     _description = "Test Time"
     _rec_name = 'date'
+    _inherit = ['cbt.line.access']
 
     name = fields.Char(string='Name')
     date = fields.Date('Test Date', required=True)
