@@ -63,15 +63,21 @@
                 <field name="subject_ids"/>
                 <field name="topic_ids"/>
                 <field name="subtopic_ids"/>
+                <filter name="question_creator" string="Question Creator"
+                        domain="[('create_access', '=', True)]"/>
+                <filter name="reviewer" string="Reviewer"
+                        domain="[('review_access', '=', True)]"/>
                 <newline/>
-                 <group expand="0" string="Group By...">
-                     <filter name="employee_id" string="Employees" domain="[]" context="{'group_by':'employee_id'}"/>
-                     <filter name="user_id" string="Users" domain="[]" context="{'group_by':'user_id'}"/>
-                    <filter name="subject_ids" string="Subjects" domain="[]" context="{'group_by':'subject_ids'}"/>
-                     <filter name="topic_ids" string="Topics" domain="[]" context="{'group_by':'topic_ids'}"/>
-                     <filter name="subtopic_ids" string="Sub Topics" domain="[]" context="{'group_by':'subtopic_ids'}"/>
-
-                 </group>
+                <group expand="0" string="Group By...">
+                    <filter name="group_employee" string="Faculty" domain="[]"
+                            context="{'group_by': 'employee_id'}"/>
+                    <filter name="group_user" string="User" domain="[]"
+                            context="{'group_by': 'user_id'}"/>
+                    <filter name="group_creator" string="Question Creator"
+                            domain="[]" context="{'group_by': 'create_access'}"/>
+                    <filter name="group_reviewer" string="Reviewer"
+                            domain="[]" context="{'group_by': 'review_access'}"/>
+                </group>
             </search>
         </field>
     </record>

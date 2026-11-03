@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import base64
+import re
 
-from odoo import fields, models, _
+from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
 from .allocation_xlsx import (
@@ -17,7 +18,10 @@ class CBTPaperResultBatch(models.Model):
     _description = 'Imported Offline Paper Results'
     _order = 'imported_at desc, id desc'
 
-    name = fields.Char(string='Result Batch', required=True)
+    name = fields.Char(
+        string='Result Batch', compute='_compute_name', store=True)
+    source_batch_name = fields.Char(
+        string='Portal Batch Name', readonly=True, copy=False)
     source_system_id = fields.Char(
         string='Source System ID', required=True, index=True, copy=False)
     source_batch_export_id = fields.Char(
@@ -33,6 +37,20 @@ class CBTPaperResultBatch(models.Model):
         required=True, default=fields.Datetime.now, readonly=True, copy=False)
     conduct_ids = fields.One2many(
         'cbt.paper.conduct', 'result_batch_id', string='Candidate Results')
+
+    @api.depends(
+        'source_batch_name', 'paper_generate_id.name', 'imported_at')
+    def _compute_name(self):
+        for batch in self:
+            batch_name = batch.source_batch_name or \
+                batch.paper_generate_id.name or _('Offline Test')
+            imported_date = (
+                fields.Datetime.to_string(batch.imported_at)[:10]
+                if batch.imported_at else '')
+            batch.name = _('Results - %(batch)s%(date)s') % {
+                'batch': batch_name,
+                'date': (' - %s' % imported_date) if imported_date else '',
+            }
 
     def action_open_final_result_list_password_prompt(self):
         return excel_password_prompt_action(
@@ -104,8 +122,10 @@ class CBTPaperResultBatch(models.Model):
         workbook = encrypt_xlsx(
             build_allocation_xlsx([('Final Results', rows)]),
             workbook_password)
+        filename = re.sub(
+            r'[^A-Za-z0-9._ -]+', '_', self.name or '').strip(' .-_')[:120]
         attachment = self.env['ir.attachment'].sudo().create({
-            'name': 'final_result_list_%s.xlsx' % self.id,
+            'name': '%s.xlsx' % (filename or 'results'),
             'datas': base64.b64encode(workbook),
             'mimetype': (
                 'application/vnd.openxmlformats-officedocument.'

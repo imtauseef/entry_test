@@ -19,6 +19,7 @@
     'external_dependencies': {
         'python': ['msoffcrypto'],
     },
+    'post_init_hook': 'post_init_hook',
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
@@ -52,6 +53,7 @@
         # 'views/instructions.xml',
         'views/res_config_setting_inherit.xml',
         'views/user_rights.xml',
+        'views/search_views.xml',
         # 'wizard/cbt_api_wizard_views.xml',
         # 'wizard/import_data_wizard.xml',
         # 'views/cbt_export.xml',

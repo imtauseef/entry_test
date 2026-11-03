@@ -396,7 +396,7 @@ class CBTSlot(models.Model):
     date = fields.Date('Test Date', required=True)
     time = fields.Float(string='Test Time', required=True)
     time_to = fields.Float(string='Time To', required=True)
-    duration = fields.Float('Duration (M)')
+    duration = fields.Integer('Duration (M)')
 
     @api.constrains('time', 'time_to')
     def _check_slot_times(self):

@@ -2,6 +2,8 @@
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
+from ..hooks import post_init_hook
+
 
 class TestUserRightsFaculty(TransactionCase):
     """User Rights: Admin / Faculty flag and multi-select faculty roles."""
@@ -33,6 +35,17 @@ class TestUserRightsFaculty(TransactionCase):
         self.assertEqual(user.cbt_role, 'admin')
         self.assertFalse(
             self.env['hr.employee'].search([('user_id', '=', user.id)]))
+
+    def test_first_install_hook_grants_cbt_admin_to_odoo_admin(self):
+        user = self.env.ref('base.user_admin')
+        group = self.env.ref('cbt.group_cbt_admin')
+        user.sudo().write({'groups_id': [(3, group.id)]})
+
+        post_init_hook(self.env)
+
+        self.assertIn(group, user.sudo().groups_id)
+        post_init_hook(self.env)
+        self.assertIn(group, user.sudo().groups_id)
 
     def test_faculty_user_gets_an_employee(self):
         user = self._user('faculty-employee', cbt_role='faculty')
@@ -142,3 +155,96 @@ class TestUserRightsFaculty(TransactionCase):
                 'login': 'no-screen-password',
             })
         self.assertTrue(user.exists())
+
+    def test_admin_user_requires_and_accepts_explicit_menu_access(self):
+        manager = self.env['res.users'].sudo().create({
+            'name': 'CBT Rights Manager',
+            'login': 'cbt-rights-manager-test',
+            'groups_id': [(6, 0, [
+                self.env.ref('base.group_user').id,
+                self.env.ref('cbt.group_cbt_rights_manager').id,
+            ])],
+        })
+        Users = self.env['res.users'].with_user(manager).sudo().with_context(
+            cbt_user_rights_screen=True,
+            no_cbt_auto_populate=True,
+        )
+        base_values = {
+            'name': 'Managed Admin',
+            'login': 'managed-admin-test',
+            'password': 'secret',
+            'cbt_role': 'admin',
+        }
+
+        with self.assertRaisesRegex(
+                ValidationError,
+                'Select at least one CBT menu under CBT Menu Permissions'):
+            Users.create(dict(base_values))
+
+        MenuSec = self.env['cbt.menu.security'].sudo()
+        MenuSec.sync_all(reapply=False)
+        menu = self.env.ref('cbt.cbt_sub')
+        security = MenuSec.search([('menu_id', '=', menu.id)], limit=1)
+        self.assertTrue(security)
+
+        values = dict(base_values)
+        values['login'] = 'managed-admin-with-menu-test'
+        values['cbt_right_ids'] = [(0, 0, {
+            'menu_id': menu.id,
+            'menu_security_id': security.id,
+            'can_see': True,
+            'can_read': True,
+            'can_write': True,
+            'can_create': True,
+        })]
+        user = Users.create(values)
+
+        self.assertTrue(user.cbt_managed_user)
+        self.assertTrue(user.cbt_right_ids.filtered(
+            lambda right: right.menu_id == menu and right.can_see))
+
+    def test_user_rights_menu_access_includes_child_permission_model(self):
+        self.env['cbt.menu.security'].sudo().sync_all(reapply=False)
+        menu = self.env.ref('cbt.menu_cbt_user_rights')
+        menu_security = self.env['cbt.menu.security'].sudo().search(
+            [('menu_id', '=', menu.id)], limit=1)
+        self.assertTrue(menu_security)
+        user = self._user('user-rights-child-access')
+
+        permission = self.env['cbt.user.right'].sudo().create({
+            'user_id': user.id,
+            'menu_id': menu.id,
+            'menu_security_id': menu_security.id,
+            'can_see': True,
+            'can_read': True,
+            'can_write': True,
+            'can_create': True,
+        })
+
+        ChildRights = self.env['cbt.user.right'].with_user(user)
+        for operation in ('read', 'write', 'create'):
+            self.assertTrue(ChildRights.check_access_rights(
+                operation, raise_exception=False), operation)
+
+        permission.write({'can_write': False, 'can_create': False})
+        self.assertTrue(ChildRights.check_access_rights(
+            'read', raise_exception=False))
+        self.assertFalse(ChildRights.check_access_rights(
+            'write', raise_exception=False))
+        self.assertFalse(ChildRights.check_access_rights(
+            'create', raise_exception=False))
+
+    def test_managed_user_cannot_switch_to_admin_without_menu_access(self):
+        user = self._user('managed-faculty-to-admin', cbt_role='faculty')
+        managed_group = self.env.ref('cbt.group_cbt_managed')
+        user.sudo().with_context(no_cbt_lockdown=True).write({
+            'cbt_managed_user': True,
+            'groups_id': [(4, managed_group.id)],
+        })
+
+        with self.assertRaisesRegex(
+                ValidationError,
+                'Select at least one CBT menu under CBT Menu Permissions'):
+            user.with_context(cbt_user_rights_screen=True).write({
+                'cbt_role': 'admin',
+            })

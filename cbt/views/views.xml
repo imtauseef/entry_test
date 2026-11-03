@@ -25,7 +25,6 @@
                     <field name="name"/>
                     <field name="code"/>
                     <newline/>
-
                 </search>
             </field>
         </record>
@@ -96,6 +95,8 @@
                 <search string="Employee Roles">
                     <field name="name"/>
                     <field name="code"/>
+                    <filter name="archived" string="Archived"
+                            domain="[('active', '=', False)]"/>
                     <newline/>
                 </search>
             </field>
@@ -159,6 +160,8 @@
                     <field name="name"/>
                     <field name="code"/>
                     <field name="subject_id" options="{'no_open': True}"/>
+                    <filter name="archived" string="Archived"
+                            domain="[('active', '=', False)]"/>
                     <newline/>
                     <group expand="0" string="Group By...">
                         <filter name="subject_id" string="Subjects" domain="[]" context="{'group_by':'subject_id'}"/>
@@ -196,6 +199,8 @@
                     <field name="code"/>
                     <field name="subject_id" options="{'no_open': True}"/>
                     <field name="topic_id" options="{'no_open': True}"/>
+                    <filter name="archived" string="Archived"
+                            domain="[('active', '=', False)]"/>
                     <newline/>
                     <group expand="0" string="Group By...">
                         <filter name="subject_id" string="Subjects" domain="[]" context="{'group_by':'subject_id'}"/>
@@ -273,8 +278,15 @@
             <search string="Questions Type">
                 <field name="name"/>
                 <field name="code"/>
+                <filter name="theory" string="Marked as Theory / Descriptive"
+                        domain="[('is_theory', '=', True)]"/>
+                <filter name="archived" string="Archived"
+                        domain="[('active', '=', False)]"/>
                 <newline/>
-
+                <group expand="0" string="Group By...">
+                    <filter name="group_theory" string="Theory / Descriptive"
+                            domain="[]" context="{'group_by': 'is_theory'}"/>
+                </group>
             </search>
         </field>
     </record>
@@ -301,8 +313,9 @@
         <field name="arch" type="xml">
             <search string="CBT Questions Skill">
                 <field name="name"/>
+                <filter name="archived" string="Archived"
+                        domain="[('active', '=', False)]"/>
                 <newline/>
-
             </search>
         </field>
     </record>
@@ -332,8 +345,9 @@
             <search string="Questions Difficulty Level">
                 <field name="name"/>
                 <field name="code"/>
+                <filter name="archived" string="Archived"
+                        domain="[('active', '=', False)]"/>
                 <newline/>
-
             </search>
         </field>
     </record>
@@ -360,6 +374,8 @@
                 <search string="Questions Time">
                     <field name="name"/>
                     <field name="code"/>
+                    <filter name="archived" string="Archived"
+                            domain="[('active', '=', False)]"/>
                     <newline/>
                 </search>
             </field>
@@ -386,6 +402,8 @@
             <search string="CBT Test Type">
                 <field name="name"/>
                 <field name="code"/>
+                <filter name="archived" string="Archived"
+                        domain="[('active', '=', False)]"/>
                 <newline/>
             </search>
         </field>
@@ -413,6 +431,8 @@
             <search string="CBT Test">
                 <field name="name"/>
                 <field name="code"/>
+                <filter name="archived" string="Archived"
+                        domain="[('active', '=', False)]"/>
                 <newline/>
             </search>
         </field>
@@ -585,7 +605,9 @@
                                 <field name="type_id" options="{'no_open': True}"/>
                                 <field name="skill_id" options="{'no_open': True}"/>
                                 <field name="difficulty_level_id" options="{'no_open': True}"/>
-                                <field name="time_id" options="{'no_open': True}"/>
+                                <!-- Question time is optional and temporarily
+                                     hidden from the question form. -->
+                                <!-- <field name="time_id" options="{'no_open': True}"/> -->
                                 <field name="is_reserve" readonly="state != 'draft' and not can_review"/>
                             </group>
                         </group>
@@ -757,7 +779,7 @@
                             domain="[('is_reserve', '=', False)]"/>
                     <filter name="suspended_questions" string="Suspended / Dormant"
                             domain="[('is_suspended', '=', True)]"/>
-                    <filter name="available_questions" string="Available"
+                    <filter name="available_questions" string="Not Suspended"
                             domain="[('is_suspended', '=', False)]"/>
                     <newline/>
                     <group expand="0" string="Group By...">

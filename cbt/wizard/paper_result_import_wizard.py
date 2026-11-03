@@ -81,7 +81,7 @@ class CBTPaperResultImportWizard(models.TransientModel):
             ))
         manifest = self._read_manifest(workbook['Manifest'])
         schema_version = manifest.get('schema_version')
-        if schema_version not in ('1.0', '1.1', '1.2'):
+        if schema_version not in ('1.0', '1.1', '1.2', '1.3'):
             raise UserError(_('Unsupported results workbook schema version.'))
         sheets_schema = (
             self._LEGACY_SHEETS if schema_version == '1.0'
@@ -363,9 +363,10 @@ class CBTPaperResultImportWizard(models.TransientModel):
 
         with self.env.cr.savepoint():
             result_batch = self.env['cbt.paper.result.batch'].create({
-                'name': _('Results %s') % batch_export_id,
                 'source_system_id': source_system_id,
                 'source_batch_export_id': batch_export_id,
+                'source_batch_name': (
+                    manifest.get('source_batch_name') or generator.name),
                 'source_generator_id': source_generator_id,
                 'paper_generate_id': generator.id,
                 'result_payload_sha256': payload_hash,

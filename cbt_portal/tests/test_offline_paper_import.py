@@ -388,7 +388,7 @@ class TestOfflinePaperImport(TransactionCase):
         slot = self.env['cbt.slot'].create({
             'name': 'Offline Test Slot',
             'date': fields.Date.from_string('2026-10-26'),
-            'time': 9.5,
+            'time': 9.123456789123456,
             'duration': 90,
             'center_id': center.id,
         })
@@ -525,7 +525,7 @@ class TestOfflinePaperImport(TransactionCase):
         self.assertEqual(imported.paper_name, generated_paper.name)
         self.assertEqual(imported.test_center, center.name)
         self.assertEqual(imported.test_date, slot.date)
-        self.assertEqual(imported.test_time, slot.time)
+        self.assertEqual(imported.test_time, round(slot.time, 8))
         self.assertEqual(imported.test_duration, 90)
         self.assertEqual(imported.server_id, allocation.id)
         self.assertEqual(imported.program, program.name)
@@ -630,6 +630,8 @@ class TestOfflinePaperImport(TransactionCase):
             ('res_model', '=', 'cbt.paper.export.batch'),
             ('res_id', '=', batch.id),
         ], order='id desc', limit=1)
+        self.assertEqual(
+            result_attachment.name, 'Offline Test Generator_results.xlsx')
         self.assertFalse(zipfile.is_zipfile(io.BytesIO(
             base64.b64decode(result_attachment.datas))))
         result_workbook = load_allocation_xlsx(decrypt_xlsx(
@@ -641,7 +643,10 @@ class TestOfflinePaperImport(TransactionCase):
             result_workbook['Papers'].iter_rows(values_only=True))
         result_manifest_rows = list(
             result_workbook['Manifest'].iter_rows(values_only=True))
-        self.assertEqual(result_manifest_rows[0], ('schema_version', '1.2'))
+        self.assertEqual(result_manifest_rows[0], ('schema_version', '1.3'))
+        self.assertIn(
+            ('source_batch_name', 'Offline Test Generator'),
+            result_manifest_rows)
         self.assertIn('candidate_name', result_paper_rows[0])
         self.assertIn('paper_name', result_paper_rows[0])
         self.assertEqual(result_paper_rows[1][4], imported.name)
@@ -678,6 +683,10 @@ class TestOfflinePaperImport(TransactionCase):
         self.assertEqual(len(conduct), 1)
         self.assertEqual(conduct.result_batch_id.source_batch_export_id,
                          batch.source_export_id)
+        self.assertEqual(
+            conduct.result_batch_id.source_batch_name, batch.name)
+        self.assertTrue(
+            conduct.result_batch_id.name.startswith('Results - Offline Test Generator'))
         self.assertEqual(
             conduct.result_batch_id.paper_generate_id,
             allocation.main_paper_id.generator_id)
@@ -723,7 +732,7 @@ class TestOfflinePaperImport(TransactionCase):
         final_result_attachment = self.env['ir.attachment'].search([
             ('res_model', '=', 'cbt.paper.result.batch'),
             ('res_id', '=', final_result_batch.id),
-            ('name', '=', 'final_result_list_%s.xlsx' % final_result_batch.id),
+            ('name', '=', '%s.xlsx' % final_result_batch.name),
         ], limit=1)
         self.assertFalse(zipfile.is_zipfile(io.BytesIO(
             base64.b64decode(final_result_attachment.datas))))

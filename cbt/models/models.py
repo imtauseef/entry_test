@@ -680,13 +680,14 @@ class CBTMCQS(models.Model):
         return self.search(pool_domain)
 
     def _cbt_faculty_subject_roles(self, subject_id, permission=None):
-        domain = [
-            ('employee_id.user_id', '=', self.env.user.id),
-            ('subject_id', '=', subject_id),
-        ]
+        role_model = self.env['cbt.employee.role']
+        domain = (
+            role_model._cbt_user_domain(self.env.user)
+            + role_model._cbt_subject_domain(subject_id)
+        )
         if permission:
             domain.append((permission, '=', True))
-        return self.env['cbt.employee.role'].search(domain)
+        return role_model.sudo().search(domain)
 
     def _cbt_has_review_access(self, subject_id):
         return bool(self._cbt_faculty_subject_roles(
@@ -718,7 +719,8 @@ class CBTMCQS(models.Model):
             raise UserError(_(
                 "The selected topic does not belong to the selected subject."))
         if topic_id and not any(
-                not role.topic_id or role.topic_id.id == topic_id
+                not role._cbt_topics()
+                or topic_id in role._cbt_topics().ids
                 for role in roles):
             raise UserError(_(
                 "You can only use topics assigned to you for this subject."))
@@ -736,9 +738,10 @@ class CBTMCQS(models.Model):
                     "The selected sub topic does not belong to the selected "
                     "subject."))
             if not any(
-                    (not role.topic_id or role.topic_id.id == topic_id)
-                    and (not role.subtopic_id
-                         or role.subtopic_id.id == stopic_id)
+                    (not role._cbt_topics()
+                     or topic_id in role._cbt_topics().ids)
+                    and (not role._cbt_subtopics()
+                         or stopic_id in role._cbt_subtopics().ids)
                     for role in roles):
                 raise UserError(_(
                     "You can only use sub topics assigned to you for this "
@@ -780,7 +783,7 @@ class CBTMCQS(models.Model):
     topic_id = fields.Many2one(
         'cbt.subject.topic', 'Topic', required=True, tracking=True)
     stopic_id = fields.Many2one(
-        'cbt.subject.subtopic', 'Sub Topic', required=True, tracking=True)
+        'cbt.subject.subtopic', 'Sub Topic', tracking=True)
     type_id = fields.Many2one(
         'cbt.question.type', required=True, tracking=True)
     is_theory = fields.Boolean(
@@ -792,7 +795,7 @@ class CBTMCQS(models.Model):
     difficulty_level_id = fields.Many2one(
         'cbt.question.difficulty.level', required=True, tracking=True)
     time_id = fields.Many2one(
-        'cbt.question.time', required=True, tracking=True)
+        'cbt.question.time', required=False, tracking=True)
     question = fields.Html(string='Question', required=True, tracking=True)
     is_reserve = fields.Boolean(
         string='Reserve Question', default=False, index=True, tracking=True,

@@ -588,7 +588,9 @@ class CBTPaperGenerator(models.Model):
                 raise UserError(_(
                     'Participant %s is missing a valid examination schedule.'
                 ) % participant.display_name)
-            test_time = float(slot.time)
+            # XLSX numeric cells have finite decimal precision. Keep the
+            # hashed and exported value stable across the XLSX round trip.
+            test_time = round(float(slot.time), 8)
             if not math.isfinite(test_time) or not 0 <= test_time < 24:
                 raise UserError(_(
                     'Participant %s has an invalid examination start time.'

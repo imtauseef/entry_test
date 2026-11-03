@@ -228,7 +228,9 @@ class CBTPaperImportWizard(models.TransientModel):
             if row['source_schedule_id']:
                 self._source_record_id(row['source_schedule_id'], 'Papers', row)
             row['_date'] = self._parse_date(row['test_date'], row)
-            row['_time'] = self._as_float(row['test_time'], row, 'test_time')
+            # Match the source export's XLSX-safe precision before hashing.
+            row['_time'] = round(
+                self._as_float(row['test_time'], row, 'test_time'), 8)
             row['_duration'] = self._as_integer(row['test_duration'], row)
             row['_cid'] = self._as_integer(row['cid'], row)
             row['_shuffle'] = self._as_boolean(row['shuffle_section'], row)

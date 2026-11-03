@@ -231,7 +231,19 @@ class CbtModelSecurity(models.Model):
         row._provision()
 
         rows = row
-        if model.model.startswith("cbt.") or model.model == 'cbt.paper.criteria':
+        if model.model == "res.users":
+            child_model = self.env["ir.model"].sudo().search(
+                [("model", "=", "cbt.user.right")], limit=1)
+            if child_model:
+                child_row = model_security.search(
+                    [("model_id", "=", child_model.id)], limit=1)
+                if not child_row:
+                    child_row = model_security.create({
+                        "name": child_model.model,
+                        "model_id": child_model.id,
+                    })
+                rows |= child_row._provision()
+        elif model.model.startswith("cbt.") or model.model == 'cbt.paper.criteria':
             for related in self._related_models_editable(model):
                 rows |= model_security._ensure_write_chain(related, seen)
         return rows
@@ -260,7 +272,19 @@ class CbtModelSecurity(models.Model):
         row._provision()
 
         rows = row
-        if model.model.startswith("cbt.") or model.model == 'cbt.paper.criteria':
+        if model.model == "res.users":
+            child_model = self.env["ir.model"].sudo().search(
+                [("model", "=", "cbt.user.right")], limit=1)
+            if child_model:
+                child_row = model_security.search(
+                    [("model_id", "=", child_model.id)], limit=1)
+                if not child_row:
+                    child_row = model_security.create({
+                        "name": child_model.model,
+                        "model_id": child_model.id,
+                    })
+                rows |= child_row._provision()
+        elif model.model.startswith("cbt.") or model.model == 'cbt.paper.criteria':
             for related in self._related_models(model):
                 rows |= model_security._ensure_read_chain(related, seen)
         return rows
@@ -602,6 +626,15 @@ class CbtMenuSecurity(models.Model):
                 groups |= ms.group_read_id
                 groups |= ms.group_write_id
                 groups |= ms.group_create_id
+        child_model = self.env["ir.model"].sudo().search(
+            [("model", "=", "cbt.user.right")], limit=1)
+        if child_model:
+            child_security = self.env["cbt.model.security"].sudo().search(
+                [("model_id", "=", child_model.id)], limit=1)
+            if child_security:
+                groups |= child_security.group_read_id
+                groups |= child_security.group_write_id
+                groups |= child_security.group_create_id
         managed = self.env.ref("cbt.group_cbt_managed",
                                raise_if_not_found=False)
         if managed:
@@ -850,6 +883,32 @@ class CbtMenuSecurity(models.Model):
                             desired |= rrow.group_write_id
                         if rrow.group_read_id:
                             desired |= rrow.group_read_id
+            elif model.model == 'res.users':
+                im = self.env['ir.model'].sudo().search(
+                    [('model', '=', 'cbt.user.right')], limit=1)
+                if not im:
+                    continue
+                rrow = model_security.search(
+                    [('model_id', '=', im.id)], limit=1)
+                if not rrow:
+                    rrow = model_security.create({
+                        'name': im.model,
+                        'model_id': im.id,
+                    })
+                rrow = rrow._provision()
+
+                if model in write_main_models:
+                    if rrow.group_write_id:
+                        desired |= rrow.group_write_id
+                    if rrow.group_read_id:
+                        desired |= rrow.group_read_id
+                if model in create_main_models:
+                    if rrow.group_create_id:
+                        desired |= rrow.group_create_id
+                    if rrow.group_write_id:
+                        desired |= rrow.group_write_id
+                    if rrow.group_read_id:
+                        desired |= rrow.group_read_id
 
         managed_group = self.env.ref(
             "cbt.group_cbt_managed", raise_if_not_found=False)
@@ -1263,7 +1322,7 @@ class ResUsers(models.Model):
                 return False
         return True
 
-    @api.constrains("cbt_right_ids")
+    @api.constrains("cbt_right_ids", "cbt_role", "cbt_managed_user")
     def _check_at_least_one_menu(self):
         for user in self:
             if self.env.context.get("no_cbt_min_menu_check"):
@@ -1274,8 +1333,8 @@ class ResUsers(models.Model):
                 continue
             if not any(r.can_see for r in user.cbt_right_ids):
                 raise ValidationError(_(
-                    "A CBT user must be granted access to at least one menu "
-                    "before it can be saved."))
+                    "Select at least one CBT menu under CBT Menu "
+                    "Permissions before saving this Admin user."))
 
     @api.model
     def _cbt_complete_right_commands(self, commands):
@@ -1509,8 +1568,8 @@ class ResUsers(models.Model):
                         ("user_id", "=", user.id), ("can_see", "=", True)])
                     if not granted:
                         raise ValidationError(_(
-                            "Grant access to at least one CBT menu before "
-                            "saving this user."))
+                            "Select at least one CBT menu under CBT Menu "
+                            "Permissions before saving this Admin user."))
         # Give the caller records that carry its own context back (the guard
         # above must not leak into later operations).
         return original_env["res.users"].browse(users.ids)

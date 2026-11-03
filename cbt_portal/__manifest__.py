@@ -38,6 +38,7 @@
         'views/configurations/question_feedback.xml',
         'views/configurations/menu.xml',
         'views/configurations/paper_export_batch.xml',
+        'views/configurations/search_views.xml',
         
         'views/components/widgets.xml',
         'views/components/questions.xml',

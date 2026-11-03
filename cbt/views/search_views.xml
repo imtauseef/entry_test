@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="cbt_jobs_search" model="ir.ui.view">
+            <field name="name">cbt.jobs.search</field>
+            <field name="model">cbt.jobs</field>
+            <field name="arch" type="xml">
+                <search string="Tasks">
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="state"/>
+                    <filter name="in_progress" string="In Progress"
+                            domain="[('state', '=', 'inprogress')]"/>
+                    <filter name="processed" string="Processed"
+                            domain="[('state', '=', 'processed')]"/>
+                    <filter name="archived" string="Archived"
+                            domain="[('active', '=', False)]"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_state" string="Status" domain="[]"
+                                context="{'group_by': 'state'}"/>
+                        <filter name="group_date" string="Date" domain="[]"
+                                context="{'group_by': 'date:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_session_search" model="ir.ui.view">
+            <field name="name">cbt.session.search</field>
+            <field name="model">cbt.session</field>
+            <field name="arch" type="xml">
+                <search string="Sessions">
+                    <field name="etest_id"/>
+                    <field name="type_id"/>
+                    <filter name="archived" string="Archived"
+                            domain="[('active', '=', False)]"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_test" string="Entry Test"
+                                domain="[]" context="{'group_by': 'etest_id'}"/>
+                        <filter name="group_type" string="Test Type"
+                                domain="[]" context="{'group_by': 'type_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_program_courses_search" model="ir.ui.view">
+            <field name="name">cbt.program.courses.search</field>
+            <field name="model">cbt.program.courses</field>
+            <field name="arch" type="xml">
+                <search string="Study Program Courses">
+                    <field name="etest_id"/>
+                    <field name="type_id"/>
+                    <field name="program_id"/>
+                    <field name="subject_ids"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_test" string="Entry Test"
+                                domain="[]" context="{'group_by': 'etest_id'}"/>
+                        <filter name="group_type" string="Test Type"
+                                domain="[]" context="{'group_by': 'type_id'}"/>
+                        <filter name="group_program" string="Program"
+                                domain="[]" context="{'group_by': 'program_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_paper_criteria_rule_search" model="ir.ui.view">
+            <field name="name">cbt.paper.criteria.rule.search</field>
+            <field name="model">cbt.paper.criteria.rule</field>
+            <field name="arch" type="xml">
+                <search string="Paper Rules">
+                    <field name="paper_id"/>
+                    <field name="subjects"/>
+                    <field name="no_questions"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_criteria" string="Paper Criteria"
+                                domain="[]" context="{'group_by': 'paper_id'}"/>
+                        <filter name="group_subject" string="Section"
+                                domain="[]" context="{'group_by': 'subjects'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_paper_generator_search" model="ir.ui.view">
+            <field name="name">cbt.paper.generator.search</field>
+            <field name="model">cbt.paper.generator</field>
+            <field name="arch" type="xml">
+                <search string="Paper Generation">
+                    <field name="name"/>
+                    <field name="criteria_id"/>
+                    <field name="slot_id"/>
+                    <field name="state"/>
+                    <filter name="draft" string="Draft"
+                            domain="[('state', '=', 'draft')]"/>
+                    <filter name="assign" string="Assign Student"
+                            domain="[('state', '=', 'assign')]"/>
+                    <filter name="done" string="Done"
+                            domain="[('state', '=', 'done')]"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_state" string="Status" domain="[]"
+                                context="{'group_by': 'state'}"/>
+                        <filter name="group_criteria" string="Paper Criteria"
+                                domain="[]" context="{'group_by': 'criteria_id'}"/>
+                        <filter name="group_slot" string="Session"
+                                domain="[]" context="{'group_by': 'slot_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_paper_search" model="ir.ui.view">
+            <field name="name">cbt.paper.search</field>
+            <field name="model">cbt.paper</field>
+            <field name="arch" type="xml">
+                <search string="Papers">
+                    <field name="name"/>
+                    <field name="criteria_id"/>
+                    <field name="slot_id"/>
+                    <field name="current_user"/>
+                    <field name="program_ids"/>
+                    <filter name="student_papers_generated"
+                            string="Student Papers Generated"
+                            domain="[('student_paper_gen', '=', True)]"/>
+                    <filter name="student_papers_not_generated"
+                            string="Student Papers Not Generated"
+                            domain="[('student_paper_gen', '=', False)]"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_generator" string="Generate Paper"
+                                domain="[]" context="{'group_by': 'generator_id'}"/>
+                        <filter name="group_criteria" string="Paper Criteria"
+                                domain="[]" context="{'group_by': 'criteria_id'}"/>
+                        <filter name="group_slot" string="Session"
+                                domain="[]" context="{'group_by': 'slot_id'}"/>
+                        <filter name="group_creator" string="Created By"
+                                domain="[]" context="{'group_by': 'current_user'}"/>
+                        <filter name="group_generated" string="Student Papers"
+                                domain="[]" context="{'group_by': 'student_paper_gen'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_paper_replacement_log_search" model="ir.ui.view">
+            <field name="name">cbt.paper.replacement.log.search</field>
+            <field name="model">cbt.paper.replacement.log</field>
+            <field name="arch" type="xml">
+                <search string="Question Replacements">
+                    <field name="paper_id"/>
+                    <field name="old_question_id"/>
+                    <field name="new_question_id"/>
+                    <field name="user_id"/>
+                    <field name="replace_datetime"/>
+                    <filter name="exact_match" string="Topic, Difficulty and Type Match"
+                            domain="[('match_level', '=', 'exact')]"/>
+                    <filter name="subject_match" string="Subject-only Match"
+                            domain="[('match_level', '=', 'subject')]"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_paper" string="Paper"
+                                domain="[]" context="{'group_by': 'paper_id'}"/>
+                        <filter name="group_match" string="Match Level"
+                                domain="[]" context="{'group_by': 'match_level'}"/>
+                        <filter name="group_user" string="Replaced By"
+                                domain="[]" context="{'group_by': 'user_id'}"/>
+                        <filter name="group_date" string="Replacement Date"
+                                domain="[]" context="{'group_by': 'replace_datetime:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_paper_conduct_search" model="ir.ui.view">
+            <field name="name">cbt.paper.conduct.search</field>
+            <field name="model">cbt.paper.conduct</field>
+            <field name="arch" type="xml">
+                <search string="Paper Results">
+                    <field name="paper_id"/>
+                    <field name="participant_id"/>
+                    <field name="program"/>
+                    <field name="slot_id"/>
+                    <field name="result_batch_id"/>
+                    <field name="date"/>
+                    <filter name="offline_result" string="Imported Offline Results"
+                            domain="[('result_batch_id', '!=', False)]"/>
+                    <filter name="online_result" string="Online Results"
+                            domain="[('result_batch_id', '=', False)]"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_date" string="Result Date"
+                                domain="[]" context="{'group_by': 'date:month'}"/>
+                        <filter name="group_slot" string="Session"
+                                domain="[]" context="{'group_by': 'slot_id'}"/>
+                        <filter name="group_program" string="Program"
+                                domain="[]" context="{'group_by': 'program'}"/>
+                        <filter name="group_batch" string="Offline Result Batch"
+                                domain="[]" context="{'group_by': 'result_batch_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_paper_result_batch_search" model="ir.ui.view">
+            <field name="name">cbt.paper.result.batch.search</field>
+            <field name="model">cbt.paper.result.batch</field>
+            <field name="arch" type="xml">
+                <search string="Imported Offline Results">
+                    <field name="name"/>
+                    <field name="paper_generate_id"/>
+                    <field name="imported_at"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_generator" string="Paper Generator"
+                                domain="[]" context="{'group_by': 'paper_generate_id'}"/>
+                        <filter name="group_import_date" string="Import Date"
+                                domain="[]" context="{'group_by': 'imported_at:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_student_paper_search" model="ir.ui.view">
+            <field name="name">cbt.student.paper.search</field>
+            <field name="model">cbt.student.paper</field>
+            <field name="arch" type="xml">
+                <search string="Student Papers">
+                    <field name="participant_id"/>
+                    <field name="main_paper_id"/>
+                    <field name="slot_id"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_participant" string="Participant"
+                                domain="[]" context="{'group_by': 'participant_id'}"/>
+                        <filter name="group_paper" string="Paper"
+                                domain="[]" context="{'group_by': 'main_paper_id'}"/>
+                        <filter name="group_slot" string="Session"
+                                domain="[]" context="{'group_by': 'slot_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_participant_search" model="ir.ui.view">
+            <field name="name">cbt.participant.search</field>
+            <field name="model">cbt.participant</field>
+            <field name="arch" type="xml">
+                <search string="Participants">
+                    <field name="name"/>
+                    <field name="login"/>
+                    <field name="center_id"/>
+                    <field name="slot_id"/>
+                    <field name="program"/>
+                    <field name="degree"/>
+                    <field name="first_prefernce"/>
+                    <field name="cid"/>
+                    <filter name="active" string="Active Participants"
+                            domain="[('active', '=', True)]"/>
+                    <filter name="inactive" string="Archived Participants"
+                            domain="[('active', '=', False)]"/>
+                    <filter name="portal_account" string="Portal Account Created"
+                            domain="[('user_id', '!=', False)]"/>
+                    <filter name="no_portal_account" string="No Portal Account"
+                            domain="[('user_id', '=', False)]"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_center" string="Test Center"
+                                domain="[]" context="{'group_by': 'center_id'}"/>
+                        <filter name="group_slot" string="Session"
+                                domain="[]" context="{'group_by': 'slot_id'}"/>
+                        <filter name="group_program" string="Program"
+                                domain="[]" context="{'group_by': 'program'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_center_search" model="ir.ui.view">
+            <field name="name">cbt.center.search</field>
+            <field name="model">cbt.center</field>
+            <field name="arch" type="xml">
+                <search string="Test Centers">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="etest_id"/>
+                    <field name="type_id"/>
+                    <filter name="computer_based" string="Computer Based Test"
+                            domain="[('test_type', '=', 'cbt')]"/>
+                    <filter name="paper_based" string="Paper Based Test"
+                            domain="[('test_type', '=', 'pbt')]"/>
+                    <filter name="archived" string="Archived"
+                            domain="[('active', '=', False)]"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_test_type" string="Test Mode"
+                                domain="[]" context="{'group_by': 'test_type'}"/>
+                        <filter name="group_entry_test" string="Entry Test"
+                                domain="[]" context="{'group_by': 'etest_id'}"/>
+                        <filter name="group_type" string="Test Type"
+                                domain="[]" context="{'group_by': 'type_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_user_rights_search" model="ir.ui.view">
+            <field name="name">res.users.cbt.rights.search</field>
+            <field name="model">res.users</field>
+            <field name="arch" type="xml">
+                <search string="CBT Users">
+                    <field name="name"/>
+                    <field name="login"/>
+                    <field name="cbt_role"/>
+                    <filter name="admin_role" string="Admin Role"
+                            domain="[('cbt_role', '=', 'admin')]"/>
+                    <filter name="faculty_role" string="Faculty Role"
+                            domain="[('cbt_role', '=', 'faculty')]"/>
+                    <filter name="inactive" string="Archived"
+                            domain="[('active', '=', False)]"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_role" string="CBT Role"
+                                domain="[]" context="{'group_by': 'cbt_role'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_tasks_setupaction_window"
+                model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_jobs_search"/>
+        </record>
+        <record id="cbt_session_action" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_session_search"/>
+        </record>
+        <record id="cbt_program_course_action" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_program_courses_search"/>
+        </record>
+        <record id="cbt_generate_paper_rules_action_window"
+                model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_paper_criteria_rule_search"/>
+        </record>
+        <record id="cbt_paper_generator_action" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_paper_generator_search"/>
+        </record>
+        <record id="cbt_paper_action" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_paper_search"/>
+            <field name="context">{'search_default_group_generator': 1}</field>
+        </record>
+        <record id="cbt_paper_replacement_log_action"
+                model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_paper_replacement_log_search"/>
+        </record>
+        <record id="cbt_paper_conduct_action" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_paper_conduct_search"/>
+        </record>
+        <record id="cbt_paper_result_batch_action"
+                model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_paper_result_batch_search"/>
+        </record>
+        <record id="cbt_student_paper_action" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_student_paper_search"/>
+        </record>
+        <record id="action_cbt_participant" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_participant_search"/>
+        </record>
+        <record id="action_cbt_center" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_center_search"/>
+        </record>
+        <record id="action_cbt_user_rights" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_user_rights_search"/>
+        </record>
+        <record id="cbt_program_action" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_program_search"/>
+        </record>
+        <record id="cbt_subject_setupaction_window"
+                model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_sub_search"/>
+        </record>
+        <record id="cbt_topic_setupaction_window"
+                model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_subject_topic_search"/>
+        </record>
+        <record id="cbt_subtopic_action_window"
+                model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_subtopic_search"/>
+        </record>
+        <record id="cbt_question_type_action" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_question_type_search"/>
+        </record>
+        <record id="cbt_question_skill_action" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_question_skill_search"/>
+        </record>
+        <record id="cbt_question_difficulty_level_action"
+                model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_question_difficulty_level_search"/>
+        </record>
+        <record id="cbt_question_time_action" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_question_time_search"/>
+        </record>
+        <record id="cbt_test_action" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_test_search"/>
+        </record>
+        <record id="cbt_test_type_action" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_test_type_search"/>
+        </record>
+        <record id="cbt_mcqs_setupaction_window"
+                model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_mcqs_search"/>
+        </record>
+        <record id="cbt_generate_paper_action_window"
+                model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_generate_paper_criteria_search"/>
+        </record>
+    </data>
+</odoo>
