@@ -43,10 +43,13 @@
                  <header>
                      <button name="action_start_candidate_test" string="Start Candidate Test"
                              type="object" class="btn-primary"
+                             groups="cbt_portal.group_cbt_admin"
                              invisible="paper_started or not batch_id or batch_id.state != 'active'"/>
                      <button name="action_finish_candidate_test" string="Finish Candidate Test"
                              type="object" class="btn-danger"
-                             invisible="not paper_started or end_paper"/>
+                             groups="cbt_portal.group_cbt_admin"
+                             confirm="Finish this candidate's test now? Only this candidate's test will be stopped; the rest of the batch will remain active."
+                             invisible="not paper_started or end_paper or not batch_id or batch_id.state not in ('active', 'finished')"/>
                      <button name="clear" string="Clear Session" type="object" class="oe_highlight"/>
                      <button name="restore" string="Restore Session" type="object" class="oe_highlight"
                         invisible="not end_paper"/>

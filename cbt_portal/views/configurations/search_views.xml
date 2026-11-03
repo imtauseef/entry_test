@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="cbt_paper_export_search" model="ir.ui.view">
+            <field name="name">cbt.paper.export.search</field>
+            <field name="model">cbt.paper.export</field>
+            <field name="arch" type="xml">
+                <search string="Candidate Papers">
+                    <field name="login"/>
+                    <field name="name"/>
+                    <field name="paper_name"/>
+                    <field name="program"/>
+                    <field name="test_center"/>
+                    <field name="batch_id"/>
+                    <field name="test_date"/>
+                    <filter name="not_started" string="Not Started"
+                            domain="[('paper_started', '=', False)]"/>
+                    <filter name="started" string="Started"
+                            domain="[('paper_started', '!=', False)]"/>
+                    <filter name="finished" string="Finished"
+                            domain="[('end_paper', '=', True)]"/>
+                    <filter name="not_finished" string="Not Finished"
+                            domain="[('end_paper', '=', False)]"/>
+                    <filter name="logged_in" string="Logged In"
+                            domain="[('is_login', '=', True)]"/>
+                    <filter name="not_logged_in" string="Not Logged In"
+                            domain="[('is_login', '=', False)]"/>
+                    <filter name="archived" string="Archived"
+                            domain="[('active', '=', False)]"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_batch" string="Test Batch"
+                                domain="[]" context="{'group_by': 'batch_id'}"/>
+                        <filter name="group_program" string="Program"
+                                domain="[]" context="{'group_by': 'program'}"/>
+                        <filter name="group_center" string="Test Center"
+                                domain="[]" context="{'group_by': 'test_center'}"/>
+                        <filter name="group_test_date" string="Test Date"
+                                domain="[]" context="{'group_by': 'test_date:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_subject_export_search" model="ir.ui.view">
+            <field name="name">cbt.subject.export.search</field>
+            <field name="model">cbt.subject.export</field>
+            <field name="arch" type="xml">
+                <search string="Paper Subjects">
+                    <field name="name"/>
+                    <field name="paper_id"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_paper" string="Paper"
+                                domain="[]" context="{'group_by': 'paper_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_instruction_export_search" model="ir.ui.view">
+            <field name="name">cbt.instruction.export.portal.search</field>
+            <field name="model">cbt.instruction.export</field>
+            <field name="arch" type="xml">
+                <search string="Paper Instructions">
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_paper_question_feedback_type_search"
+                model="ir.ui.view">
+            <field name="name">cbt.paper.question.feedback.type.search</field>
+            <field name="model">cbt.paper.question.feedback.type</field>
+            <field name="arch" type="xml">
+                <search string="Question Feedback Options">
+                    <field name="name"/>
+                    <filter name="other" string="Other"
+                            domain="[('is_other', '=', True)]"/>
+                    <filter name="regular" string="Regular Option"
+                            domain="[('is_other', '=', False)]"/>
+                    <filter name="archived" string="Archived"
+                            domain="[('active', '=', False)]"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_other" string="Other"
+                                domain="[]" context="{'group_by': 'is_other'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_paper_question_feedback_search" model="ir.ui.view">
+            <field name="name">cbt.paper.question.feedback.search</field>
+            <field name="model">cbt.paper.question.feedback</field>
+            <field name="arch" type="xml">
+                <search string="Candidate Question Feedback">
+                    <field name="candidate_id"/>
+                    <field name="candidate_name"/>
+                    <field name="source_question_id"/>
+                    <field name="feedback_type_id"/>
+                    <field name="feedback_type_name"/>
+                    <field name="paper_id"/>
+                    <field name="create_date"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_type" string="Feedback Type"
+                                domain="[]" context="{'group_by': 'feedback_type_id'}"/>
+                        <filter name="group_candidate" string="Candidate"
+                                domain="[]" context="{'group_by': 'candidate_id'}"/>
+                        <filter name="group_date" string="Submitted Date"
+                                domain="[]" context="{'group_by': 'create_date:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="cbt_paper_export_batch_search" model="ir.ui.view">
+            <field name="name">cbt.paper.export.batch.search</field>
+            <field name="model">cbt.paper.export.batch</field>
+            <field name="arch" type="xml">
+                <search string="Test Batches">
+                    <field name="name"/>
+                    <field name="state"/>
+                    <field name="activated_at"/>
+                    <field name="finished_at"/>
+                    <filter name="imported" string="Imported"
+                            domain="[('state', '=', 'imported')]"/>
+                    <filter name="active" string="Active"
+                            domain="[('state', '=', 'active')]"/>
+                    <filter name="finished" string="Test Finished"
+                            domain="[('state', '=', 'finished')]"/>
+                    <filter name="results_collected" string="Results Collected"
+                            domain="[('state', '=', 'result_collected')]"/>
+                    <group expand="0" string="Group By...">
+                        <filter name="group_state" string="Status"
+                                domain="[]" context="{'group_by': 'state'}"/>
+                        <filter name="group_activated" string="Activation Date"
+                                domain="[]" context="{'group_by': 'activated_at:month'}"/>
+                        <filter name="group_finished" string="Finish Date"
+                                domain="[]" context="{'group_by': 'finished_at:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_cbt_paper_list" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_paper_export_search"/>
+        </record>
+        <record id="action_cbt_subject" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_subject_export_search"/>
+        </record>
+        <record id="action_cbt_instruction" model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_instruction_export_search"/>
+        </record>
+        <record id="action_cbt_question_feedback_type"
+                model="ir.actions.act_window">
+            <field name="search_view_id"
+                   ref="cbt_paper_question_feedback_type_search"/>
+        </record>
+        <record id="action_cbt_question_feedback"
+                model="ir.actions.act_window">
+            <field name="search_view_id"
+                   ref="cbt_paper_question_feedback_search"/>
+        </record>
+        <record id="cbt_paper_export_batch_action"
+                model="ir.actions.act_window">
+            <field name="search_view_id" ref="cbt_paper_export_batch_search"/>
+        </record>
+    </data>
+</odoo>

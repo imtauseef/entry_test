@@ -6,7 +6,7 @@
     'sequence': 4,
     'author': "NUST & AARSOL",
     'website': "https://www.aarsol.com",
-    'version': '0.1',
+    'version': '0.2',
     'depends': [
         'base',
         'website_partner',
@@ -19,6 +19,7 @@
     'external_dependencies': {
         'python': ['msoffcrypto'],
     },
+    'post_init_hook': 'post_init_hook',
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
@@ -51,6 +52,8 @@
         'views/student_paper.xml',
         # 'views/instructions.xml',
         'views/res_config_setting_inherit.xml',
+        'views/user_rights.xml',
+        'views/search_views.xml',
         # 'wizard/cbt_api_wizard_views.xml',
         # 'wizard/import_data_wizard.xml',
         # 'views/cbt_export.xml',
@@ -66,6 +69,8 @@
             'cbt/static/src/css/question_health.css',
             'cbt/static/src/css/excel_password_prompt.css',
             'cbt/static/src/xml/excel_password_prompt.xml',
+            'cbt/static/src/js/hide_apps_menu.js',
+            'cbt/static/src/js/block_internal_links.js',
         ],
     },
 }

@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import base64
+import re
 
 from odoo import fields, models, _
-from odoo.addons.cbt.models.allocation_xlsx import (
+from .allocation_xlsx import (
     build_allocation_xlsx,
     encrypt_xlsx,
     excel_password_prompt_action,
@@ -43,7 +44,7 @@ class CBTPaperExportBatch(models.Model):
     ]
 
     def _check_cbt_admin(self):
-        if not self.env.user.has_group('cbt.group_cbt_admin'):
+        if not self.env.user.has_group('cbt_portal.group_cbt_admin'):
             raise UserError(_('Only CBT administrators may manage test batches.'))
 
     def action_start_test(self):
@@ -260,9 +261,10 @@ class CBTPaperExportBatch(models.Model):
 
         workbook = encrypt_xlsx(build_allocation_xlsx([
             ('Manifest', [
-                ['schema_version', '1.2'],
+                ['schema_version', '1.3'],
                 ['source_system_id', self.source_system_id],
                 ['source_batch_export_id', self.source_export_id],
+                ['source_batch_name', self.name],
                 ['source_generator_id', self.source_generator_id],
                 ['paper_count', len(attended_papers)],
                 ['answer_count', len(answer_rows) - 1],
@@ -272,8 +274,10 @@ class CBTPaperExportBatch(models.Model):
             ('Papers', paper_rows),
             ('Answers', answer_rows),
         ]), workbook_password)
+        filename = re.sub(
+            r'[^A-Za-z0-9._ -]+', '_', self.name or '').strip(' .-_')[:120]
         attachment = self.env['ir.attachment'].sudo().create({
-            'name': '%s_results.xlsx' % self.source_export_id.replace(':', '_'),
+            'name': '%s_results.xlsx' % (filename or 'results'),
             'datas': base64.b64encode(workbook),
             'mimetype': (
                 'application/vnd.openxmlformats-officedocument.'

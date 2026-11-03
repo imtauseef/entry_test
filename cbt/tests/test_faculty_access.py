@@ -100,7 +100,8 @@ class TestFacultyAccess(TransactionCase):
             state='submitted', current_user=cls.creator)
 
     @classmethod
-    def _question(cls, subject, topic, subtopic, state, current_user):
+    def _question(cls, subject, topic, subtopic, state, current_user,
+                  include_time=True):
         values = {
             'subject_id': subject.id,
             'topic_id': topic.id,
@@ -108,7 +109,6 @@ class TestFacultyAccess(TransactionCase):
             'type_id': cls.question_type.id,
             'skill_id': cls.question_skill.id,
             'difficulty_level_id': cls.difficulty.id,
-            'time_id': cls.question_time.id,
             'question': '<p>Question</p>',
             'ans1': '<p>A</p>',
             'ans2': '<p>B</p>',
@@ -118,7 +118,15 @@ class TestFacultyAccess(TransactionCase):
             'state': state,
             'current_user': current_user.id,
         }
+        if include_time:
+            values['time_id'] = cls.question_time.id
         return cls.env['cbt.mcqs'].create(values)
+
+    def test_question_can_be_created_without_time(self):
+        question = self._question(
+            self.subject_a, self.topic_a, self.subtopic_a,
+            state='draft', current_user=self.admin, include_time=False)
+        self.assertFalse(question.time_id)
 
     def test_subject_master_scope(self):
         faculty_env = self.env(user=self.faculty)
@@ -207,6 +215,35 @@ class TestFacultyAccess(TransactionCase):
         })
         self.assertEqual(question.current_user, self.faculty)
         self.assertEqual(question.state, 'draft')
+
+    def test_question_create_with_user_rights_subject_scope_allowed(self):
+        self.env['cbt.employee.role'].create({
+            'employee_id': self.faculty_employee.id,
+            'user_id': self.faculty.id,
+            'subject_ids': [(6, 0, [self.subject_b.id])],
+            'topic_ids': [(6, 0, [self.topic_b.id])],
+            'subtopic_ids': [(6, 0, [self.subtopic_b.id])],
+            'create_access': True,
+            'review_access': False,
+        })
+
+        question = self.env['cbt.mcqs'].with_user(self.faculty).create({
+            'subject_id': self.subject_b.id,
+            'topic_id': self.topic_b.id,
+            'stopic_id': self.subtopic_b.id,
+            'type_id': self.question_type.id,
+            'skill_id': self.question_skill.id,
+            'difficulty_level_id': self.difficulty.id,
+            'time_id': self.question_time.id,
+            'question': '<p>Allowed through User Rights scope</p>',
+            'ans1': '<p>A</p>',
+            'ans2': '<p>B</p>',
+            'ans3': '<p>C</p>',
+            'ans4': '<p>D</p>',
+        })
+
+        self.assertEqual(question.subject_id, self.subject_b)
+        self.assertEqual(question.current_user, self.faculty)
 
     def test_question_hierarchy_constraint_applies_to_admin_writes(self):
         with self.assertRaises(ValidationError):

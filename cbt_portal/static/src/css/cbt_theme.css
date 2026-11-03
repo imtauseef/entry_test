@@ -59,7 +59,17 @@
 .cbt-widgets {
   margin-top: 1rem;
 }
+.cbt-stats .row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+.cbt-stats .cbt-stat-column {
+  display: flex;
+}
 .cbt-stat-card {
+  width: 100%;
+  min-height: 100%;
   margin: 0.5rem 0;
   border-radius: 10px;
   overflow: hidden;
@@ -84,9 +94,9 @@
 .cbt-stat-name {
   font-size: 1.05rem;
   font-weight: 600;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 .cbt-stat-sub {
   font-size: 0.8rem;
@@ -411,12 +421,11 @@ ul.stepper .step-content {
 .cbt-paginate .pager {
   display: flex;
   align-items: center;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 0.4rem;
   margin: 0.75rem 0;
   padding: 0.55rem;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: visible;
   background: #f5f7fa;
   border: 1px solid #e3e8ef;
   border-radius: 10px;
@@ -480,6 +489,54 @@ ul.stepper .step-content {
 .cbt-paginate .pageNumbers a {
   color: #1565c0 !important;
   text-decoration: none;
+}
+.cbt-question-jump {
+  display: flex;
+  align-items: end;
+  gap: 0.6rem;
+  margin: 0.75rem 0 1rem;
+}
+.cbt-question-jump label {
+  display: flex;
+  flex: 0 1 18rem;
+  flex-direction: column;
+  gap: 0.3rem;
+  color: #546e7a;
+  font-size: 0.85rem;
+}
+.cbt-question-jump select {
+  width: 100%;
+  min-height: 2.6rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid #cfd8dc;
+  border-radius: 6px;
+  background-color: #fff;
+}
+.cbt-question-jump-go {
+  min-height: 2.6rem;
+  padding: 0.45rem 1rem;
+  border: 0;
+  border-radius: 6px;
+  background: linear-gradient(45deg, #1565c0, #1e88e5);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+@media (max-width: 600px) {
+  .cbt-stats .row {
+    display: block;
+  }
+  .cbt-stats .cbt-stat-column {
+    display: block;
+  }
+  .cbt-question-jump {
+    align-items: stretch;
+  }
+  .cbt-question-jump label {
+    flex-basis: 0;
+    flex-grow: 1;
+    min-width: 0;
+  }
 }
 
 /* Summary grid (finish page) */

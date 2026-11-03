@@ -1,43 +1,65 @@
-$(document).ready(function () {
-    if (!$("#timer").length) {
-        return;
-    }
-    function parseTime(s) {
-        var part = s.match(/(\d+):(\d+)(?: )?(am|pm)?/i);
-        var hh = parseInt(part[1], 10);
-        var mm = parseInt(part[2], 10);
-        var ap = part[3] ? part[3].toUpperCase() : null;
-        if (ap === "AM") {
-            if (hh == 12) {
-                hh = 0;
-            }
-        }
-        if (ap === "PM") {
-            if (hh != 12) {
-                hh += 12;
-            }
-        }
-        var currentYearMonthDay = new Date();
-        return new Date(currentYearMonthDay.getFullYear(), currentYearMonthDay.getMonth(), currentYearMonthDay.getDate(), hh, mm);
-    }
-    var interval = setInterval(function () {
+(function () {
+    function initializeTestAvailability() {
         var startEl = document.getElementById('paper_start');
         var startTimeEl = document.getElementById('paper_start_time');
-        if (!startEl || !startTimeEl) {
-            clearInterval(interval);
+        var errorEl = document.getElementById('paper_error');
+        if (!startEl || !startTimeEl || !errorEl) {
             return;
         }
-        var timer = parseTime($("#timer").val());
-        var currentTime = new Date();
-        if (timer < currentTime) {
-            startEl.style.display = 'block';
-            startTimeEl.style.display = 'none';
-        } else {
-            startEl.style.display = 'none';
-            startTimeEl.style.display = 'block';
+
+        var checking = false;
+        function updateAvailability() {
+            if (checking) {
+                return;
+            }
+            checking = true;
+            fetch('/cbt/test/availability', {
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: {'Accept': 'application/json'},
+            }).then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Availability request failed: ' + response.status);
+                }
+                return response.json();
+            }).then(function (data) {
+                if (data.session_ended) {
+                    window.location.assign('/web/login?redirect=%2Fcbt%2Fhome');
+                    return;
+                }
+                if (data.available) {
+                    startEl.style.display = 'block';
+                    startTimeEl.style.display = 'none';
+                    errorEl.style.display = 'none';
+                    return;
+                }
+                startEl.style.display = 'none';
+                startTimeEl.style.display = 'none';
+                errorEl.style.display = 'block';
+                errorEl.textContent =
+                    'Waiting for the administrator to start the test.';
+            }).catch(function (error) {
+                console.error('Unable to check test availability:', error);
+                errorEl.style.display = 'block';
+                errorEl.textContent =
+                    'Unable to check test availability. Please try again.';
+            }).finally(function () {
+                checking = false;
+            });
         }
-    }, 1000);
-    window.addEventListener('contextmenu', function (e) {
-        e.preventDefault();
+
+        updateAvailability();
+        window.setInterval(updateAvailability, 2000);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener(
+            'DOMContentLoaded', initializeTestAvailability);
+    } else {
+        initializeTestAvailability();
+    }
+
+    window.addEventListener('contextmenu', function (event) {
+        event.preventDefault();
     }, false);
-});
+}());

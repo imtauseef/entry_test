@@ -3,7 +3,7 @@ import re
 from odoo import fields, models, _, api
 import pdb
 import math
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import ValidationError
 import random
 
 
@@ -12,7 +12,9 @@ class CBTGeneratePaper(models.Model):
     _description = 'Paper Criteria'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    current_user = fields.Many2one('res.users', 'Created By', default=lambda self: self.env.user, readonly="True")
+    current_user = fields.Many2one(
+        'res.users', 'Created By', default=lambda self: self.env.user,
+        readonly=True)
     name = fields.Char(string='Paper Criteria Name', tracking=True)
     duration = fields.Char(string='Duration (Minutes)', tracking=True)
     etest_id = fields.Many2one('cbt.test', 'Entry Test', tracking=True)
@@ -35,22 +37,66 @@ class CBTGeneratePaper(models.Model):
         'cbt.paper', 'criteria_id', string='Generated Papers')
     paper_count = fields.Integer(
         string='Generated Papers', compute='_compute_paper_count')
-    rules_ids = fields.One2many('cbt.paper.criteria.rule', 'paper_id', string='Rules ID', required="True",
+    rules_ids = fields.One2many('cbt.paper.criteria.rule', 'paper_id', string='Rules ID', required=True,
                                 tracking=True)
+
+    @staticmethod
+    def _question_count(value, label, required=True):
+        if value in (None, False, ''):
+            if required:
+                raise ValidationError(_('%s is required.') % label)
+            return None
+        try:
+            count = int(value)
+        except (TypeError, ValueError, OverflowError):
+            raise ValidationError(_('%s must be a whole number.') % label)
+        if count < 0:
+            raise ValidationError(_('%s cannot be negative.') % label)
+        return count
 
     @api.model
     def create(self, vals):
-        result = super().create(vals)
-        if vals.get('total_questions') != vals.get('total_questions_compute'):
-            raise UserError(_("Number of questions in subject should be equal to total number of questions"))
-        else:
-            return result
+        result = super(
+            CBTGeneratePaper,
+            self.with_context(cbt_defer_question_count_validation=True),
+        ).create(vals)
+        result._validate_question_counts()
+        return result
+
+    def write(self, vals):
+        result = super(
+            CBTGeneratePaper,
+            self.with_context(cbt_defer_question_count_validation=True),
+        ).write(vals)
+        self._validate_question_counts()
+        return result
+
+    def _validate_question_counts(self):
+        for criteria in self:
+            rules = criteria.rules_ids
+            for rule in rules:
+                rule._validate_question_counts()
+
+            total = criteria._question_count(
+                criteria.total_questions, _('Total Questions'), required=False)
+            if total is None:
+                continue
+            section_total = sum(
+                criteria._question_count(
+                    rule.no_questions, _('Section question count'))
+                for rule in rules)
+            if total != section_total:
+                raise ValidationError(_(
+                    'The total number of questions (%(total)s) must equal '
+                    'the sum of section question counts (%(sections)s).'
+                ) % {'total': total, 'sections': section_total})
 
     @api.onchange('rules_ids')
     def change_total_question_lines(self):
         count = 0
         for each in self.rules_ids:
-            count = count + int(each.no_questions)
+            count += self._question_count(
+                each.no_questions, _('Section question count'))
         self.total_questions_compute = str(count)
 
     @api.depends('paper_ids')
@@ -221,6 +267,7 @@ class CBTGeneratePaper(models.Model):
 class CBTPaperCriteriaRule(models.Model):
     _name = 'cbt.paper.criteria.rule'
     _description = 'Paper rules'
+    _inherit = ['cbt.line.access']
 
     subjects = fields.Many2one('cbt.subject', 'Subjects', required=True)
     topic_rules = fields.One2many('cbt.paper.criteria.rule.topic', 'criteria_rule_id', 'Topic Rules')
@@ -240,47 +287,86 @@ class CBTPaperCriteriaRule(models.Model):
 
     @api.model
     def create(self, vals):
-        result = super().create(vals)
-        if not vals.get('difficulty_rules'):
-            raise UserError(_("Please Define Paper Difficulty Criteria in Paper Rules"))
-        elif vals.get('no_questions') != vals.get('total_questions_difficulty_rule'):
-            raise ValidationError(_("Number of Questions in Subject and Difficult Level Criteria should be equal"))
-        elif vals.get('topic_rules'):
-            if vals.get('no_questions') != vals.get('total_questions_topic_rule'):
-                raise ValidationError(_("Number of Questions in Subject and Topics/Subtopics Criteria should be equal"))
-
+        model = self.sudo() if self._cbt_can_elevate() else self
+        result = super(
+            CBTPaperCriteriaRule,
+            model.with_context(cbt_defer_question_count_validation=True),
+        ).create(vals)
+        if not self.env.context.get('cbt_defer_question_count_validation'):
+            result._validate_question_counts()
+            result.mapped('paper_id')._validate_question_counts()
         return result
+
+    def write(self, vals):
+        model = self.sudo() if self._cbt_can_elevate() else self
+        previous_criteria = model.mapped('paper_id')
+        result = super(
+            CBTPaperCriteriaRule,
+            model.with_context(cbt_defer_question_count_validation=True),
+        ).write(vals)
+        if not model.env.context.get('cbt_defer_question_count_validation'):
+            model._validate_question_counts()
+            (previous_criteria | model.mapped('paper_id'))._validate_question_counts()
+        return result
+
+    def unlink(self):
+        criteria = self.mapped('paper_id')
+        result = super().unlink()
+        if not self.env.context.get('cbt_defer_question_count_validation'):
+            criteria._validate_question_counts()
+        return result
+
+    def _validate_question_counts(self):
+        for rule in self:
+            if not rule.difficulty_rules:
+                raise ValidationError(
+                    _("Please Define Paper Difficulty Criteria in Paper Rules"))
+            section_count = self.env[
+                'cbt.paper.criteria']._question_count(
+                    rule.no_questions, _('Section question count'))
+            for field_name, label in (
+                    ('difficulty_rules', _('Paper Difficulty')),
+                    ('topic_rules', _('Paper Topic Rules'))):
+                lines = rule[field_name]
+                if not lines:
+                    continue
+                line_total = sum(
+                    self.env['cbt.paper.criteria']._question_count(
+                        line.no_questions, _('%s question count') % label)
+                    for line in lines)
+                if line_total > section_count:
+                    raise ValidationError(_(
+                        '%(rule)s question counts (%(count)s) cannot exceed '
+                        'the section question count (%(section)s).'
+                    ) % {
+                        'rule': label,
+                        'count': line_total,
+                        'section': section_count,
+                    })
 
     @api.onchange('difficulty_rules')
     def change_total_question_lines(self):
         count = 0
         for difficulty_rule in self.difficulty_rules:
-            count = count + int(difficulty_rule.no_questions)
+            count += self.env['cbt.paper.criteria']._question_count(
+                difficulty_rule.no_questions,
+                _('Paper Difficulty question count'))
         self.total_questions_difficulty_rule = str(count)
 
     @api.onchange('topic_rules')
     def change_total_questions_topics_lines(self):
         count = 0
         for topic_rule in self.topic_rules:
-            count = count + int(topic_rule.no_questions)
+            count += self.env['cbt.paper.criteria']._question_count(
+                topic_rule.no_questions,
+                _('Paper Topic Rules question count'))
         self.total_questions_topic_rule = str(count)
-
-    def write(self, vals):
-        result = super().write(vals)
-        if not self.difficulty_rules:
-            raise UserError(_("Please Define Paper Difficulty Criteria in Paper Rules"))
-        elif self.no_questions != self.total_questions_difficulty_rule:
-            raise ValidationError(_("Number of Questions in Subject and Difficult Level Criteria should be equal"))
-        elif self.topic_rules:
-            if self.no_questions != self.total_questions_topic_rule and int(self.total_questions_topic_rule) > 0:
-                raise ValidationError(_("Number of Questions in Subject and Topics/Subtopics Criteria should be equal"))
-
-        return result
 
 
 class CBTPaperCriteriaRuleTopic(models.Model):
     _name = 'cbt.paper.criteria.rule.topic'
     _description = 'Paper Rule Topic'
+    _inherit = ['cbt.line.access']
 
     topic_id = fields.Many2one('cbt.subject.topic', 'Topic')
     sub_topic_id = fields.Many2one('cbt.subject.subtopic', 'Sub Topic')
@@ -289,22 +375,79 @@ class CBTPaperCriteriaRuleTopic(models.Model):
     no_questions = fields.Char(string='Number of Questions', required=True)
     subjects = fields.Many2one(related='criteria_rule_id.subjects')
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super(
+            CBTPaperCriteriaRuleTopic,
+            self.with_context(cbt_defer_question_count_validation=True),
+        ).create(vals_list)
+        _validate_rule_question_count_changes(self, records.mapped('criteria_rule_id'))
+        return records
 
+    def write(self, vals):
+        rules = self.mapped('criteria_rule_id')
+        result = super(
+            CBTPaperCriteriaRuleTopic,
+            self.with_context(cbt_defer_question_count_validation=True),
+        ).write(vals)
+        rules |= self.mapped('criteria_rule_id')
+        _validate_rule_question_count_changes(self, rules)
+        return result
+
+    def unlink(self):
+        rules = self.mapped('criteria_rule_id')
+        result = super().unlink()
+        _validate_rule_question_count_changes(self, rules)
+        return result
 
 
 class CBTPaperCriteriaRuleDifficulty(models.Model):
     _name = 'cbt.paper.criteria.rule.difficulty'
     _description = 'Paper Rule Difficulty'
+    _inherit = ['cbt.line.access']
 
     difficulty_level_id = fields.Many2one('cbt.question.difficulty.level', 'Difficulty Level', required=True)
     criteria_rule_id = fields.Many2one('cbt.paper.criteria.rule', 'Criteria Rule')
     no_questions = fields.Char(string='Number of Questions', required=True)
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super(
+            CBTPaperCriteriaRuleDifficulty,
+            self.with_context(cbt_defer_question_count_validation=True),
+        ).create(vals_list)
+        _validate_rule_question_count_changes(self, records.mapped('criteria_rule_id'))
+        return records
+
+    def write(self, vals):
+        rules = self.mapped('criteria_rule_id')
+        result = super(
+            CBTPaperCriteriaRuleDifficulty,
+            self.with_context(cbt_defer_question_count_validation=True),
+        ).write(vals)
+        rules |= self.mapped('criteria_rule_id')
+        _validate_rule_question_count_changes(self, rules)
+        return result
+
+    def unlink(self):
+        rules = self.mapped('criteria_rule_id')
+        result = super().unlink()
+        _validate_rule_question_count_changes(self, rules)
+        return result
+
 
 class CBTPaperCriteriaRuleType(models.Model):
     _name = 'cbt.paper.criteria.rule.type'
     _description = 'Paper Rule Type'
+    _inherit = ['cbt.line.access']
 
     type_id = fields.Many2one('cbt.question.type', 'Type')
     criteria_rule_id = fields.Many2one('cbt.paper.criteria.rule', 'Criteria Rule')
     no_questions = fields.Char(string='Number of Questions', required=True)
+
+
+def _validate_rule_question_count_changes(env_model, rules):
+    if env_model.env.context.get('cbt_defer_question_count_validation'):
+        return
+    rules._validate_question_counts()
+    rules.mapped('paper_id')._validate_question_counts()

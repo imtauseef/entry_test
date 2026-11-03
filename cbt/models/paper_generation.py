@@ -35,7 +35,8 @@ class CBTPaperGenerator(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     current_user = fields.Many2one(
-        'res.users', 'Created By', default=lambda self: self.env.user, readonly="True")
+        'res.users', 'Created By', default=lambda self: self.env.user,
+        readonly=True)
     name = fields.Char(string='Paper Name', tracking=True, required=True)
     criteria_id = fields.Many2one('cbt.paper.criteria', 'Paper Criteria', tracking=True, required=True)
     etest_id = fields.Many2one('cbt.test', 'Entry Test', tracking=True, readonly=True)
@@ -587,7 +588,9 @@ class CBTPaperGenerator(models.Model):
                 raise UserError(_(
                     'Participant %s is missing a valid examination schedule.'
                 ) % participant.display_name)
-            test_time = float(slot.time)
+            # XLSX numeric cells have finite decimal precision. Keep the
+            # hashed and exported value stable across the XLSX round trip.
+            test_time = round(float(slot.time), 8)
             if not math.isfinite(test_time) or not 0 <= test_time < 24:
                 raise UserError(_(
                     'Participant %s has an invalid examination start time.'
@@ -837,17 +840,19 @@ class CBTPaperGenerator(models.Model):
             ('participant_id', 'in', participants.ids),
         ])
         already_allocated = set(existing_allocations.mapped('participant_id').ids)
-        for index, participant in enumerate(participants):
+        allocation_index = 0
+        for participant in participants:
             if participant.id in already_allocated:
                 continue
             if unique_mode:
-                paper = papers[index % len(papers)]
+                paper = papers[allocation_index % len(papers)]
             else:
                 if not available_paper_ids:
                     available_paper_ids = paper_ids[:]
                 random.shuffle(available_paper_ids)
                 paper = self.env['cbt.paper'].browse(
                     available_paper_ids.pop())
+            allocation_index += 1
             question_list = [ques.id for ques in paper.questions]
             random.shuffle(question_list)
             papers_data = {
@@ -858,9 +863,17 @@ class CBTPaperGenerator(models.Model):
             participant_paper = self.env['cbt.student.paper'].create(
                 papers_data)
             participant_paper.question_sequence = question_list
-            participant_paper.main_paper_id.slot_id.duration = paper_generator.criteria_id.duration
             paper.student_paper_gen = True
         self.state = 'done'
-        return self.with_context(
-            cbt_allocation_warning=warning_message,
-        ).action_open_allocation_export_password_prompt()
+        if warning_message:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Paper Allocation'),
+                    'message': warning_message,
+                    'type': 'warning',
+                    'sticky': True,
+                },
+            }
+        return {'type': 'ir.actions.client', 'tag': 'reload'}

@@ -53,6 +53,29 @@ class CBTHome(http.Controller):
         return request.render('cbt_portal.cbt_instruction', values)
 
     @http.route(
+        ['/cbt/test/availability'], type='http', auth='user', website=True,
+        csrf=False, methods=['GET'])
+    def cbt_portal_test_availability(self, **kw):
+        if not main.cbt_session_valid(request):
+            data = {'session_ended': True}
+        else:
+            _values, _success, user = main.prepare_portal_values(request)
+            papers = request.env['cbt.paper.export'].sudo().search([
+                ('user_id', '=', user.id),
+                ('batch_id.state', '=', 'active'),
+                ('paper_started', '=', False),
+                ('end_paper', '=', False),
+            ], order='batch_id desc, id desc', limit=2)
+            data = {'available': len(papers) == 1}
+        return request.make_response(
+            json.dumps(data),
+            headers=[
+                ('Content-Type', 'application/json'),
+                ('Cache-Control', 'no-store'),
+            ],
+        )
+
+    @http.route(
         ['/cbt/paper'], type='http', auth='user', website=True,
         methods=['GET', 'POST'])
     def cbt_portal_paper(self, **kw):

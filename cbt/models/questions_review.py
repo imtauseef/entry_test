@@ -9,7 +9,9 @@ class CBTReviewQuestions(models.Model):
     _description = 'Review Question'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    current_user = fields.Many2one('res.users', 'Reviewed By', default=lambda self: self.env.user, readonly="True")
+    current_user = fields.Many2one(
+        'res.users', 'Reviewed By', default=lambda self: self.env.user,
+        readonly=True)
     questions = fields.Many2many('cbt.mcqs', string='Questions', tracking=True)
     remarks = fields.Char('Reviewer Remarks', tracking=True)
     search_ids = fields.Char(compute="_compute_search_ids",search='search_ids_search')
@@ -25,7 +27,6 @@ class CBTReviewQuestions(models.Model):
 
         mcqs = self.env['cbt.mcqs'].search([('questions.subject_id','in',subject_list),('questions.current_user','!=',self.current_user)]).ids
         return [('id','in',mcqs)]
-
 
 
 

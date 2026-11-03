@@ -7,7 +7,7 @@ import re
 from collections import defaultdict
 
 from odoo import fields, models, _
-from odoo.addons.cbt.models.allocation_xlsx import (
+from ..models.allocation_xlsx import (
     decrypt_xlsx,
     excel_password_prompt_action,
     load_allocation_xlsx,
@@ -228,7 +228,9 @@ class CBTPaperImportWizard(models.TransientModel):
             if row['source_schedule_id']:
                 self._source_record_id(row['source_schedule_id'], 'Papers', row)
             row['_date'] = self._parse_date(row['test_date'], row)
-            row['_time'] = self._as_float(row['test_time'], row, 'test_time')
+            # Match the source export's XLSX-safe precision before hashing.
+            row['_time'] = round(
+                self._as_float(row['test_time'], row, 'test_time'), 8)
             row['_duration'] = self._as_integer(row['test_duration'], row)
             row['_cid'] = self._as_integer(row['cid'], row)
             row['_shuffle'] = self._as_boolean(row['shuffle_section'], row)
@@ -504,7 +506,6 @@ class CBTPaperImportWizard(models.TransientModel):
                     'source_template_paper_id': allocation[
                         'source_template_paper_id'],
                     'source_payload_hash': allocation['payload_sha256'],
-                    'participant_id': False,
                     'server_id': allocation['_server_id'],
                     'user_id': portal_user.id,
                     'login': portal_user.login,

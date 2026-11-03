@@ -35,6 +35,8 @@
                                     <tree editable="bottom">
                                         <field name="date" />
                                         <field name="time" widget="float_time"/>
+                                        <field name="time_to" widget="float_time" required="1"/>
+                                        <field name="duration"/>
                                         <field name="active_time"/>
                                         <field name="capacity"/>
 <!--                                        <field name="credit_hours"/>-->

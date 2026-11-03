@@ -89,10 +89,10 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-        <menuitem name="Question Audit Log"
-                  id="cbt_mcqs_audit_log_menu"
-                  parent="cbt_question_bank"
-                  action="cbt_mcqs_audit_log_action"
-                  groups="cbt.group_cbt_faculty,cbt.group_cbt_admin"/>
+<!--        <menuitem name="Question Audit Log"-->
+<!--                  id="cbt_mcqs_audit_log_menu"-->
+<!--                  parent="cbt_question_bank"-->
+<!--                  action="cbt_mcqs_audit_log_action"-->
+<!--                  groups="cbt.group_cbt_faculty,cbt.group_cbt_admin"/>-->
     </data>
 </odoo>

@@ -10,7 +10,7 @@
                     <field name="sequence" widget="handle"/>
                     <field name="code"/>
                     <field name="name"/>
-                    <field name="old_id"/>
+                    <!-- <field name="old_id"/> -->
                     <field name="description"/>
                 </tree>
             </field>
@@ -25,7 +25,6 @@
                     <field name="name"/>
                     <field name="code"/>
                     <newline/>
-
                 </search>
             </field>
         </record>
@@ -54,7 +53,7 @@
                         <group>
                             <group>
                                 <field name="name" required="1"/>
-                                <field name="old_id"/>
+                                <!-- <field name="old_id"/> -->
                             </group>
                             <group>
                                 <field name="code" required="1"/>
@@ -71,7 +70,17 @@
                                 </field>
                             </page>
                             <page name="role" string="Faculty Role">
-                                <field name="role_ids" options="{'no_open': True}"/>
+                                <field name="role_ids" readonly="1"
+                                       options="{'no_open': True}">
+                                    <tree>
+                                        <field name="employee_id"/>
+                                        <field name="subject_ids" widget="many2many_tags"/>
+                                        <field name="topic_ids" widget="many2many_tags"/>
+                                        <field name="subtopic_ids" widget="many2many_tags"/>
+                                        <field name="create_access"/>
+                                        <field name="review_access"/>
+                                    </tree>
+                                </field>
                             </page>
                         </notebook>
                     </sheet>
@@ -86,6 +95,8 @@
                 <search string="Employee Roles">
                     <field name="name"/>
                     <field name="code"/>
+                    <filter name="archived" string="Archived"
+                            domain="[('active', '=', False)]"/>
                     <newline/>
                 </search>
             </field>
@@ -100,7 +111,7 @@
                     <field name="sequence" widget="handle"/>
                     <field name="code"/>
                     <field name="name"/>
-                    <field name="old_id"/>
+                    <!-- <field name="old_id"/> -->
                     <field name="subject_id" options="{'no_open': True}"/>
                     <field name="sub_topic_count"/>
                 </tree>
@@ -116,7 +127,7 @@
                             <group>
                                 <field name="name" required="1"/>
                                 <field name="code" required="1"/>
-                                <field name="old_id"/>
+                                <!-- <field name="old_id"/> -->
                             </group>
                             <group>
                                 <field name="subject_id"
@@ -130,7 +141,7 @@
                                         <field name="sequence" widget="handle"/>
                                         <field name="code" required="1"/>
                                         <field name="name" required="1"/>
-                                        <field name="old_id"/>
+                                        <!-- <field name="old_id"/> -->
                                     </tree>
                                 </field>
                             </page>
@@ -149,6 +160,8 @@
                     <field name="name"/>
                     <field name="code"/>
                     <field name="subject_id" options="{'no_open': True}"/>
+                    <filter name="archived" string="Archived"
+                            domain="[('active', '=', False)]"/>
                     <newline/>
                     <group expand="0" string="Group By...">
                         <filter name="subject_id" string="Subjects" domain="[]" context="{'group_by':'subject_id'}"/>
@@ -186,6 +199,8 @@
                     <field name="code"/>
                     <field name="subject_id" options="{'no_open': True}"/>
                     <field name="topic_id" options="{'no_open': True}"/>
+                    <filter name="archived" string="Archived"
+                            domain="[('active', '=', False)]"/>
                     <newline/>
                     <group expand="0" string="Group By...">
                         <filter name="subject_id" string="Subjects" domain="[]" context="{'group_by':'subject_id'}"/>
@@ -249,7 +264,7 @@
                     <field name="sequence" widget="handle"/>
                     <field name="code" required="1"/>
                     <field name="name" required="1"/>
-                    <field name="old_id"/>
+                    <!-- <field name="old_id"/> -->
                     <field name="is_theory"/>
                     <field name="description"/>
                 </tree>
@@ -263,8 +278,15 @@
             <search string="Questions Type">
                 <field name="name"/>
                 <field name="code"/>
+                <filter name="theory" string="Marked as Theory / Descriptive"
+                        domain="[('is_theory', '=', True)]"/>
+                <filter name="archived" string="Archived"
+                        domain="[('active', '=', False)]"/>
                 <newline/>
-
+                <group expand="0" string="Group By...">
+                    <filter name="group_theory" string="Theory / Descriptive"
+                            domain="[]" context="{'group_by': 'is_theory'}"/>
+                </group>
             </search>
         </field>
     </record>
@@ -279,7 +301,7 @@
                 <tree editable="bottom">
                     <field name="sequence" widget="handle"/>
                     <field name="name" required="1"/>
-                    <field name="old_id"/>
+                    <!-- <field name="old_id"/> -->
                     <field name="description"/>
                 </tree>
             </field>
@@ -291,8 +313,9 @@
         <field name="arch" type="xml">
             <search string="CBT Questions Skill">
                 <field name="name"/>
+                <filter name="archived" string="Archived"
+                        domain="[('active', '=', False)]"/>
                 <newline/>
-
             </search>
         </field>
     </record>
@@ -308,7 +331,7 @@
                     <field name="sequence" widget="handle"/>
                     <field name="code" required="1"/>
                     <field name="name" required="1"/>
-                    <field name="old_id"/>
+                    <!-- <field name="old_id"/> -->
                     <field name="description"/>
                 </tree>
             </field>
@@ -322,8 +345,9 @@
             <search string="Questions Difficulty Level">
                 <field name="name"/>
                 <field name="code"/>
+                <filter name="archived" string="Archived"
+                        domain="[('active', '=', False)]"/>
                 <newline/>
-
             </search>
         </field>
     </record>
@@ -350,6 +374,8 @@
                 <search string="Questions Time">
                     <field name="name"/>
                     <field name="code"/>
+                    <filter name="archived" string="Archived"
+                            domain="[('active', '=', False)]"/>
                     <newline/>
                 </search>
             </field>
@@ -376,6 +402,8 @@
             <search string="CBT Test Type">
                 <field name="name"/>
                 <field name="code"/>
+                <filter name="archived" string="Archived"
+                        domain="[('active', '=', False)]"/>
                 <newline/>
             </search>
         </field>
@@ -403,6 +431,8 @@
             <search string="CBT Test">
                 <field name="name"/>
                 <field name="code"/>
+                <filter name="archived" string="Archived"
+                        domain="[('active', '=', False)]"/>
                 <newline/>
             </search>
         </field>
@@ -527,9 +557,10 @@
                     <field name="subject_id" options="{'no_open': True}"/>
                     <field name="topic_id" options="{'no_open': True}"/>
                     <field name="stopic_id" options="{'no_open': True}"/>
-                    <field name="old_id" optional="hide"/>
+                    <!-- <field name="old_id" optional="hide"/> -->
                     <field name="difficulty_level_id" options="{'no_open': True}"/>
                     <field name="type_id" options="{'no_open': True}"/>
+                    <field name="question" widget="html"/>
                     <field name="is_reserve" optional="show"/>
                     <field name="is_suspended" optional="show"/>
                     <field name="state"/>
@@ -544,6 +575,8 @@
                     <header>
                         <field name="can_submit" invisible="1"/>
                         <field name="can_suspend" invisible="1"/>
+                        <field name="can_review" invisible="1"/>
+                        <field name="is_reviewer" invisible="1"/>
                         <button name="action_submit" string="Submit" type="object" class="btn-primary"
                                 invisible="not can_submit"/>
                         <button name="action_submit_all" string="Submit All Questions" type="object"
@@ -559,24 +592,30 @@
                             <group>
                                 <field name="subject_id" options="{'no_open': True}"/>
                                 <field name="topic_id"
-                                       domain="[('subject_id', '=', subject_id)]" options="{'no_open': True}"/>
+                                       domain="[('subject_id', '=', subject_id)]"
+                                       options="{'no_open': True}"
+                                       readonly="state != 'draft'"/>
                                 <field name="stopic_id"
-                                       domain="[('topic_id', '=', topic_id)]" options="{'no_open': True}"/>
-                                <field name="old_id"/>
+                                       domain="[('topic_id', '=', topic_id)]"
+                                       options="{'no_open': True}"
+                                       readonly="state != 'draft'"/>
+                                <!-- <field name="old_id"/> -->
                             </group>
                             <group>
                                 <field name="type_id" options="{'no_open': True}"/>
                                 <field name="skill_id" options="{'no_open': True}"/>
                                 <field name="difficulty_level_id" options="{'no_open': True}"/>
-                                <field name="time_id" options="{'no_open': True}"/>
-                                <field name="is_reserve"/>
+                                <!-- Question time is optional and temporarily
+                                     hidden from the question form. -->
+                                <!-- <field name="time_id" options="{'no_open': True}"/> -->
+                                <field name="is_reserve" readonly="state != 'draft' and not can_review"/>
                             </group>
                         </group>
                         <group>
-                            <field name="question" widget="html"/>
+                            <field name="question" widget="html" readonly="state != 'draft'"/>
                         </group>
                         <group>
-                            <field name="reviewer_remarks" readonly="1"/>
+                            <field name="reviewer_remarks" readonly="state == 'draft' or not is_reviewer"/>
                         </group>
                         <notebook>
                             <page name="Options" string="Options"
@@ -586,28 +625,36 @@
                                            readonly="state != 'draft'"/>
                                 </group>
                                 <group>
-                                    <field name="ans1_correct"/>
+                                    <field name="ans1_correct" readonly="state != 'draft'"/>
                                     <field name="ans1"
-                                           required="not is_theory"/>
+                                           required="not is_theory"
+                                           readonly="state != 'draft'"/>
 
-                                    <field name="ans2_correct"/>
+                                    <field name="ans2_correct" readonly="state != 'draft'"/>
                                     <field name="ans2"
-                                           required="not is_theory"/>
+                                           required="not is_theory"
+                                           readonly="state != 'draft'"/>
 
                                     <field name="ans3_correct"
-                                           invisible="option_quantity == '2'"/>
+                                           invisible="option_quantity == '2'"
+                                           readonly="state != 'draft'"/>
                                     <field name="ans3"
-                                           invisible="option_quantity == '2'"/>
+                                           invisible="option_quantity == '2'"
+                                           readonly="state != 'draft'"/>
 
                                     <field name="ans4_correct"
-                                           invisible="option_quantity in ['2', '3']"/>
+                                           invisible="option_quantity in ['2', '3']"
+                                           readonly="state != 'draft'"/>
                                     <field name="ans4"
-                                           invisible="option_quantity in ['2', '3']"/>
+                                           invisible="option_quantity in ['2', '3']"
+                                           readonly="state != 'draft'"/>
 
                                     <field name="ans5_correct"
-                                           invisible="option_quantity in ['2', '3', '4']"/>
+                                           invisible="option_quantity in ['2', '3', '4']"
+                                           readonly="state != 'draft'"/>
                                     <field name="ans5"
-                                           invisible="option_quantity in ['2', '3', '4']"/>
+                                           invisible="option_quantity in ['2', '3', '4']"
+                                           readonly="state != 'draft'"/>
 
                                     <field name="ans6_correct"
                                            invisible="option_quantity in ['2', '3', '4', '5']"/>
@@ -732,7 +779,7 @@
                             domain="[('is_reserve', '=', False)]"/>
                     <filter name="suspended_questions" string="Suspended / Dormant"
                             domain="[('is_suspended', '=', True)]"/>
-                    <filter name="available_questions" string="Available"
+                    <filter name="available_questions" string="Not Suspended"
                             domain="[('is_suspended', '=', False)]"/>
                     <newline/>
                     <group expand="0" string="Group By...">
@@ -871,9 +918,9 @@
         </record>
 
 
-        <menuitem name="Entry Test" id="cbt_menu_root"/>
-        <menuitem name="Configure Users" id="cbt_menu_1" parent="cbt_menu_root" groups="cbt.group_cbt_admin"/>
-        <menuitem name="Employee Setup" id="cbt_employee_root" parent="cbt_menu_1"/>
+        <menuitem name="Entry Test" id="cbt_menu_root" groups="base.group_user,cbt.group_cbt_admin,cbt.group_cbt_managed,cbt.group_cbt_faculty,cbt.group_cbt_creator,cbt.group_cbt_reviewer"/>
+        <!-- <menuitem name="Configure Users" id="cbt_menu_1" parent="cbt_menu_root" groups="cbt.group_cbt_admin"/>
+        <menuitem name="Employee Setup" id="cbt_employee_root" parent="cbt_menu_1"/> -->
 
 
         <menuitem name="Configure Exams" id="cbt_exams" parent="cbt_menu_root" groups="cbt.group_cbt_admin"/>
@@ -924,12 +971,14 @@
         <menuitem
                 name="Configure Question Bank"
                 id="cbt_question_bank"
-                parent="cbt_menu_root"/>
+                parent="cbt_menu_root"
+                groups="cbt.group_cbt_faculty,cbt.group_cbt_creator,cbt.group_cbt_reviewer,cbt.group_cbt_admin,cbt.group_cbt_managed"/>
 
         <menuitem
                 name="Question Attributes"
                 id="cbt_qas"
-                parent="cbt_question_bank"/>
+                parent="cbt_question_bank"
+                groups="cbt.group_cbt_faculty,cbt.group_cbt_creator,cbt.group_cbt_reviewer,cbt.group_cbt_admin,cbt.group_cbt_managed"/>
 
         <menuitem
                 name="Question Types"
@@ -952,12 +1001,12 @@
                 action="cbt_question_difficulty_level_action"
                 groups="cbt.group_cbt_admin"/>
 
-        <menuitem
+        <!--<menuitem
                 name="Question Timings"
                 id="cbt_question_time_menu"
                 parent="cbt_qas"
                 action="cbt_question_time_action"
-                groups="cbt.group_cbt_admin"/>
+                groups="cbt.group_cbt_admin"/>-->
 
         <menuitem name="Create Question" id="cbt_mcqs" parent="cbt_qas"
                   action="cbt_mcqs_setupaction_window"

@@ -2,7 +2,7 @@
 from odoo import fields, models, _
 from odoo.exceptions import UserError
 
-from odoo.addons.cbt.models.allocation_xlsx import excel_password_prompt_action
+from ..models.allocation_xlsx import excel_password_prompt_action
 
 
 class PrepareResultWizard(models.TransientModel):
@@ -15,7 +15,7 @@ class PrepareResultWizard(models.TransientModel):
 
     def prepare_result(self):
         self.ensure_one()
-        if not self.env.user.has_group('cbt.group_cbt_admin'):
+        if not self.env.user.has_group('cbt_portal.group_cbt_admin'):
             raise UserError(_('Only CBT administrators may export test results.'))
         return excel_password_prompt_action(
             self.batch_id, '_action_export_results', 'export',

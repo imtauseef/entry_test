@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-import base64
 from datetime import datetime
 from unittest import mock
 
 from odoo import fields
-from odoo.addons.cbt.models.allocation_xlsx import load_allocation_xlsx
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
 
@@ -77,6 +75,28 @@ class TestUniquePaperGeneration(TransactionCase):
             criteria.write({'unique_questions': True})
         criteria.invalidate_recordset()
         return criteria
+
+    def _criteria_with_counts(self, total, section_count=5,
+                              difficulty_counts=None, topic_counts=None):
+        difficulty_counts = difficulty_counts or [section_count]
+        section = {
+            'subjects': self.subject.id,
+            'no_questions': str(section_count),
+            'difficulty_rules': [(0, 0, {
+                'difficulty_level_id': self.difficulty.id,
+                'no_questions': str(count),
+            }) for count in difficulty_counts],
+        }
+        if topic_counts is not None:
+            section['topic_rules'] = [(0, 0, {
+                'topic_id': self.topic.id,
+                'no_questions': str(count),
+            }) for count in topic_counts]
+        return self.env['cbt.paper.criteria'].create({
+            'name': 'Count Validation Criteria',
+            'total_questions': str(total),
+            'rules_ids': [(0, 0, section)],
+        })
 
     def _create_generator(self, criteria, enable_repeat=False,
                           configure_paper=False, total_paper=0):
@@ -173,6 +193,47 @@ class TestUniquePaperGeneration(TransactionCase):
         self.assertIn('up to 2 paper(s)', action['params']['message'])
         self.assertIn('Maximum unique papers: 2', action['params']['message'])
 
+    def test_criteria_total_must_match_sum_of_sections(self):
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self._criteria_with_counts(total=6, section_count=5)
+
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self.env['cbt.paper.criteria'].create({
+                'name': 'Count Validation Criteria',
+                'total_questions': '5',
+                'rules_ids': [(0, 0, {
+                    'subjects': self.subject.id,
+                    'no_questions': '3',
+                    'difficulty_rules': [(0, 0, {
+                        'difficulty_level_id': self.difficulty.id,
+                        'no_questions': '3',
+                    })],
+                }) for _ in range(2)],
+            })
+
+    def test_difficulty_rule_total_cannot_exceed_section(self):
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self._criteria_with_counts(
+                total=5, section_count=5, difficulty_counts=[3, 3])
+
+    def test_topic_rule_total_cannot_exceed_section(self):
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            self._criteria_with_counts(
+                total=5, section_count=5, topic_counts=[3, 3])
+
+    def test_count_updates_are_validated(self):
+        criteria = self._criteria_with_counts(
+            total=5, section_count=5, difficulty_counts=[4],
+            topic_counts=[2])
+        section = criteria.rules_ids
+        difficulty = section.difficulty_rules
+
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            difficulty.write({'no_questions': '6'})
+
+        with self.assertRaises(ValidationError), self.cr.savepoint():
+            criteria.write({'total_questions': '6'})
+
     def test_unique_batch_is_disjoint(self):
         for _ in range(6):
             self._create_question()
@@ -261,28 +322,29 @@ class TestUniquePaperGeneration(TransactionCase):
             }
             for index in range(3)
         ])
-        result_action = {'type': 'test'}
-        with mock.patch.object(
-                type(generator),
-                'action_open_allocation_export_password_prompt',
-                return_value=result_action):
-            result = generator.generate_multi_paper_student()
-            fourth_participant = self.env['cbt.participant'].create({
-                'name': 'Allocation Student 3',
-                'login': 'allocation-student-3',
-                'password': 'test-password',
-                'cid': 3,
-                'program': program.id,
-                'slot_id': self.slot.id,
-            })
-            second_result = generator.generate_multi_paper_student()
+        result = generator.generate_multi_paper_student()
+        fourth_participant = self.env['cbt.participant'].create({
+            'name': 'Allocation Student 3',
+            'login': 'allocation-student-3',
+            'password': 'test-password',
+            'cid': 3,
+            'program': program.id,
+            'slot_id': self.slot.id,
+        })
+        second_result = generator.generate_multi_paper_student()
 
         allocations = self.env['cbt.student.paper'].search([
             ('main_paper_id.generator_id', '=', generator.id),
             ('participant_id', 'in', (participants | fourth_participant).ids),
         ])
-        self.assertEqual(result, result_action)
-        self.assertEqual(second_result, result_action)
+        self.assertEqual(result, {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        })
+        self.assertEqual(second_result, {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        })
         self.assertEqual(len(allocations), len(participants) + 1)
         self.assertTrue(
             set(allocations.mapped('main_paper_id').ids).issubset(
@@ -358,46 +420,32 @@ class TestUniquePaperGeneration(TransactionCase):
         generator = self._create_generator(criteria, total_paper=2)
         generator.papers_generation()
 
-        for index in range(3):
-            self.env['cbt.participant'].create({
+        participants = self.env['cbt.participant'].create([
+            {
                 'name': 'Student %s' % index,
                 'login': 'student%s' % index,
                 'password': 'test-password',
                 'cid': index,
                 'program': program.id,
                 'slot_id': self.slot.id,
-            })
-        # Allocation and workbook generation remain in the test transaction.
+            }
+            for index in range(3)
+        ])
+        # Allocation runs inside the test transaction.
         export_time = datetime.combine(
             fields.Date.to_date(self.slot.date),
             datetime.min.time()).replace(hour=9, minute=30)
         with mock.patch('odoo.sql_db.Cursor.commit', return_value=None), \
                 mock.patch('odoo.fields.Datetime.now', return_value=export_time):
             result = generator.with_context(tz='UTC').generate_multi_paper_student()
-        self.assertEqual(result['type'], 'ir.actions.act_url')
-        attachment = self.env['ir.attachment'].search([
-            ('res_model', '=', 'cbt.paper.generator'),
-            ('res_id', '=', generator.id),
-        ], order='id desc', limit=1)
-        self.assertTrue(attachment)
-        workbook = load_allocation_xlsx(base64.b64decode(attachment.datas))
-        manifest_rows = list(workbook['Manifest'].iter_rows())
-        warning = next(
-            row[1] for row in manifest_rows
-            if row and row[0] == 'allocation_warning')
-        self.assertEqual(warning[:5], 'There')
-        participant_rows = list(workbook['Participants'].iter_rows())
-        self.assertEqual(len(participant_rows), 4)
-        self.assertIn('password', participant_rows[0])
-        self.assertTrue(all(
-            row[3] == 'test-password' for row in participant_rows[1:]))
-        self.assertEqual(
-            workbook['Papers'].max_row,
-            4,
-            'All three participant allocations should be included.')
-        self.assertEqual(
-            list(workbook['Papers'].iter_rows())[0][3:5],
-            ('login', 'name'))
-        self.assertEqual(workbook['Questions'].max_row, 7)
-        self.assertIn('source_question_id', list(
-            workbook['Questions'].iter_rows())[0])
+        self.assertEqual(result['type'], 'ir.actions.client')
+        self.assertEqual(result['tag'], 'display_notification')
+        self.assertIn('Some candidates will share', result['params']['message'])
+        allocations = self.env['cbt.student.paper'].search([
+            ('main_paper_id.generator_id', '=', generator.id),
+            ('participant_id', 'in', participants.ids),
+        ])
+        self.assertEqual(len(allocations), 3)
+        self.assertTrue(
+            set(allocations.mapped('main_paper_id').ids).issubset(
+                set(generator.papers.ids)))

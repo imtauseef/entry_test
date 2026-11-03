@@ -32,6 +32,6 @@
         name="Import Allocation Workbook"
         parent="menu_cbt_portal_main"
         action="cbt_paper_import_wizard_action"
-        groups="cbt.group_cbt_admin"
+        groups="cbt_portal.group_cbt_admin"
         sequence="25"/>
 </odoo>

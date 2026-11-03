@@ -3,7 +3,7 @@
     <template id="cbt_card-stats" name="Card Stats">
         <div id="card-stats" class="cbt-stats pt-0">
             <div class="row">
-                <div class="col s12 m6 l3">
+                <div class="col s12 m6 l6 cbt-stat-column">
                     <div class="card cbt-stat-card gradient-45deg-light-blue-cyan white-text">
                         <div class="cbt-stat-inner">
                             <img src="/cbt_portal/static/img/avatar.jpeg" alt="Candidate" class="cbt-stat-avatar"/>
@@ -14,7 +14,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col s12 m6 l4">
+                <div class="col s12 m6 l6 cbt-stat-column">
                     <div class="card cbt-stat-card gradient-45deg-indigo-light-blue white-text">
                         <div class="cbt-stat-inner">
                             <img src="/cbt_portal/static/img/nust.png" alt="NUST" class="cbt-stat-avatar"/>
@@ -25,6 +25,8 @@
                         </div>
                     </div>
                 </div>
+                <!-- Timer card hidden while test timing is managed by the administrator. -->
+                <!--
                 <div class="col s12 m8 l5">
                     <div class="card cbt-stat-card gradient-45deg-green-teal white-text">
                         <div class="cbt-stat-inner" name="start_time_widget">
@@ -47,6 +49,10 @@
                         <input type="hidden" id="paper_id" t-att-value="paper.id"/>
                     </div>
                 </div>
+                -->
+                <input type="hidden" id="timer" t-att-value="'%02d:%02d' % (divmod(paper.test_time * 60, 60))"/>
+                <input type="hidden" id="duration" t-att-value="paper.test_duration"/>
+                <input type="hidden" id="paper_id" t-att-value="paper.id"/>
             </div>
         </div>
     </template>

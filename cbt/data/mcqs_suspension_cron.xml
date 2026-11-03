@@ -6,11 +6,13 @@
             <field name="model_id" ref="model_cbt_mcqs"/>
             <field name="state">code</field>
             <field name="code">model._cron_resume_suspended_questions()</field>
-            <field name="interval_number">5</field>
-            <field name="interval_type">minutes</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
             <field name="numbercall">-1</field>
             <field name="doall" eval="False"/>
             <field name="active" eval="True"/>
+            <!-- Run every day at 12:00 AM (midnight) -->
+            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).replace(hour=0, minute=0, second=0)"/>
         </record>
     </data>
 </odoo>

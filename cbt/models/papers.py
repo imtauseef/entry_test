@@ -11,7 +11,9 @@ class CBTPaper(models.Model):
     _description = 'Paper'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    current_user = fields.Many2one('res.users', 'Created By', default=lambda self: self.env.user, readonly="True")
+    current_user = fields.Many2one(
+        'res.users', 'Created By', default=lambda self: self.env.user,
+        readonly=True)
     name = fields.Char(string='Paper Name', tracking=True, required=True)
     generator_id = fields.Many2one('cbt.paper.generator', 'Paper Generation', tracking=True, required=True)
     criteria_id = fields.Many2one(
@@ -260,6 +262,7 @@ class CBTPaperReplacementLog(models.Model):
     _name = 'cbt.paper.replacement.log'
     _description = 'Paper Question Replacement Log'
     _order = 'replace_datetime desc, id desc'
+    _inherit = ['cbt.line.access']
 
     paper_id = fields.Many2one(
         'cbt.paper', 'Paper', required=True, ondelete='cascade', index=True)

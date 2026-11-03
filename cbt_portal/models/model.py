@@ -31,13 +31,6 @@ class CBTPaperExport(models.Model):
     batch_id = fields.Many2one(
         'cbt.paper.export.batch', string='Test Batch',
         index=True, ondelete='restrict', copy=False)
-    participant_id = fields.Many2one(
-        'cbt.participant', string='Portal Participant',
-        index=True, ondelete='restrict', copy=False,
-        help=(
-            'Optional local participant link. Offline imports use the portal '
-            'user and login because admin-server participants are not present here.'
-        ))
     server_id = fields.Integer(string='Server ID')
     user_id = fields.Integer(
         'Portal User ID',
@@ -93,7 +86,7 @@ class CBTPaperExport(models.Model):
 
     def action_start_candidate_test(self):
         self.ensure_one()
-        if not self.env.user.has_group('cbt.group_cbt_admin'):
+        if not self.env.user.has_group('cbt_portal.group_cbt_admin'):
             raise UserError(_('Only CBT administrators may start a candidate paper.'))
         if not self.batch_id:
             raise UserError(_('This candidate paper is not linked to a test batch.'))
@@ -119,7 +112,7 @@ class CBTPaperExport(models.Model):
 
     def action_finish_candidate_test(self):
         self.ensure_one()
-        if not self.env.user.has_group('cbt.group_cbt_admin'):
+        if not self.env.user.has_group('cbt_portal.group_cbt_admin'):
             raise UserError(_('Only CBT administrators may finish a candidate paper.'))
         if not self.batch_id:
             raise UserError(_('This candidate paper is not linked to a test batch.'))
@@ -187,7 +180,7 @@ class CBTPaperLineExport(models.Model):
     option_ids = fields.One2many('cbt.paper.line.option.export', 'question_id', string="Options")
     answer = fields.Integer('Selected Option')
     correct_answer = fields.Char(
-        'Correct Answer', invisible=True, groups='cbt.group_cbt_admin')
+        'Correct Answer', groups='cbt_portal.group_cbt_admin')
     # answer = fields.Many2one('cbt.paper.line.option.export','Selected Option')
     answer_alphabet = fields.Char(string="Answer")
     is_theory = fields.Boolean(string='Theory Question', default=False)

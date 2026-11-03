@@ -169,7 +169,7 @@
                 </div>
             </div>
             <t t-call-assets="cbt_portal.assets_dashboard" t-css="false"/>
-            <script src="/cbt_portal/static/js/paper.js"/>
+            <script src="/cbt_portal/static/js/paper.js?v=3"/>
         </t>
     </template>
     <template id="cbt_paper_review" name="">
